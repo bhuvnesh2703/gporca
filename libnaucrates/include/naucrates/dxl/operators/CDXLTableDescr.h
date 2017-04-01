@@ -83,6 +83,15 @@ namespace gpdxl
 			
 			// serialize to dxl format
 			void SerializeToDXL(CXMLSerializer *pxmlser) const;
+
+			// print driver
+			IOstream &OsPrint
+			(
+			 IOstream &os
+			)
+			const;
+
+			void DbgPrint() const;
 	};
 }
 

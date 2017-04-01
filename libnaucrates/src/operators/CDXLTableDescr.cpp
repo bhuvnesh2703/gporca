@@ -15,6 +15,8 @@
 #include "naucrates/dxl/operators/CDXLTableDescr.h"
 #include "naucrates/dxl/xml/CXMLSerializer.h"
 
+#include "gpos/error/CAutoTrace.h"
+
 using namespace gpos;
 using namespace gpdxl;
 
@@ -233,6 +235,39 @@ CDXLTableDescr::SerializeToDXL
 	pxmlser->CloseElement(CDXLTokens::PstrToken(EdxltokenNamespacePrefix), CDXLTokens::PstrToken(EdxltokenColumns));
 	
 	pxmlser->CloseElement(CDXLTokens::PstrToken(EdxltokenNamespacePrefix), CDXLTokens::PstrToken(EdxltokenTableDescr));
+}
+
+void
+CDXLTableDescr::DbgPrint() const
+{
+	CAutoTrace at(m_pmp);
+	(void) this->OsPrint(at.Os());
+}
+
+IOstream &
+CDXLTableDescr::OsPrint
+(
+	IOstream &os
+	)
+const
+{
+	// recursive, check stack depth
+	GPOS_CHECK_STACK_SIZE;
+	GPOS_CHECK_ABORT;
+	os << "\n<dxl:TableDescriptor Mdid=\"" << Pmdid()->Wsz()
+		<< " TableName=\"" << Pmdname()->Pstr()->Wsz() << "\">" << std::endl;
+
+	os << "  <dxl:Columns> " << std::endl;
+	for (ULONG i = 0; i < m_pdrgdxlcd->UlSafeLength(); i++)
+	{
+		const CDXLColDescr *pdxlcd = (*m_pdrgdxlcd)[i];
+		os << "    ";
+		pdxlcd->OsPrint(os);
+	}
+	os << "  </dxl:Columns> " << std::endl;
+	os << "</dxl:TableDescriptor>" << std::endl;
+
+	return os;
 }
 
 // EOF

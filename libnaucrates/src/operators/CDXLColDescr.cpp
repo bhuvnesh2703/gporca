@@ -14,6 +14,7 @@
 #include "naucrates/dxl/operators/CDXLColDescr.h"
 #include "naucrates/dxl/xml/CXMLSerializer.h"
 #include "naucrates/md/CMDIdGPDB.h"
+#include "gpos/error/CAutoTrace.h"
 
 using namespace gpos;
 using namespace gpdxl;
@@ -184,6 +185,28 @@ CDXLColDescr::SerializeToDXL
 	pxmlser->CloseElement(CDXLTokens::PstrToken(EdxltokenNamespacePrefix), pstrTokenColDescr);
 
 	GPOS_CHECK_ABORT;
+}
+
+// print CDXLColDescr content
+void
+CDXLColDescr::DbgPrint() const
+{
+	CAutoTrace at(m_pmp);
+	(void) this->OsPrint(at.Os());
+}
+
+// print driver
+IOstream &
+CDXLColDescr::OsPrint
+	(
+		IOstream &os
+	)
+const
+{
+	os << "<dxl: Column ColId=\"" << UlID() << "\" " ;
+	os << "Attno=\"" << IAttno() <<"\" ";
+	os << "TypeMdid=\"" << PmdidType()->Wsz() << "\"/>" << std::endl;
+	return os;
 }
 
 // EOF

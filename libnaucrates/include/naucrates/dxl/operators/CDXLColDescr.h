@@ -101,6 +101,16 @@ namespace gpdxl
 			ULONG UlWidth() const;
 			
 			void SerializeToDXL(CXMLSerializer *pxmlser) const;
+
+			// print CDXLColDescr
+			void DbgPrint() const;
+
+			// print driver
+			IOstream &OsPrint
+			(
+				IOstream &os
+			)
+			const;
 	};
 
 }
