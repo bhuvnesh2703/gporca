@@ -5262,8 +5262,10 @@ CTranslatorExprToDXL::PdxlnDML
 	ulAction = pcrAction->UlId();
 
 	CColRef *pcrOid = popDML->PcrTableOid();
-	GPOS_ASSERT(NULL != pcrOid);
-	ulOid = pcrOid->UlId();
+	if (pcrOid != NULL)
+	{
+		ulOid = pcrOid->UlId();
+	}
 
 	CColRef *pcrCtid = popDML->PcrCtid();
 	CColRef *pcrSegmentId = popDML->PcrSegmentId();
