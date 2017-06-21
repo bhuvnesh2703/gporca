@@ -1320,7 +1320,8 @@ CTranslatorExprToDXLUtils::PdxlnPrLPartitionSelector
 	BOOL fUseChildProjList,
 	CDXLNode *pdxlnPrLChild,
 	CColRef *pcrOid,
-	ULONG ulPartLevels
+	ULONG ulPartLevels,
+	BOOL fGeneratePartOid
 	)
 {
 	GPOS_ASSERT_IMP(fUseChildProjList, NULL != pdxlnPrLChild);
@@ -1335,7 +1336,7 @@ CTranslatorExprToDXLUtils::PdxlnPrLPartitionSelector
 		pdxlnPrL = GPOS_NEW(pmp) CDXLNode(pmp, GPOS_NEW(pmp) CDXLScalarProjList(pmp));
 	}
 
-	if (GPOS_FTRACE(EopttraceDisableSortForDMLOnParquet))
+	if (fGeneratePartOid)
 	{
 		// add to it the Oid column
 		if (NULL == pcrOid)
