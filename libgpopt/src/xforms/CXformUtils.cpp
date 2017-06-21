@@ -1296,12 +1296,19 @@ CXformUtils::PexprLogicalDMLOverProject
 	CColRef *pcrAction = NULL;
 	CColRef *pcrOid = NULL;
 
+	BOOL fInsertSortOnParquet = (!GPOS_FTRACE(EopttraceDisableSortForDMLOnParquet) && ptabdesc->Erelstorage() == IMDRelation::ErelstorageAppendOnlyParquet);
+
+	COptimizerConfig *poconf = COptCtxt::PoctxtFromTLS()->Poconf();
+	BOOL fInsertSortOnRows = (ptabdesc->Erelstorage() == IMDRelation::ErelstorageAppendOnlyRows) && (poconf->Phint()->UlMinNumOfPartsToRequireSortOnInsert() <= ptabdesc->UlPartitions());
+
+	BOOL fGeneratePartOid = fInsertSortOnParquet || fInsertSortOnRows;
+
 	if (ptabdesc->FPartitioned())
 	{
 		// generate a PartitionSelector node which generates OIDs, then add a project
 		// on top of that to add the action column
 		CExpression *pexprSelector = PexprLogicalPartitionSelector(pmp, ptabdesc, pdrgpcr, pexprChild);
-		if (GPOS_FTRACE(EopttraceDisableSortForDMLOnParquet))
+		if (fGeneratePartOid)
 		{
 			pcrOid = CLogicalPartitionSelector::PopConvert(pexprSelector->Pop())->PcrOid();
 		}
@@ -1315,7 +1322,7 @@ CXformUtils::PexprLogicalDMLOverProject
 		// generate one project node with two new columns: action, oid (based on the traceflag)
 		pdrgpexprProjected->Append(CUtils::PexprScalarConstInt4(pmp, iVal));
 
-		if (GPOS_FTRACE(EopttraceDisableSortForDMLOnParquet))
+		if (fGeneratePartOid)
 		{
 			OID oidTable = CMDIdGPDB::PmdidConvert(pmdidRel)->OidObjectId();
 			pdrgpexprProjected->Append(CUtils::PexprScalarConstOid(pmp, oidTable));
@@ -4874,6 +4881,5 @@ CXformUtils::PexprGbAggOnCTEConsumer2Join
 
 	return pexprJoin;
 }
-
 
 // EOF
