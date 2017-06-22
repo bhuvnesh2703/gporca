@@ -158,6 +158,12 @@ CScalarIdent::FCastedScId
 		{
 			return true;
 		}
+		// child of a cast can be a func expr so recurse
+		if (COperator::EopScalarFunc == (*pexpr)[0]->Pop()->Eopid())
+		{
+			CExpression *pChildExpr = (*pexpr)[0];
+			return CScalarIdent::FCastedScId((*pChildExpr)[0]);
+		}
 	}
 
 	return false;
