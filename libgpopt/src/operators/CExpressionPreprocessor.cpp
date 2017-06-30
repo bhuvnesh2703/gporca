@@ -2206,6 +2206,59 @@ CExpressionPreprocessor::PexprPruneProjListProjectOrGbAgg
 	return pexprResult;
 }
 
+// reorder the child for scalar comparision to ensure that left child is a scalar ident and right child is a scalar const if not
+CExpression *
+CExpressionPreprocessor::PexprReorderScalarCmpChildren
+	(
+	IMemoryPool *pmp,
+	CExpression *pexpr
+	)
+{
+	GPOS_ASSERT(NULL != pexpr);
+
+	COperator *pop = pexpr->Pop();
+	if (COperator::EopScalarCmp == pop->Eopid())
+	{
+		GPOS_ASSERT(2 == pexpr->UlArity());
+		CExpression *pexprLeft = (*pexpr)[0];
+		CExpression *pexprRight = (*pexpr)[1];
+		if (COperator::EopScalarConst == pexprLeft->Pop()->Eopid() && COperator::EopScalarIdent == pexprRight->Pop()->Eopid())
+		{
+			CScalarCmp *popScalarCmp = CScalarCmp::PopConvert(pop);
+			CMDAccessor *pmda = COptCtxt::PoctxtFromTLS()->Pmda();
+			const IMDScalarOp *pmdScalarCmpOp = pmda->Pmdscop(popScalarCmp->PmdidOp());
+			// get the reversed comparision operator metadata object id
+			IMDId *pmdidScalarCmpOpReverse = pmdScalarCmpOp->PmdidOpCommute();
+			
+			if (pmdidScalarCmpOpReverse && pmdidScalarCmpOpReverse->FValid())
+			{
+				// build new expression after switching arguments and using commutative comparison operator
+				pexprRight->AddRef();
+				pexprLeft->AddRef();
+				pmdidScalarCmpOpReverse->AddRef();
+				
+				const CWStringConst *pstr = pmda->Pmdscop(pmdidScalarCmpOpReverse)->Mdname().Pstr();
+				CExpression *pexprReorderedScalarCmpChildren = CUtils::PexprScalarCmp(pmp, pexprRight, pexprLeft, *pstr, pmdidScalarCmpOpReverse);
+				return pexprReorderedScalarCmpChildren;
+			}
+		}
+	}
+
+	// process children
+	DrgPexpr *pdrgpexpr = GPOS_NEW(pmp) DrgPexpr(pmp);
+	const ULONG ulChildren = pexpr->UlArity();
+
+	for (ULONG ul = 0; ul < ulChildren; ul++)
+	{
+		CExpression *pexprChild = PexprReorderScalarCmpChildren(pmp, (*pexpr)[ul]);
+		pdrgpexpr->Append(pexprChild);
+	}
+
+	pop->AddRef();
+	return GPOS_NEW(pmp) CExpression(pmp, pop, pdrgpexpr);
+}
+
+
 //---------------------------------------------------------------------------
 //	@function:
 //		CExpressionPreprocessor::PexprPreprocess
@@ -2353,7 +2406,12 @@ CExpressionPreprocessor::PexprPreprocess
 	GPOS_CHECK_ABORT;
 	pexprCollapsedProjects->Release();
 
-	return pexprSubquery;
+	// (24) reorder the children of scalar cmp operator to ensure that left child is scalar ident and right child is scalar const
+	CExpression *pexrReorderedScalarCmpChildren = PexprReorderScalarCmpChildren(pmp, pexprSubquery);
+	GPOS_CHECK_ABORT;
+	pexprSubquery->Release();
+
+	return pexrReorderedScalarCmpChildren;
 }
 
 // EOF
