@@ -2217,29 +2217,52 @@ CExpressionPreprocessor::PexprReorderScalarCmpChildren
 	GPOS_ASSERT(NULL != pexpr);
 
 	COperator *pop = pexpr->Pop();
-	if (COperator::EopScalarCmp == pop->Eopid())
+	if (COperator::EopScalarCmp == pop->Eopid() || COperator::EopScalarIsDistinctFrom == pop->Eopid())
 	{
 		GPOS_ASSERT(2 == pexpr->UlArity());
 		CExpression *pexprLeft = (*pexpr)[0];
 		CExpression *pexprRight = (*pexpr)[1];
+
 		if (COperator::EopScalarConst == pexprLeft->Pop()->Eopid() && COperator::EopScalarIdent == pexprRight->Pop()->Eopid())
 		{
-			CScalarCmp *popScalarCmp = CScalarCmp::PopConvert(pop);
 			CMDAccessor *pmda = COptCtxt::PoctxtFromTLS()->Pmda();
-			const IMDScalarOp *pmdScalarCmpOp = pmda->Pmdscop(popScalarCmp->PmdidOp());
-			// get the reversed comparision operator metadata object id
-			IMDId *pmdidScalarCmpOpReverse = pmdScalarCmpOp->PmdidOpCommute();
-			
-			if (pmdidScalarCmpOpReverse && pmdidScalarCmpOpReverse->FValid())
+			if (COperator::EopScalarCmp == pop->Eopid())
 			{
-				// build new expression after switching arguments and using commutative comparison operator
-				pexprRight->AddRef();
-				pexprLeft->AddRef();
-				pmdidScalarCmpOpReverse->AddRef();
-				
-				const CWStringConst *pstr = pmda->Pmdscop(pmdidScalarCmpOpReverse)->Mdname().Pstr();
-				CExpression *pexprReorderedScalarCmpChildren = CUtils::PexprScalarCmp(pmp, pexprRight, pexprLeft, *pstr, pmdidScalarCmpOpReverse);
-				return pexprReorderedScalarCmpChildren;
+				CScalarCmp *popScalarCmp = CScalarCmp::PopConvert(pop);
+				const IMDScalarOp *pmdScalarCmpOp = pmda->Pmdscop(popScalarCmp->PmdidOp());
+				// get the reversed comparision operator metadata object id
+				IMDId *pmdidScalarCmpOpReverse = pmdScalarCmpOp->PmdidOpCommute();
+
+				if (pmdidScalarCmpOpReverse && pmdidScalarCmpOpReverse->FValid())
+				{
+					// build new expression after switching arguments and using commutative comparison operator
+					pexprRight->AddRef();
+					pexprLeft->AddRef();
+					pmdidScalarCmpOpReverse->AddRef();
+					const CWStringConst *pstr = pmda->Pmdscop(pmdidScalarCmpOpReverse)->Mdname().Pstr();
+					CExpression *pexprReorderedScalarCmpChildren = CUtils::PexprScalarCmp(pmp, pexprRight, pexprLeft, *pstr, pmdidScalarCmpOpReverse);
+					return pexprReorderedScalarCmpChildren;
+				}
+			}
+			else
+			{
+				GPOS_ASSERT(COperator::EopScalarIsDistinctFrom == pop->Eopid());
+				CScalarIsDistinctFrom *popScalarIsDistinctFrom = CScalarIsDistinctFrom::PopConvert(pop);
+				const IMDScalarOp *popScalarIsDistinctFromOp = pmda->Pmdscop(popScalarIsDistinctFrom->PmdidOp());
+				// get the reversed comparision operator metadata object id
+				IMDId *popScalarIsDistinctFromOpReverse = popScalarIsDistinctFromOp->PmdidOpCommute();
+
+				if (popScalarIsDistinctFromOpReverse && popScalarIsDistinctFromOpReverse->FValid())
+				{
+					// build new expression after switching arguments and using commutative comparison operator
+					pexprRight->AddRef();
+					pexprLeft->AddRef();
+					popScalarIsDistinctFromOpReverse->AddRef();
+					const CWStringConst *pstr = GPOS_NEW(pmp) CWStringConst(pmp, (pmda->Pmdscop(popScalarIsDistinctFromOpReverse)->Mdname().Pstr())->Wsz());
+					CScalarIsDistinctFrom *popScIDF = GPOS_NEW(pmp) CScalarIsDistinctFrom(pmp, popScalarIsDistinctFromOpReverse, pstr);
+					CExpression *pexprReorderedScalarCmpChildren = GPOS_NEW(pmp) CExpression(pmp, popScIDF, pexprRight, pexprLeft);
+					return pexprReorderedScalarCmpChildren;
+				}
 			}
 		}
 	}
