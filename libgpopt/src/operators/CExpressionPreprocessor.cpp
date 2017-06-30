@@ -2206,6 +2206,7 @@ CExpressionPreprocessor::PexprPruneProjListProjectOrGbAgg
 	return pexprResult;
 }
 
+
 // reorder the child for scalar comparision to ensure that left child is a scalar ident and right child is a scalar const if not
 CExpression *
 CExpressionPreprocessor::PexprReorderScalarCmpChildren
@@ -2217,52 +2218,39 @@ CExpressionPreprocessor::PexprReorderScalarCmpChildren
 	GPOS_ASSERT(NULL != pexpr);
 
 	COperator *pop = pexpr->Pop();
-	if (COperator::EopScalarCmp == pop->Eopid() || COperator::EopScalarIsDistinctFrom == pop->Eopid())
+	if (CUtils::FScalarCmp(pexpr) || CUtils::FScalarIsDistinctFrom(pexpr))
 	{
 		GPOS_ASSERT(2 == pexpr->UlArity());
 		CExpression *pexprLeft = (*pexpr)[0];
 		CExpression *pexprRight = (*pexpr)[1];
 
-		if (COperator::EopScalarConst == pexprLeft->Pop()->Eopid() && COperator::EopScalarIdent == pexprRight->Pop()->Eopid())
+		if (CUtils::FScalarConst(pexprLeft) && CUtils::FScalarIdent(pexprRight))
 		{
 			CMDAccessor *pmda = COptCtxt::PoctxtFromTLS()->Pmda();
-			if (COperator::EopScalarCmp == pop->Eopid())
-			{
-				CScalarCmp *popScalarCmp = CScalarCmp::PopConvert(pop);
-				const IMDScalarOp *pmdScalarCmpOp = pmda->Pmdscop(popScalarCmp->PmdidOp());
-				// get the reversed comparision operator metadata object id
-				IMDId *pmdidScalarCmpOpReverse = pmdScalarCmpOp->PmdidOpCommute();
+			// get imdid of the corresponding commutativity operator from metadata accessor
+			IMDId *pmdidCommutatorOp = CUtils::PmdidCommutatorOp(pop, pmda);
 
-				if (pmdidScalarCmpOpReverse && pmdidScalarCmpOpReverse->FValid())
-				{
-					// build new expression after switching arguments and using commutative comparison operator
-					pexprRight->AddRef();
-					pexprLeft->AddRef();
-					pmdidScalarCmpOpReverse->AddRef();
-					const CWStringConst *pstr = pmda->Pmdscop(pmdidScalarCmpOpReverse)->Mdname().Pstr();
-					CExpression *pexprReorderedScalarCmpChildren = CUtils::PexprScalarCmp(pmp, pexprRight, pexprLeft, *pstr, pmdidScalarCmpOpReverse);
-					return pexprReorderedScalarCmpChildren;
-				}
-			}
-			else
+			// operator imdid may be NULL if there is no corresponding commutativity operator
+			if (NULL != pmdidCommutatorOp && pmdidCommutatorOp->FValid())
 			{
-				GPOS_ASSERT(COperator::EopScalarIsDistinctFrom == pop->Eopid());
-				CScalarIsDistinctFrom *popScalarIsDistinctFrom = CScalarIsDistinctFrom::PopConvert(pop);
-				const IMDScalarOp *popScalarIsDistinctFromOp = pmda->Pmdscop(popScalarIsDistinctFrom->PmdidOp());
-				// get the reversed comparision operator metadata object id
-				IMDId *popScalarIsDistinctFromOpReverse = popScalarIsDistinctFromOp->PmdidOpCommute();
+				// build new expression after switching arguments and new operator
+				const CWStringConst *pstr = GPOS_NEW(pmp) CWStringConst(pmp, (pmda->Pmdscop(pmdidCommutatorOp)->Mdname().Pstr())->Wsz());
+				CScalarCmp *popScalarCmp = NULL;
+				pmdidCommutatorOp->AddRef();
 
-				if (popScalarIsDistinctFromOpReverse && popScalarIsDistinctFromOpReverse->FValid())
+				if (CUtils::FScalarCmp(pexpr))
 				{
-					// build new expression after switching arguments and using commutative comparison operator
-					pexprRight->AddRef();
-					pexprLeft->AddRef();
-					popScalarIsDistinctFromOpReverse->AddRef();
-					const CWStringConst *pstr = GPOS_NEW(pmp) CWStringConst(pmp, (pmda->Pmdscop(popScalarIsDistinctFromOpReverse)->Mdname().Pstr())->Wsz());
-					CScalarIsDistinctFrom *popScIDF = GPOS_NEW(pmp) CScalarIsDistinctFrom(pmp, popScalarIsDistinctFromOpReverse, pstr);
-					CExpression *pexprReorderedScalarCmpChildren = GPOS_NEW(pmp) CExpression(pmp, popScIDF, pexprRight, pexprLeft);
-					return pexprReorderedScalarCmpChildren;
+					popScalarCmp = GPOS_NEW(pmp) CScalarCmp(pmp, pmdidCommutatorOp, pstr, CUtils::Ecmpt(pmdidCommutatorOp));
 				}
+				else
+				{
+					popScalarCmp = GPOS_NEW(pmp) CScalarIsDistinctFrom(pmp, pmdidCommutatorOp, pstr);
+				}
+
+				GPOS_ASSERT(NULL != popScalarCmp);
+				pexprLeft->AddRef();
+				pexprRight->AddRef();
+				return GPOS_NEW(pmp) CExpression(pmp, popScalarCmp, pexprRight, pexprLeft);
 			}
 		}
 	}

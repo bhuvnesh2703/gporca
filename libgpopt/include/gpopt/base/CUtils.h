@@ -1075,6 +1075,16 @@ namespace gpopt
 			// get execution locality
 			static
 			EExecLocalityType ExecLocalityType(CDistributionSpec *pds);
+
+			// get imdid of the corresponding commutativity operator from metadata accessor,
+			// caller must ensure the position of the arguments while building expressions
+			// as postgres uses oprcom in catalog table as commutativity operator info but
+			// it is not commutativity in general.
+			static
+			IMDId *PmdidCommutatorOp(COperator *pop, CMDAccessor *pmda);
+
+			static
+			BOOL FScalarIsDistinctFrom(CExpression *pexpr);
 	}; // class CUtils
 
 	// hash set from expressions
