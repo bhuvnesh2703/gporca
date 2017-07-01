@@ -6448,23 +6448,6 @@ CUtils::ExecLocalityType
 	return eelt;
 }
 
-// get imdid of the corresponding commutativity operator from metadata accessor
-IMDId *
-CUtils::PmdidCommutatorOp
-	(
-		COperator *pop,
-		CMDAccessor *pmda
-	)
-{
-	GPOS_ASSERT(COperator::EopScalarCmp == pop->Eopid() || COperator::EopScalarIsDistinctFrom == pop->Eopid());
-	CScalarCmp *popScalarCmp = dynamic_cast<CScalarCmp*>(pop);
-	GPOS_ASSERT(NULL != popScalarCmp);
-	const IMDScalarOp *pmdScalarCmdOp = pmda->Pmdscop(popScalarCmp->PmdidOp());
-	IMDId *pmdidScalarCmpCommute = pmdScalarCmdOp->PmdidOpCommute();
-
-	return pmdidScalarCmpCommute;
-}
-
 // check if given expression is a scalar is distinct form expression
 BOOL
 CUtils::FScalarIsDistinctFrom

@@ -149,6 +149,15 @@ namespace gpopt
 
 				return dynamic_cast<CScalarCmp*>(pop);
 			}
+		
+			virtual
+			CScalarCmp *PopCommutedOp(IMemoryPool *pmp, COperator *pop);
+
+			CWStringConst *Pstr(IMemoryPool *pmp, CMDAccessor *pmda, IMDId *pmdid);
+
+			IMDId *PmdidCommuteOp(CMDAccessor *pmda, COperator *pop);
+		
+		
 
 	}; // class CScalarCmp
 

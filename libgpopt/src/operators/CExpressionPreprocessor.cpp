@@ -2226,28 +2226,9 @@ CExpressionPreprocessor::PexprReorderScalarCmpChildren
 
 		if (CUtils::FScalarConst(pexprLeft) && CUtils::FScalarIdent(pexprRight))
 		{
-			CMDAccessor *pmda = COptCtxt::PoctxtFromTLS()->Pmda();
-			// get imdid of the corresponding commutativity operator from metadata accessor
-			IMDId *pmdidCommutatorOp = CUtils::PmdidCommutatorOp(pop, pmda);
-
-			// operator imdid may be NULL if there is no corresponding commutativity operator
-			if (NULL != pmdidCommutatorOp && pmdidCommutatorOp->FValid())
+			CScalarCmp *popScalarCmp = (dynamic_cast<CScalarCmp *>(pop))->PopCommutedOp(pmp, pop);
+			if (popScalarCmp)
 			{
-				// build new expression after switching arguments and new operator
-				const CWStringConst *pstr = GPOS_NEW(pmp) CWStringConst(pmp, (pmda->Pmdscop(pmdidCommutatorOp)->Mdname().Pstr())->Wsz());
-				CScalarCmp *popScalarCmp = NULL;
-				pmdidCommutatorOp->AddRef();
-
-				if (CUtils::FScalarCmp(pexpr))
-				{
-					popScalarCmp = GPOS_NEW(pmp) CScalarCmp(pmp, pmdidCommutatorOp, pstr, CUtils::Ecmpt(pmdidCommutatorOp));
-				}
-				else
-				{
-					popScalarCmp = GPOS_NEW(pmp) CScalarIsDistinctFrom(pmp, pmdidCommutatorOp, pstr);
-				}
-
-				GPOS_ASSERT(NULL != popScalarCmp);
 				pexprLeft->AddRef();
 				pexprRight->AddRef();
 				return GPOS_NEW(pmp) CExpression(pmp, popScalarCmp, pexprRight, pexprLeft);

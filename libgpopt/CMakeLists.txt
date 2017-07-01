@@ -41,6 +41,7 @@ add_library(gpopt
             include/gpopt/operators/CPhysicalCorrelatedNotInLeftAntiSemiNLJoin.h
             include/gpopt/operators/CPhysicalLeftAntiSemiNLJoinNotIn.h
             include/gpopt/operators/CScalarIsDistinctFrom.h
+            src/operators/CScalarIsDistinctFrom.cpp
             include/gpopt/operators/CScalarSubqueryExists.h
             include/gpopt/operators/CScalarSubqueryNotExists.h
             include/gpopt/operators/ops.h
