@@ -78,7 +78,8 @@ namespace gpopt
 			CScalarIsDistinctFrom *PopConvert(COperator *pop);
 
 			// get commuted scalar IDF operator
-			CScalarCmp *PopCommutedOp(IMemoryPool *pmp, COperator *pop);
+			virtual
+			CScalarIsDistinctFrom *PopCommutedOp(IMemoryPool *pmp, COperator *pop);
 
 	}; // class CScalarIsDistinctFrom
 

@@ -180,6 +180,7 @@ CScalarCmp::Eber
 	return EberUnknown;
 }
 
+// get metadata id of the commuted operator
 IMDId *
 CScalarCmp::PmdidCommuteOp
 	(
@@ -193,6 +194,7 @@ CScalarCmp::PmdidCommuteOp
 	return pmdidScalarCmpCommute;
 	}
 
+// get the string representation of a metadata object
 CWStringConst *
 CScalarCmp::Pstr
 	(
@@ -205,6 +207,7 @@ CScalarCmp::Pstr
 	return GPOS_NEW(pmp) CWStringConst(pmp, (pmda->Pmdscop(pmdid)->Mdname().Pstr())->Wsz());
 }
 
+// get commuted scalar comparision operator
 CScalarCmp *
 CScalarCmp::PopCommutedOp
 	(

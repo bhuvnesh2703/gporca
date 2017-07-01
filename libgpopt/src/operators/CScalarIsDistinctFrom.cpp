@@ -51,7 +51,7 @@ const
 }
 
 // get commuted scalar IDF operator
-CScalarCmp *
+CScalarIsDistinctFrom *
 CScalarIsDistinctFrom::PopCommutedOp
 	(
 	IMemoryPool *pmp,
