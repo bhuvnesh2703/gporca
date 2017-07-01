@@ -2226,12 +2226,12 @@ CExpressionPreprocessor::PexprReorderScalarCmpChildren
 
 		if (CUtils::FScalarConst(pexprLeft) && CUtils::FScalarIdent(pexprRight))
 		{
-			CScalarCmp *popScalarCmp = (dynamic_cast<CScalarCmp *>(pop))->PopCommutedOp(pmp, pop);
-			if (popScalarCmp)
+			CScalarCmp *popScalarCmpCommuted = (dynamic_cast<CScalarCmp *>(pop))->PopCommutedOp(pmp, pop);
+			if (popScalarCmpCommuted)
 			{
 				pexprLeft->AddRef();
 				pexprRight->AddRef();
-				return GPOS_NEW(pmp) CExpression(pmp, popScalarCmp, pexprRight, pexprLeft);
+				return GPOS_NEW(pmp) CExpression(pmp, popScalarCmpCommuted, pexprRight, pexprLeft);
 			}
 		}
 	}

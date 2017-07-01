@@ -2214,14 +2214,20 @@ CPredicateUtils::PexprIndexLookupKeyOnRight
 	CExpression *pexprRight = (*pexprScalar)[1];
 	if (CUtils::FScalarCmp(pexprScalar))
 	{
-		CScalarCmp *popScalarCommute = (CScalarCmp::PopConvert(pexprScalar->Pop()))->PopCommutedOp(pmp, pexprScalar->Pop());
-		if (popScalarCommute)
+		CScalarCmp *popScCmp = CScalarCmp::PopConvert(pexprScalar->Pop());
+		CScalarCmp *popScCmpCommute = popScCmp->PopCommutedOp(pmp, pexprScalar->Pop());
+
+		if (popScCmpCommute)
 		{
-			CExpression *pexprCommuted = GPOS_NEW(pmp) CExpression(pmp, popScalarCommute, pexprRight, pexprLeft);
+
+			// build new comparison after switching arguments and using commutative comparison operator
+			pexprRight->AddRef();
+			pexprLeft->AddRef();
+			CExpression *pexprCommuted = GPOS_NEW(pmp) CExpression(pmp, popScCmpCommute, pexprRight, pexprLeft);
 			CExpression *pexprIndexCond = PexprIndexLookupKeyOnLeft(pmp, pmda, pexprCommuted, pmdindex, pdrgpcrIndex, pcrsOuterRefs);
 			pexprCommuted->Release();
+
 			return pexprIndexCond;
-			
 		}
 	}
 	
