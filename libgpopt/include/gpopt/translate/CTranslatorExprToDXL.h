@@ -677,6 +677,13 @@ namespace gpopt
 				DrgPdatum *pdrgpdatumValues
 				);
 
+			// create a project list for a valuescan node from a tuple of a
+			// const table get operator
+			CDXLNode *PdxlnProjListForValuesScan
+				(
+				DrgPcr *pdrgpcrReqOutput,
+				DrgPcr *pdrgpcrCTGOutput
+				);
 
 			// create a DXL project elem node from a proj element expression
 			CDXLNode *PdxlnProjElem(const CExpression *pexprProjElem);

@@ -288,6 +288,8 @@ add_library(naucrates
             src/operators/CDXLPhysicalRedistributeMotion.cpp
             include/naucrates/dxl/operators/CDXLPhysicalResult.h
             src/operators/CDXLPhysicalResult.cpp
+            include/naucrates/dxl/operators/CDXLPhysicalValuesScan.h
+            src/operators/CDXLPhysicalValuesScan.cpp
             include/naucrates/dxl/operators/CDXLPhysicalRoutedDistributeMotion.h
             src/operators/CDXLPhysicalRoutedDistributeMotion.cpp
             include/naucrates/dxl/operators/CDXLPhysicalRowTrigger.h
@@ -400,6 +402,8 @@ add_library(naucrates
             src/operators/CDXLScalarPartDefault.cpp
             include/naucrates/dxl/operators/CDXLScalarPartListValues.h
             src/operators/CDXLScalarPartListValues.cpp
+            include/naucrates/dxl/operators/CDXLScalarValuesList.h
+            src/operators/CDXLScalarValuesList.cpp
             include/naucrates/dxl/operators/CDXLScalarPartListNullTest.h
             src/operators/CDXLScalarPartListNullTest.cpp
             include/naucrates/dxl/operators/CDXLScalarPartOid.h
