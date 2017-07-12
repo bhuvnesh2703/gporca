@@ -640,6 +640,8 @@ add_library(naucrates
             src/parser/CParseHandlerPhysicalTVF.cpp
             include/naucrates/dxl/parser/CParseHandlerPhysicalWindow.h
             src/parser/CParseHandlerPhysicalWindow.cpp
+            include/naucrates/dxl/parser/CParseHandlerValuesScan.h
+            src/parser/CParseHandlerValuesScan.cpp
             include/naucrates/dxl/parser/CParseHandlerPlan.h
             src/parser/CParseHandlerPlan.cpp
             include/naucrates/dxl/parser/CParseHandlerProjElem.h
@@ -758,6 +760,8 @@ add_library(naucrates
             src/parser/CParseHandlerScalarWindowFrameEdge.cpp
             include/naucrates/dxl/parser/CParseHandlerScalarWindowRef.h
             src/parser/CParseHandlerScalarWindowRef.cpp
+            include/naucrates/dxl/parser/CParseHandlerScalarValuesList.h
+            src/parser/CParseHandlerScalarValuesList.cpp
             include/naucrates/dxl/parser/CParseHandlerSearchStage.h
             src/parser/CParseHandlerSearchStage.cpp
             include/naucrates/dxl/parser/CParseHandlerSearchStrategy.h
