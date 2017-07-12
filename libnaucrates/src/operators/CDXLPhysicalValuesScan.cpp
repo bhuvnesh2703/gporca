@@ -71,6 +71,9 @@ const
 	pxmlser->OpenElement(CDXLTokens::PstrToken(EdxltokenNamespacePrefix), pstrElemName);
 	// serialize properties
 	pdxln->SerializePropertiesToDXL(pxmlser);
+
+	// serialize children
+	pdxln->SerializeChildrenToDXL(pxmlser);
 	pxmlser->CloseElement(CDXLTokens::PstrToken(EdxltokenNamespacePrefix), pstrElemName);
 }
 

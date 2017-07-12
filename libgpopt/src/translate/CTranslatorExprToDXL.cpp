@@ -2112,7 +2112,6 @@ CTranslatorExprToDXL::PdxlnResultFromConstTableGet
 															pdxlnPrL,
 															pdrgpdrgdatum
 															);
-		pdxlnValuesScan->AssertValid(true);
 		pdxlnOneTimeFilter->Release();
 		pdrgpdatum->Release();
 
@@ -7570,8 +7569,6 @@ CTranslatorExprToDXL::PdxlnProjListForValuesScan
 		for (ULONG ul = 0; ul < ulArity; ul++)
 		{
 			CColRef *pcr = (*pdrgpcrReqOutput)[ul];
-			ULONG ulPos = UlPosInArray(pcr, pdrgpcrCTGOutput);
-			GPOS_ASSERT(ulPos < pdrgpcrCTGOutput->UlLength());
 			pcrsOutput->Exclude(pcr);
 		}
 
