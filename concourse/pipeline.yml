@@ -261,3 +261,21 @@ jobs:
       - put: regression_out
         params:
           file: icg_output/regression.out
+
+- name: upload_orca_src_bintray
+  plan:
+  - aggregate:
+    - get: orca_src
+      passed:
+        - orca_publish_tag
+    - get: gpdb_src
+      passed:
+        - gpdb_icg_with_planner
+        - gpdb_icg_with_orca
+      trigger: true
+  - task: upload_orca_source_bintray
+    file: orca_src/concourse/upload_orca_source_bintray.yml
+    params:
+      BINTRAY_USER: {{bintray_user}}
+      BINTRAY_REMOTE: {{bintray_remote}}
+      BINTRAY_USER_KEY: {{bintray_user_key}}
