@@ -70,7 +70,7 @@ CDefaultComparator::FEvalComparison
 	)
 	const
 {
-//	GPOS_ASSERT(m_pceeval->FCanEvalExpressions());
+	GPOS_ASSERT(m_pceeval->FCanEvalExpressions());
 
 	IDatum *pdatum1Copy = pdatum1->PdatumCopy(pmp);
 	CExpression *pexpr1 = GPOS_NEW(pmp) CExpression(pmp, GPOS_NEW(pmp) CScalarConst(pmp, pdatum1Copy));
