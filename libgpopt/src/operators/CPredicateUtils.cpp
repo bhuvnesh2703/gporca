@@ -1070,9 +1070,11 @@ CPredicateUtils::FCompareIdentToConst
 
 	CExpression *pexprLeft = (*pexpr)[0];
 	CExpression *pexprRight = (*pexpr)[1];
+	
+	
 
 	// left side must be scalar ident
-	if (COperator::EopScalarIdent != pexprLeft->Pop()->Eopid())
+	if (!CScalarIdent::FCastedScId(pexprLeft) && COperator::EopScalarIdent != pexprLeft->Pop()->Eopid())
 	{
 		return false;
 	}

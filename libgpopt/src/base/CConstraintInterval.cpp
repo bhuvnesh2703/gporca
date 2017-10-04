@@ -415,7 +415,18 @@ CConstraintInterval::PciIntervalFromScalarCmp
 	{
 		// column
 #ifdef GPOS_DEBUG
-		CScalarIdent *popScId = CScalarIdent::PopConvert((*pexpr)[0]->Pop());
+		CScalarIdent *popScId = NULL;
+		CExpression *pexprTemp = (*pexpr)[0];
+		if (CScalarIdent::FCastedScId(pexprTemp))
+		{
+			popScId = CScalarIdent::PopConvert((*pexprTemp)[0]->Pop());
+		}
+		else
+		{
+			popScId = CScalarIdent::PopConvert((*pexpr)[0]->Pop());
+		}
+		
+
 		GPOS_ASSERT (pcr == (CColRef *) popScId->Pcr());
 #endif // GPOS_DEBUG
 

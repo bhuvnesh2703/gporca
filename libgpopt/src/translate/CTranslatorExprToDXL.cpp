@@ -326,6 +326,8 @@ CTranslatorExprToDXL::PdxlnTranslate
 	if (0 == ulNonGatherMotions)
 	{
 		CDrvdPropRelational *pdprel =  CDrvdPropRelational::Pdprel(pexpr->Pdp(CDrvdProp::EptRelational));
+		CAutoTrace at(m_pmp);
+		pdprel->OsPrint(at.Os());
 		CTranslatorExprToDXLUtils::SetDirectDispatchInfo(m_pmp, m_pmda, pdxln, pdprel, pdrgpdsBaseTables);
 	}
 	

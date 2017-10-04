@@ -117,6 +117,9 @@ CDrvdPropRelational::Derive
 	
 	// derive constraint
 	m_ppc = popLogical->PpcDeriveConstraint(pmp, exprhdl);
+	
+	CAutoTrace at (pmp);
+	m_ppc->OsPrint(at.Os());
 
 	// compute max card
 	m_maxcard = popLogical->Maxcard(pmp, exprhdl);

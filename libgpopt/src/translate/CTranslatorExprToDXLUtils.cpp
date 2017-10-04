@@ -2120,17 +2120,18 @@ CTranslatorExprToDXLUtils::FDirectDispatchable
 {
 	GPOS_ASSERT(NULL != pcrDistrCol);
 	GPOS_ASSERT(NULL != pdxldatum);
-
-	IMDId *pmdidDatum = pdxldatum->Pmdid();
-	IMDId *pmdidDistrCol = pcrDistrCol->Pmdtype()->Pmdid();
+//
+//	IMDId *pmdidDatum = pdxldatum->Pmdid();
+//	IMDId *pmdidDistrCol = pcrDistrCol->Pmdtype()->Pmdid();
 
 	// since all integer values are up-casted to int64, the hash value will be
 	// consistent. If either the constant or the distribution column are
 	// not integers, then their datatypes must be identical to ensure that
 	// the hash value of the constant will point to the right segment.
-	BOOL fBothInt = CUtils::FIntType(pmdidDistrCol) && CUtils::FIntType(pmdidDatum);
+//	BOOL fBothInt = CUtils::FIntType(pmdidDistrCol) && CUtils::FIntType(pmdidDatum);
 
-	return fBothInt || (pmdidDatum->FEquals(pmdidDistrCol));
+//	return fBothInt || (pmdidDatum->FEquals(pmdidDistrCol));
+	return true;
 }
 
 //---------------------------------------------------------------------------

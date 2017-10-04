@@ -3332,14 +3332,15 @@ CUtils::FConstrainableType
 	{
 		return true;
 	}
-	if (!GPOS_FTRACE(EopttraceEnableConstantExpressionEvaluation))
-	{
-		return false;
-	}
+//	if (!GPOS_FTRACE(EopttraceEnableConstantExpressionEvaluation))
+//	{
+//		return false;
+//	}
 	CMDAccessor *pmda = COptCtxt::PoctxtFromTLS()->Pmda();
 	const IMDType *pmdtype = pmda->Pmdtype(pmdidType);
 
-	return FHasAllDefaultComparisons(pmdtype);
+	BOOL fhasDefaultComp = FHasAllDefaultComparisons(pmdtype);
+	return fhasDefaultComp;
 }
 
 // determine whether a type is an integer type
