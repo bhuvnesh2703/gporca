@@ -2077,10 +2077,10 @@ CTranslatorExprToDXLUtils::PdxlddinfoSingleDistrKey
 		if (FDirectDispatchable(pcrDistrCol, pdxldatum))
 		{
 			DrgPdxldatum *pdrgpdxldatum = GPOS_NEW(pmp) DrgPdxldatum(pmp);
- 
+
 			pdxldatum->AddRef();
 			pdrgpdxldatum->Append(pdxldatum);
-
+			
 			pdrgpdrgpdxldatum = GPOS_NEW(pmp) DrgPdrgPdxldatum(pmp);
 			pdrgpdrgpdxldatum->Append(pdrgpdxldatum);
 		}
