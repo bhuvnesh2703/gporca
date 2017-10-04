@@ -425,10 +425,8 @@ CRange::FEndsWithOrAfter
 BOOL
 CRange::FPoint() const
 {
-	return (EriIncluded == m_eriLeft && EriIncluded == m_eriRight
-	// &&
-	//		m_pcomp->FEqual(m_pdatumRight, m_pdatumLeft)
-	);
+	return (EriIncluded == m_eriLeft && EriIncluded == m_eriRight &&
+			m_pcomp->FEqual(m_pdatumRight, m_pdatumLeft));
 }
 
 //---------------------------------------------------------------------------
