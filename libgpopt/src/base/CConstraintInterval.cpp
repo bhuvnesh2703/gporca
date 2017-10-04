@@ -416,10 +416,10 @@ CConstraintInterval::PciIntervalFromScalarCmp
 		// column
 #ifdef GPOS_DEBUG
 		CScalarIdent *popScId = NULL;
-		CExpression *pexprTemp = (*pexpr)[0];
-		if (CScalarIdent::FCastedScId(pexprTemp))
+		CExpression *pexprLeft = (*pexpr)[0];
+		if (CScalarIdent::FCastedScId(pexprLeft))
 		{
-			popScId = CScalarIdent::PopConvert((*pexprTemp)[0]->Pop());
+			popScId = CScalarIdent::PopConvert((*pexprLeft)[0]->Pop());
 		}
 		else
 		{
