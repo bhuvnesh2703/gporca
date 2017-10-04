@@ -2080,7 +2080,7 @@ CTranslatorExprToDXLUtils::PdxlddinfoSingleDistrKey
 
 			pdxldatum->AddRef();
 			pdrgpdxldatum->Append(pdxldatum);
-			
+		
 			pdrgpdrgpdxldatum = GPOS_NEW(pmp) DrgPdrgPdxldatum(pmp);
 			pdrgpdrgpdxldatum->Append(pdrgpdxldatum);
 		}
@@ -2132,9 +2132,8 @@ CTranslatorExprToDXLUtils::FDirectDispatchable
 	// the hash value of the constant will point to the right segment.
 	BOOL fBothInt = CUtils::FIntType(pmdidDistrCol) && CUtils::FIntType(pmdidDatum);
 	const IMDCast *pmdcast = pmda->Pmdcast(pmdidDistrCol, pmdidDatum);
-	return fBothInt || (pmdidDatum->FEquals(pmdidDistrCol)) || pmdcast->FBinaryCoercible();
 
-//	return true;
+	return fBothInt || (pmdidDatum->FEquals(pmdidDistrCol)) || pmdcast->FBinaryCoercible();
 }
 
 //---------------------------------------------------------------------------
