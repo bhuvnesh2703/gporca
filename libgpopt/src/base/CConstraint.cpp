@@ -165,8 +165,6 @@ CConstraint::PcnstrFromScalarExpr
 
 	(void) pexpr->PdpDerive();
 	CDrvdPropScalar *pdpScalar = CDrvdPropScalar::Pdpscalar(pexpr->Pdp(CDrvdProp::EptScalar));
-	CAutoTrace at(pmp);
-	pdpScalar->OsPrint(at.Os());
 
 	CColRefSet *pcrs = pdpScalar->PcrsUsed();
 	ULONG ulCols = pcrs->CElements();
