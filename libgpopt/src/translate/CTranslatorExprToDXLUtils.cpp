@@ -20,6 +20,7 @@
 
 #include "naucrates/md/IMDScalarOp.h"
 #include "naucrates/md/IMDTypeOid.h"
+#include "naucrates/md/IMDCast.h"
 
 #include "naucrates/statistics/IStatistics.h"
 
@@ -2076,10 +2077,10 @@ CTranslatorExprToDXLUtils::PdxlddinfoSingleDistrKey
 		if (FDirectDispatchable(pcrDistrCol, pdxldatum))
 		{
 			DrgPdxldatum *pdrgpdxldatum = GPOS_NEW(pmp) DrgPdxldatum(pmp);
-
+ 
 			pdxldatum->AddRef();
 			pdrgpdxldatum->Append(pdxldatum);
-		
+
 			pdrgpdrgpdxldatum = GPOS_NEW(pmp) DrgPdrgPdxldatum(pmp);
 			pdrgpdrgpdxldatum->Append(pdrgpdxldatum);
 		}
@@ -2121,18 +2122,19 @@ CTranslatorExprToDXLUtils::FDirectDispatchable
 	GPOS_ASSERT(NULL != pcrDistrCol);
 	GPOS_ASSERT(NULL != pdxldatum);
 
-//	IMDId *pmdidDatum = pdxldatum->Pmdid();
-//	IMDId *pmdidDistrCol = pcrDistrCol->Pmdtype()->Pmdid();
-//
-//	// since all integer values are up-casted to int64, the hash value will be
-//	// consistent. If either the constant or the distribution column are
-//	// not integers, then their datatypes must be identical to ensure that
-//	// the hash value of the constant will point to the right segment.
-//	BOOL fBothInt = CUtils::FIntType(pmdidDistrCol) && CUtils::FIntType(pmdidDatum);
-//
-//	return fBothInt || (pmdidDatum->FEquals(pmdidDistrCol));
+	IMDId *pmdidDatum = pdxldatum->Pmdid();
+	IMDId *pmdidDistrCol = pcrDistrCol->Pmdtype()->Pmdid();
+	CMDAccessor *pmda = COptCtxt::PoctxtFromTLS()->Pmda();
 
-	return true;
+	// since all integer values are up-casted to int64, the hash value will be
+	// consistent. If either the constant or the distribution column are
+	// not integers, then their datatypes must be identical to ensure that
+	// the hash value of the constant will point to the right segment.
+	BOOL fBothInt = CUtils::FIntType(pmdidDistrCol) && CUtils::FIntType(pmdidDatum);
+	const IMDCast *pmdcast = pmda->Pmdcast(pmdidDistrCol, pmdidDatum);
+	return fBothInt || (pmdidDatum->FEquals(pmdidDistrCol)) || pmdcast->FBinaryCoercible();
+
+//	return true;
 }
 
 //---------------------------------------------------------------------------
