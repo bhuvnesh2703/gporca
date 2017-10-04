@@ -426,7 +426,6 @@ CConstraintInterval::PciIntervalFromScalarCmp
 			popScId = CScalarIdent::PopConvert((*pexpr)[0]->Pop());
 		}
 		
-
 		GPOS_ASSERT (pcr == (CColRef *) popScId->Pcr());
 #endif // GPOS_DEBUG
 
