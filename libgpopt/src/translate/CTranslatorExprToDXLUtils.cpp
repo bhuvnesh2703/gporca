@@ -2131,9 +2131,15 @@ CTranslatorExprToDXLUtils::FDirectDispatchable
 	// not integers, then their datatypes must be identical to ensure that
 	// the hash value of the constant will point to the right segment.
 	BOOL fBothInt = CUtils::FIntType(pmdidDistrCol) && CUtils::FIntType(pmdidDatum);
-	const IMDCast *pmdcast = pmda->Pmdcast(pmdidDistrCol, pmdidDatum);
+	BOOL fSameDataType = pmdidDatum->FEquals(pmdidDistrCol);
+	BOOL fBinaryCoercible = false;
+	if (!fSameDataType)
+	{
+		const IMDCast *pmdcast = pmda->Pmdcast(pmdidDistrCol, pmdidDatum);
+		fBinaryCoercible = pmdcast->FBinaryCoercible();
+	}
 
-	return fBothInt || (pmdidDatum->FEquals(pmdidDistrCol)) || pmdcast->FBinaryCoercible();
+	return fBothInt || fSameDataType || fBinaryCoercible ;
 }
 
 //---------------------------------------------------------------------------
