@@ -162,6 +162,8 @@ CJobGroupOptimization::FScheduleGroupExpressions
 		// optimization level
 		if (psc->Peng()->FOptimizeChild(m_pgexprOrigin, pgexpr, m_poc, EolCurrent()))
 		{
+//			CAutoTrace at(psc->PmpGlobal());
+//			at.Os() << "Optimization Request" << std::endl;
 			const ULONG ulOptRequests = CPhysical::PopConvert(pgexpr->Pop())->UlOptRequests();
 			for (ULONG ul = 0; ul < ulOptRequests; ul++)
 			{

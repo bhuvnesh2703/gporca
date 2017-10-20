@@ -1,3 +1,4 @@
+
 //---------------------------------------------------------------------------
 //	Greenplum Database
 //	Copyright (C) 2013 EMC Corp.
@@ -97,7 +98,24 @@ CXformExpandNAryJoinDP::Transform
 
 	const ULONG ulArity = pexpr->UlArity();
 	GPOS_ASSERT(ulArity >= 3);
-
+// For a input tree, pexpr like below
+	
+//		+--CLogicalNAryJoin
+//		   |--CLogicalDynamicGet "p1" ("p1")
+//		   |--CLogicalDynamicGet "p2" ("p2")
+//		   |--CLogicalDynamicGet "p3" ("p3")
+//		   +--CScalarBoolOp (EboolopAnd)
+//			  |--CScalarCmp (=)   
+//			  |  |--CScalarIdent "b" (1) 
+//			  |  +--CScalarIdent "b" (16)
+//			  |--CScalarCmp (=)
+//			  |  |--CScalarIdent "b" (16)
+//			  |  +--CScalarIdent "b" (31)
+//			  +--CScalarCmp (=) 
+//				 |--CScalarIdent "b" (1)
+//				 +--CScalarIdent "b" (31)
+// We create an array pdrgpexpr of expression which will hold all the Expression except the last child which is the scalar cmp
+// CLogicalDynamicGet "p1" ("p1"), CLogicalDynamicGet "p2" ("p2"), CLogicalDynamicGet "p3" ("p3")
 	DrgPexpr *pdrgpexpr = GPOS_NEW(pmp) DrgPexpr(pmp);
 	for (ULONG ul = 0; ul < ulArity - 1; ul++)
 	{
@@ -105,11 +123,34 @@ CXformExpandNAryJoinDP::Transform
 		pexprChild->AddRef();
 		pdrgpexpr->Append(pexprChild);
 	}
-
+	// The below pexprScalar expression holds the scalar child
+//		   +--CScalarBoolOp (EboolopAnd)
+//			  |--CScalarCmp (=)   
+//			  |  |--CScalarIdent "b" (1) 
+//			  |  +--CScalarIdent "b" (16)
+//			  |--CScalarCmp (=)
+//			  |  |--CScalarIdent "b" (16)
+//			  |  +--CScalarIdent "b" (31)
+//			  +--CScalarCmp (=) 
+//				 |--CScalarIdent "b" (1)
+//				 +--CScalarIdent "b" (31)
 	CExpression *pexprScalar = (*pexpr)[ulArity - 1];
+	
+	// The below array of expressions holds the scalar cmp expressions as individual elements
+//		+--CScalarCmp (=)
+//		   |--CScalarIdent "b" (1)
+//		   +--CScalarIdent "b" (16)
+//		+--CScalarCmp (=)
+//		   |--CScalarIdent "b" (16)
+//		   +--CScalarIdent "b" (31)
+//		+--CScalarCmp (=)
+//		   |--CScalarIdent "b" (1)
+//		   +--CScalarIdent "b" (31)
 	DrgPexpr *pdrgpexprPreds = CPredicateUtils::PdrgpexprConjuncts(pmp, pexprScalar);
 
 	// create join order using dynamic programming
+//	In JoinOrder we have created a bitset map which maps the scalar cmp column reference set and the
+// expression which use them
 	CJoinOrderDP jodp(pmp, pdrgpexpr, pdrgpexprPreds);
 	CExpression *pexprResult = jodp.PexprExpand();
 

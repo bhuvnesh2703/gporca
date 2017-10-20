@@ -32,6 +32,100 @@ namespace gpopt
 	class CJoinOrderDP : public CJoinOrder
 	{
 
+		protected:
+
+			class CJoinSet: public CRefCount
+		
+				{
+					private:
+					
+						CBitSet *m_pbsLeftChild;
+						CBitSet *m_pbsRightChild;
+					
+					public:
+					
+						CJoinSet
+						(
+							CBitSet *pbsLeftChild,
+							CBitSet *pbsRightChild
+						)
+						:
+						m_pbsLeftChild(pbsLeftChild),
+						m_pbsRightChild(pbsRightChild)
+						{
+							m_pbsLeftChild->AddRef();
+							m_pbsLeftChild->AddRef();
+						};
+					
+						~CJoinSet()
+						{
+							m_pbsLeftChild->Release();
+							m_pbsRightChild->Release();
+						}
+					
+						CBitSet *PbsLeftChild() const
+						{
+							return m_pbsLeftChild;
+						}
+					
+						CBitSet *PbsRightChild() const
+						{
+							return m_pbsRightChild;
+						}
+					
+						virtual
+						BOOL FEqual(const CJoinSet *pjoinsetother) const
+						{
+							return m_pbsLeftChild->FEqual(pjoinsetother->PbsLeftChild())
+								&& m_pbsRightChild->FEqual(pjoinsetother->PbsRightChild());
+						}
+					
+					};
+		
+			class CJoinExprCost: public CRefCount
+			{
+			
+				private:
+				
+//					CExpression *m_pjoinExpr;
+					CDouble m_pdRightChildCost;
+					CDouble m_pdCost;
+				
+				public:
+				
+					CJoinExprCost
+						(
+//						CExpression *pjoinExpr,
+						CDouble dRightChildCost,
+						CDouble dCost
+						)
+						:
+//						m_pjoinExpr(pjoinExpr),
+						m_pdRightChildCost(dRightChildCost),
+						m_pdCost(dCost)
+						{}
+				
+					~CJoinExprCost()
+					{
+//						GPOS_DELETE(m_pdRightChildCost);
+					}
+
+					CDouble DRightChildCost()
+					{
+						return m_pdRightChildCost;
+					}
+				
+//					CExpression *Pexpr()
+//					{
+//						return m_pjoinExpr;
+//					}
+
+					CDouble DCost()
+					{
+						return m_pdCost;
+					}
+				};
+		
 		private:
 
 			//---------------------------------------------------------------------------
@@ -91,9 +185,29 @@ namespace gpopt
 				return pbsFst->FEqual(pbsSnd);
 			}
 
+			static ULONG UlHashJoinSet
+				(
+				const CJoinSet *pJoinSet
+				 );
+		
+			static
+			BOOL FEqualJoinSet
+			(
+			 const CJoinSet *pJoinSet1,
+			 const CJoinSet *pJoinSet2
+			 )
+			{
+				GPOS_ASSERT(NULL != pJoinSet1);
+				GPOS_ASSERT(NULL != pJoinSet2);
+				
+				return pJoinSet1->FEqual(pJoinSet2);
+			}
 			// hash map from component to best join order
 			typedef CHashMap<CBitSet, CExpression, UlHashBitSet, FEqualBitSet,
 				CleanupRelease<CBitSet>, CleanupRelease<CExpression> > HMBSExpr;
+		
+			typedef CHashMap<CJoinSet, CJoinExprCost, UlHashJoinSet, FEqualJoinSet,
+				CleanupRelease<CJoinSet>, CleanupRelease<CJoinExprCost> > HMJoinSet;
 
 			// hash map from component pair to connecting edges
 			typedef CHashMap<SComponentPair, CExpression, SComponentPair::UlHash, SComponentPair::FEqual,
@@ -111,6 +225,8 @@ namespace gpopt
 
 			// map of expressions to its cost
 			HMExprCost *m_phmexprcost;
+		
+			HMJoinSet *m_remainingcurrjoinset;
 
 			// array of top-k join expression
 			DrgPexpr *m_pdrgpexprTopKOrders;

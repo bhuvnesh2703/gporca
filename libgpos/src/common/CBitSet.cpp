@@ -16,6 +16,7 @@
 #include "gpos/common/CAutoRef.h"
 #include "gpos/common/CBitSet.h"
 #include "gpos/common/CBitSetIter.h"
+#include "gpos/error/CAutoTrace.h"
 
 using namespace gpos;
 
@@ -713,6 +714,13 @@ CBitSet::OsPrint
 	os << "} " << "Hash:" << UlHash();
 	
 	return os;
+}
+
+void
+CBitSet::DbgPrint()
+{
+	CAutoTrace at(m_pmp);
+	(void) this->OsPrint(at.Os());
 }
 
 
