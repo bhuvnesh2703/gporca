@@ -80,6 +80,21 @@ CJoinOrderDP::SComponentPair::UlHash
 }
 
 
+ULONG
+CJoinOrderDP::UlHashJoinSet
+(
+	const CJoinSet *pjoinset
+	)
+{
+	GPOS_ASSERT(NULL != pjoinset);
+	
+	ULONG ulHash = pjoinset->PbsLeftChild()->UlHash();
+	ulHash = UlCombineHashes(ulHash, pjoinset->PbsRightChild()->UlHash());
+	return ulHash;
+}
+
+
+
 //---------------------------------------------------------------------------
 //	@function:
 //		CJoinOrderDP::SComponentPair::FEqual
@@ -140,7 +155,7 @@ CJoinOrderDP::CJoinOrderDP
 	m_phmexprcost = GPOS_NEW(pmp) HMExprCost(pmp);
 	m_pdrgpexprTopKOrders = GPOS_NEW(pmp) DrgPexpr(pmp);
 	m_pexprDummy = GPOS_NEW(pmp) CExpression(pmp, GPOS_NEW(pmp) CPatternLeaf(pmp));
-
+	m_remainingcurrjoinset = GPOS_NEW(pmp) HMJoinSet(pmp);
 #ifdef GPOS_DEBUG
 	for (ULONG ul = 0; ul < m_ulComps; ul++)
 	{
@@ -170,6 +185,7 @@ CJoinOrderDP::~CJoinOrderDP()
 	m_phmexprcost->Release();
 	m_pdrgpexprTopKOrders->Release();
 	m_pexprDummy->Release();
+	m_remainingcurrjoinset->Release();
 #endif // GPOS_DEBUG
 }
 
@@ -296,6 +312,7 @@ CJoinOrderDP::PexprPred
 		pbsFst->AddRef();
 		pbsSnd->AddRef();
 		pcomppair = GPOS_NEW(m_pmp) SComponentPair(pbsFst, pbsSnd);
+		// CJoinOrderDP::CJoinOrderDP constructs initializes m_phmcomplink hash map
 		pexprPred = m_phmcomplink->PtLookup(pcomppair);
 		if (NULL != pexprPred)
 		{
@@ -493,7 +510,6 @@ CJoinOrderDP::PexprJoin
 	return pexprJoin;
 }
 
-
 //---------------------------------------------------------------------------
 //	@function:
 //		CJoinOrderDP::PexprBestJoinOrderDP
@@ -520,12 +536,37 @@ CJoinOrderDP::PexprBestJoinOrderDP
 	CDouble dMinCost(0.0);
 	CExpression *pexprResult = NULL;
 
+	// For a input bitmap set pbs like
+	//	{0, 1, 2}
+	//it creates the subset like below
+	//{0, 1, 2} Hash:1050680",
+	//{0, 1} Hash:1050648",
+	//{0, 2} Hash:1050664",
+	//{0} Hash:1050632",
+	//{1, 2} Hash:1050672",
+	//{1} Hash:1050640",
+	//{2} Hash:1050656",
+	//{} Hash:0",
 	DrgPbs *pdrgpbsSubsets = PdrgpbsSubsets(m_pmp, pbs);
+	
+//	for (ULONG ul = 0; ul < pdrgpbsSubsets->UlLength(); ul++)
+//	{
+//		CAutoTrace at(m_pmp);
+//		CBitSet *ptempbitset = (*pdrgpbsSubsets)[ul];
+//		ptempbitset->OsPrint(at.Os());
+//	}
+	
+//	BOOL Run = true;
 	const ULONG ulSubsets = pdrgpbsSubsets->UlLength();
 	for (ULONG ul = 0; ul < ulSubsets; ul++)
 	{
+		// Take the bitmap created in the subset array
 		CBitSet *pbsCurrent = (*pdrgpbsSubsets)[ul];
+		// pbsRemaining is initialized to the input bitmap set
 		CBitSet *pbsRemaining = GPOS_NEW(m_pmp) CBitSet(m_pmp, *pbs);
+		// pbsRemaining is the difference between the subset item and the input bitmap set
+		// say for pbsRemaining {0, 1, 2} and pbsCurrent {0, 1}
+		// the pbsRemaining is set to {2}
 		pbsRemaining->Difference(pbsCurrent);
 
 		// check if subsets are connected with one or more edges
@@ -542,19 +583,64 @@ CJoinOrderDP::PexprBestJoinOrderDP
 				// this gives a better solution for the input set
 				CExpression *pexprJoin = PexprJoin(pbsCurrent, pbsRemaining);
 				CDouble dCost = DCost(pexprJoin);
-
-				if (NULL == pexprResult || dCost < dMinCost)
+				
+				if (GPOS_FTRACE(EopttraceDPMinCard))
 				{
-					// this is the first solution, or we found a better solution
-					dMinCost = dCost;
-					CRefCount::SafeRelease(pexprResult);
-					pexprJoin->AddRef();
-					pexprResult = pexprJoin;
+					CDouble dRightChildCost = DCost((*pexprJoin)[1]);
+
+					CJoinSet *pCurrentRemainingjoinSet = GPOS_NEW(m_pmp) CJoinSet(pbsCurrent, pbsRemaining);
+					CJoinSet *pRemainingCurrentjoinSet = GPOS_NEW(m_pmp) CJoinSet(pbsRemaining, pbsCurrent);
+
+					CJoinExprCost *pJoinExprCost = m_remainingcurrjoinset->PtLookup(pCurrentRemainingjoinSet);
+					pCurrentRemainingjoinSet->Release();
+					if (pJoinExprCost != NULL)
+					{
+						if (dRightChildCost <= pJoinExprCost->DRightChildCost())
+						{
+							CRefCount::SafeRelease(pexprJoin);
+							pexprJoin = PexprJoin(pbsRemaining, pbsCurrent);
+							dCost = pJoinExprCost->DCost();
+						}
+
+						if ((NULL == pexprResult || dCost < dMinCost))
+						{
+							// this is the first solution, or we found a better solution
+							dMinCost = dCost;
+							CRefCount::SafeRelease(pexprResult);
+							pexprJoin->AddRef();
+							pexprResult = pexprJoin;
+						}
+
+						if (m_ulComps == pbs->CElements())
+						{
+							AddJoinOrder(pexprJoin, dCost);
+						}
+
+						pRemainingCurrentjoinSet->Release();
+
+					}
+					else
+					{
+						CJoinExprCost *pCurrJoinExprCost = GPOS_NEW(m_pmp) CJoinExprCost(dRightChildCost, dCost);
+
+						m_remainingcurrjoinset->FInsert(pRemainingCurrentjoinSet, pCurrJoinExprCost);
+					}
 				}
-
-				if (m_ulComps == pbs->CElements())
+				else
 				{
-					AddJoinOrder(pexprJoin, dCost);
+					if ((NULL == pexprResult || dCost < dMinCost))
+					{
+						// this is the first solution, or we found a better solution
+						dMinCost = dCost;
+						CRefCount::SafeRelease(pexprResult);
+						pexprJoin->AddRef();
+						pexprResult = pexprJoin;
+					}
+
+					if (m_ulComps == pbs->CElements())
+					{
+						AddJoinOrder(pexprJoin, dCost);
+					}
 				}
 
 				pexprJoin->Release();
@@ -779,7 +865,6 @@ CJoinOrderDP::DCost
 	return dCost;
 }
 
-
 //---------------------------------------------------------------------------
 //	@function:
 //		CJoinOrderDP::PbsCovered
@@ -796,13 +881,22 @@ CJoinOrderDP::PbsCovered
 {
 	GPOS_ASSERT(NULL != pbsInput);
 	CBitSet *pbs = GPOS_NEW(m_pmp) CBitSet(m_pmp);
+	CAutoTrace at(m_pmp);
 
 	for (ULONG ul = 0; ul < m_ulEdges; ul++)
 	{
+	
 		SEdge *pedge = m_rgpedge[ul];
 		if (pbsInput->FSubset(pedge->m_pbs))
 		{
+//			CAutoTrace at(m_pmp);
+//			pbs->OsPrint(at.Os());
+//			at.Os() << " " << std::endl;
+//			pedge->m_pbs->OsPrint(at.Os());
+//			at.Os() << " " << std::endl;
 			pbs->Union(pedge->m_pbs);
+//			pbs->OsPrint(at.Os());
+//			at.Os() << " " << std::endl;
 		}
 	}
 
@@ -939,7 +1033,16 @@ CJoinOrderDP::PexprBestJoinOrder
 	}
 
 	// find maximal covered subset
+	// It builds up a bitset which covers all the edges
+	// {0, 1, 2} Hash:1050680
 	CBitSet *pbsCovered = PbsCovered(pbs);
+//	CBitSetIter pbsCoverediter(*pbsCovered);
+//	CAutoTrace at(pmp);
+//	while (pbsCoverediter.FAdvance())
+//	{
+////		at.Os <<
+//	}
+	
 	if (0 == pbsCovered->CElements())
 	{
 		// set is not covered, return a cross product
@@ -1000,6 +1103,7 @@ CJoinOrderDP::PexprBuildPred
 	CBitSet *pbs = GPOS_NEW(m_pmp) CBitSet(m_pmp, *pbsFst);
 	pbs->Union(pbsSnd);
 
+	// Create a bitmapset for the edges which are common to the scalar cmp
 	for (ULONG ul = 0; ul < m_ulEdges; ul++)
 	{
 		SEdge *pedge = m_rgpedge[ul];
@@ -1019,10 +1123,14 @@ CJoinOrderDP::PexprBuildPred
 	pbs->Release();
 
 	CExpression *pexprPred = NULL;
+	
+	
 	if (0 < pbsEdges->CElements())
 	{
 		DrgPexpr *pdrgpexpr = GPOS_NEW(m_pmp) DrgPexpr(m_pmp);
 		CBitSetIter bsi(*pbsEdges);
+		
+		// Create an array of scalar cmp expression which correspond to the common edge
 		while (bsi.FAdvance())
 		{
 			ULONG ul = bsi.UlBit();

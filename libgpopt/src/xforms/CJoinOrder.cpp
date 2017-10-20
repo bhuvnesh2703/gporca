@@ -226,9 +226,25 @@ CJoinOrder::CJoinOrder
 	typedef SComponent* Pcomp;
 	typedef SEdge* Pedge;
 	
+	// The number of expressions except the scalar cmp operator
 	m_ulComps = pdrgpexpr->UlLength();
 	m_rgpcomp = GPOS_NEW_ARRAY(pmp, Pcomp, m_ulComps);
 	
+	CAutoTrace at(pmp);
+	
+	
+	// Iterate over the array of expression and create SComponent Object for them and
+	// them to an array, and set the bit as the index of that expression.
+	// The below will be the content of the SComponent Array with respect to the input tree in
+//Component: {0} Hash:1050632
+//+--CLogicalDynamicGet "p1" ("p1"), Part constraint: (uninterpreted)), Columns: ["a" (0), "b" (1), "c" (2), "d" (3), "e" (4), "f" (5), "g" (6), "h" (7), "ctid" (8), "xmin" (9), "cmin" (10), "xmax" (11), "cmax" (12), "tableoid" (13), "gp_segment_id" (14)] Scan Id: 1.1, Part constraint: (uninterpreted)   rows:1   width:62  rebinds:1   origin: [Grp:0, GrpExpr:0]
+//
+//Component: {1} Hash:1050640
+//+--CLogicalDynamicGet "p2" ("p2"), Part constraint: (uninterpreted)), Columns: ["a" (15), "b" (16), "c" (17), "d" (18), "e" (19), "f" (20), "g" (21), "h" (22), "ctid" (23), "xmin" (24), "cmin" (25), "xmax" (26), "cmax" (27), "tableoid" (28), "gp_segment_id" (29)] Scan Id: 2.2, Part constraint: (uninterpreted)   rows:1   width:62  rebinds:1   origin: [Grp:1, GrpExpr:0]
+//
+//Component: {2} Hash:1050656
+//+--CLogicalDynamicGet "p3" ("p3"), Part constraint: (uninterpreted)), Columns: ["a" (30), "b" (31), "c" (32), "d" (33), "e" (34), "f" (35), "g" (36), "h" (37), "ctid" (38), "xmin" (39), "cmin" (40), "xmax" (41), "cmax" (42), "tableoid" (43), "gp_segment_id" (44)] Scan Id: 3.3, Part constraint: (uninterpreted)   rows:1   width:62  rebinds:1   origin: [Grp:2, GrpExpr:0]
+
 	for (ULONG ul = 0; ul < m_ulComps; ul++)
 	{
 		CExpression *pexprComp = (*pdrgpexpr)[ul];
@@ -237,21 +253,58 @@ CJoinOrder::CJoinOrder
 		
 		// component always covers itself
 		(void) m_rgpcomp[ul]->m_pbs->FExchangeSet(ul);
+//		m_rgpcomp[ul]->OsPrint(at.Os());
 	}
 
+	// Number of scalar cmp expression in the array
 	m_ulEdges = pdrgpexprConj->UlLength();
 	m_rgpedge = GPOS_NEW_ARRAY(pmp, Pedge, m_ulEdges);
 	
+	
+	// Iterate over the array of expression and create SEdge Object for them and
+	// them to an array, and set the bit as the index of that expression.
+//Edge : {} Hash:0
+//+--CScalarCmp (=)   origin: [Grp:5, GrpExpr:0]
+//   |--CScalarIdent "b" (1)   origin: [Grp:3, GrpExpr:0]
+//   +--CScalarIdent "b" (16)   origin: [Grp:4, GrpExpr:0]
+//
+//Edge : {} Hash:0
+//+--CScalarCmp (=)   origin: [Grp:7, GrpExpr:0]
+//   |--CScalarIdent "b" (16)   origin: [Grp:4, GrpExpr:0]
+//   +--CScalarIdent "b" (31)   origin: [Grp:6, GrpExpr:0]
+//
+//Edge : {} Hash:0
+//+--CScalarCmp (=)   origin: [Grp:8, GrpExpr:0]
+//   |--CScalarIdent "b" (1)   origin: [Grp:3, GrpExpr:0]
+//   +--CScalarIdent "b" (31)   origin: [Grp:6, GrpExpr:0]
+
 	for (ULONG ul = 0; ul < m_ulEdges; ul++)
 	{
 		CExpression *pexprEdge = (*pdrgpexprConj)[ul];
 		pexprEdge->AddRef();
 		m_rgpedge[ul] = GPOS_NEW(pmp) SEdge(pmp, pexprEdge);
+//		m_rgpedge[ul]->OsPrint(at.Os());
 	}
 	
 	pdrgpexpr->Release();
 	pdrgpexprConj->Release();
-	
+
+	//  ComputeEdgeCover populates the bitset of the SEdge object
+	// marking what all Components use the edges
+	//Edge : {0, 1} Hash:1050648
+	//+--CScalarCmp (=)   origin: [Grp:5, GrpExpr:0]
+	//   |--CScalarIdent "b" (1)   origin: [Grp:3, GrpExpr:0]
+	//   +--CScalarIdent "b" (16)   origin: [Grp:4, GrpExpr:0]
+	//
+	//Edge : {1, 2} Hash:1050672
+	//+--CScalarCmp (=)   origin: [Grp:7, GrpExpr:0]
+	//   |--CScalarIdent "b" (16)   origin: [Grp:4, GrpExpr:0]
+	//   +--CScalarIdent "b" (31)   origin: [Grp:6, GrpExpr:0]
+	//
+	//Edge : {0, 2} Hash:1050664
+	//+--CScalarCmp (=)   origin: [Grp:8, GrpExpr:0]
+	//   |--CScalarIdent "b" (1)   origin: [Grp:3, GrpExpr:0]
+	//   +--CScalarIdent "b" (31)   origin: [Grp:6, GrpExpr:0]
 	ComputeEdgeCover();
 }
 

@@ -17,6 +17,7 @@
 
 #define JOIN_ORDER_DP_THRESHOLD ULONG(10)
 #define BROADCAST_THRESHOLD ULONG(10000000)
+#define JOIN_ORDER_ON_CARDINALITY ULONG(1)
 
 namespace gpopt
 {
@@ -47,6 +48,8 @@ namespace gpopt
 
 			BOOL m_fEnforceConstraintsOnDML;
 
+			ULONG m_ulJoinHeuristicModel;
+
 			// private copy ctor
 			CHint(const CHint &);
 
@@ -60,7 +63,8 @@ namespace gpopt
 				ULONG ulArrayExpansionThreshold,
 				ULONG ulJoinOrderDPLimit,
 				ULONG ulBroadcastThreshold,
-				BOOL fEnforceConstraintsOnDML
+				BOOL fEnforceConstraintsOnDML,
+				ULONG ulJoinHeuristicModel
 				)
 				:
 				m_ulMinNumOfPartsToRequireSortOnInsert(ulMinNumOfPartsToRequireSortOnInsert),
@@ -68,7 +72,8 @@ namespace gpopt
 				m_ulArrayExpansionThreshold(ulArrayExpansionThreshold),
 				m_ulJoinOrderDPLimit(ulJoinOrderDPLimit),
 				m_ulBroadcastThreshold(ulBroadcastThreshold),
-				m_fEnforceConstraintsOnDML(fEnforceConstraintsOnDML)
+				m_fEnforceConstraintsOnDML(fEnforceConstraintsOnDML),
+				m_ulJoinHeuristicModel(ulJoinHeuristicModel)
 			{
 			}
 
@@ -119,6 +124,11 @@ namespace gpopt
 				return m_fEnforceConstraintsOnDML;
 			}
 
+			ULONG UlJoinHeuristicModel() const
+			{
+				return m_ulJoinHeuristicModel;
+			}
+
 			// generate default hint configurations, which disables sort during insert on
 			// append only row-oriented partitioned tables by default
 			static
@@ -131,7 +141,8 @@ namespace gpopt
 										INT_MAX, /* ulArrayExpansionThreshold */
 										JOIN_ORDER_DP_THRESHOLD, /*ulJoinOrderDPLimit*/
 										BROADCAST_THRESHOLD, /*ulBroadcastThreshold*/
-										true /* fEnforceConstraintsOnDML */
+										true, /* fEnforceConstraintsOnDML */
+										JOIN_ORDER_ON_CARDINALITY /* ulJoinHeuristicModel */
 										);
 			}
 

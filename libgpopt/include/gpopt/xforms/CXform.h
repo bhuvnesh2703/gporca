@@ -330,6 +330,20 @@ namespace gpopt
 			static
 			CBitSet *PbsHashJoinXforms(IMemoryPool *pmp);
 
+			// returns a set containing xforms to use only the join order as available
+			// in the query
+			static
+			CBitSet *PbsUserJoinOrderXforms(IMemoryPool *pmp);
+
+			// returns a set containing xforms to use minimum cardinality estimation for
+			// join order
+			static
+			CBitSet *PbsUserJoinOrderOnMinCardinalityXforms(IMemoryPool *pmp);
+
+			// returns a set containing all xforms
+			static
+			CBitSet *PbsUserJoinOrderExhaustiveSearchXforms(IMemoryPool *pmp);
+
 	}; // class CXform
 	
 	// shorthand for printing

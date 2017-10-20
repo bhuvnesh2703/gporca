@@ -1217,6 +1217,7 @@ CDXLUtils::SerializeOptimizerConfig
 	xmlser.AddAttribute(CDXLTokens::PstrToken(EdxltokenJoinOrderDPThreshold), phint->UlJoinOrderDPLimit());
 	xmlser.AddAttribute(CDXLTokens::PstrToken(EdxltokenBroadcastThreshold), phint->UlBroadcastThreshold());
 	xmlser.AddAttribute(CDXLTokens::PstrToken(EdxltokenEnforceConstraintsOnDML), phint->FEnforceConstraintsOnDML());
+	xmlser.AddAttribute(CDXLTokens::PstrToken(EdxltokenJoinHeuristicModel), phint->UlJoinHeuristicModel());
 	xmlser.CloseElement(CDXLTokens::PstrToken(EdxltokenNamespacePrefix), CDXLTokens::PstrToken(EdxltokenHint));
 }
 
