@@ -84,6 +84,8 @@ namespace gpopt
 			// print
 			virtual
 			IOstream &OsPrint(IOstream &os) const = 0;
+		
+			void DbgPrint();
 
 	}; // class CDrvdProp
 
