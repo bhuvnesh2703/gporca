@@ -114,6 +114,8 @@ namespace gpopt
 
 					// copy part info entry into given memory pool
 					CPartInfoEntry *PpartinfoentryCopy(IMemoryPool *pmp);
+				
+					void DbgPrint();
 
 			}; // CPartInfoEntry
 
@@ -184,6 +186,8 @@ namespace gpopt
 
 			// print
 			IOstream &OsPrint(IOstream &) const;
+		
+			void DbgPrint();
 
 			// combine two part info objects
 			static

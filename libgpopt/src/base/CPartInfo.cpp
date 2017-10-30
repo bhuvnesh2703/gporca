@@ -484,5 +484,13 @@ CPartInfo::OsPrint
 	return os;
 }
 
+void
+CPartInfo::DbgPrint()
+{
+	IMemoryPool *pmp = COptCtxt::PoctxtFromTLS()->Pmp();
+	CAutoTrace at(pmp);
+	(void) this->OsPrint(at.Os());
+	
+}
 
 // EOF

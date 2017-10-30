@@ -249,6 +249,8 @@ namespace gpopt
 			// print function
 			virtual
 			IOstream &OsPrint(IOstream &os) const;
+		
+			void DbgPrint();
 
 	}; // class CReqdPropPlan
 

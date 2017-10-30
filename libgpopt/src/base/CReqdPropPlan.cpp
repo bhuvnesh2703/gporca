@@ -31,6 +31,8 @@
 #include "gpopt/base/CPartitionPropagationSpec.h"
 #include "gpopt/base/CCTEReq.h"
 #include "gpopt/base/CPartInfo.h"
+#include "gpos/error/CAutoTrace.h"
+#include "gpopt/base/COptCtxt.h"
 
 
 using namespace gpopt;
@@ -689,6 +691,14 @@ CReqdPropPlan::OsPrint
 	os <<  "]";
 	
 	return os;
+}
+
+void
+CReqdPropPlan::DbgPrint()
+{
+	IMemoryPool *pmp = COptCtxt::PoctxtFromTLS()->Pmp();
+	CAutoTrace at(pmp);
+	(void) this->OsPrint(at.Os());
 }
 
 //---------------------------------------------------------------------------

@@ -18,6 +18,7 @@
 #include "gpopt/operators/CLogical.h"
 #include "gpopt/operators/CExpressionHandle.h"
 #include "gpopt/operators/CExpression.h"
+#include "gpos/error/CAutoTrace.h"
 
 using namespace gpopt;
 
@@ -200,5 +201,12 @@ CReqdPropRelational::OsPrint
 	return os;
 }
 
+void
+CReqdPropRelational::DbgPrint()
+{
+	IMemoryPool *pmp = COptCtxt::PoctxtFromTLS()->Pmp();
+	CAutoTrace at(pmp);
+	(void) this->OsPrint(at.Os());
+}
 
 // EOF
