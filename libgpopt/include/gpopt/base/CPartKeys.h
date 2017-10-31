@@ -86,6 +86,8 @@ namespace gpopt
 			// copy array of part keys into given memory pool
 			static
 			DrgPpartkeys *PdrgppartkeysCopy(IMemoryPool *pmp, const DrgPpartkeys *pdrgppartkeys);
+		
+			void DbgPrint();
 
 	}; // CPartKeys
 

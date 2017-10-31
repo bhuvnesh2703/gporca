@@ -12,6 +12,8 @@
 #include "naucrates/statistics/IStatistics.h"
 #include "gpopt/base/CPartFilterMap.h"
 #include "gpopt/operators/CExpression.h"
+#include "gpopt/base/COptCtxt.h"
+#include "gpos/error/CAutoTrace.h"
 
 using namespace gpos;
 using namespace gpopt;
@@ -389,6 +391,14 @@ CPartFilterMap::OsPrint
 	}
 
 	return os;
+}
+
+void
+CPartFilterMap::DbgPrint()
+{
+	IMemoryPool *pmp = COptCtxt::PoctxtFromTLS()->Pmp();
+	CAutoTrace at(pmp);
+	(void) this->OsPrint(at.Os());
 }
 
 // EOF

@@ -218,7 +218,15 @@ CEnfdPartitionPropagation::OsPrint
 	return os << (*m_ppps) << " match: " << SzPropagationMatching(m_eppm) << " ";
 }
 
-
+void
+CEnfdPartitionPropagation::DbgPrint()
+{
+	IMemoryPool *pmp = COptCtxt::PoctxtFromTLS()->Pmp();
+	CAutoTrace at(pmp);
+	(void) this->OsPrint(at.Os());
+	
+	
+}
 //---------------------------------------------------------------------------
 //	@function:
 //		CEnfdPartitionPropagation::SzPropagationMatching

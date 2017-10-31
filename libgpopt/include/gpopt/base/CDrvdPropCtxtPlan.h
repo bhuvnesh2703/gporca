@@ -109,6 +109,8 @@ namespace gpopt
 
 				return reinterpret_cast<CDrvdPropCtxtPlan*>(pdpctxt);
 			}
+		
+			void DbgPrint();
 
 	}; // class CDrvdPropCtxtPlan
 

@@ -163,6 +163,13 @@ CDrvdPropCtxtPlan::OsPrint
 	return os;
 }
 
+void
+CDrvdPropCtxtPlan::DbgPrint()
+{
+	CAutoTrace at(m_pmp);
+	(void) this->OsPrint(at.Os());
+}
+
 
 //---------------------------------------------------------------------------
 //	@function:

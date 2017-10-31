@@ -217,4 +217,12 @@ CPartKeys::OsPrint
 	return os;
 }
 
+void
+CPartKeys::DbgPrint()
+{
+
+	IMemoryPool *pmp = COptCtxt::PoctxtFromTLS()->Pmp();
+	CAutoTrace at(pmp);
+	(void) this->OsPrint(at.Os());
+}
 // EOF

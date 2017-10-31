@@ -125,6 +125,8 @@ namespace gpopt
 			// print function
 			virtual
 			IOstream &OsPrint(IOstream &os) const;
+		
+			void DbgPrint();
 			
 			// name of propagation matching type 
 			static 

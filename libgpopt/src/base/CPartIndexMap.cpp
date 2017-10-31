@@ -12,6 +12,7 @@
 #include "gpos/base.h"
 #include "gpopt/base/CPartIndexMap.h"
 #include "gpopt/base/CPartitionPropagationSpec.h"
+#include "gpos/error/CAutoTrace.h"
 
 using namespace gpopt;
 
@@ -1012,11 +1013,25 @@ CPartIndexMap::OsPrint
 		CPartIndexMap::OsPrintPartCnstrMap(ppti->UlScanId(), ppti->Ppartcnstrmap(), os);
 
 		os << ">), unresolved: (" << m_ulUnresolved << ", " << m_ulUnresolvedZeroPropagators << "), ";
+		
+		ULONG ulPartKeys = ppti->Pdrgppartkeys()->UlLength();
+		for (ULONG ul = 0; ul < ulPartKeys; ul++)
+		{
+			CPartKeys *ppartkey = (*ppti->Pdrgppartkeys())[ul];
+			ppartkey->DbgPrint();
+			
+		}
 	}
 
 	return os;
 }
 
+void
+CPartIndexMap::DbgPrint()
+{
+	CAutoTrace at(m_pmp);
+	(void) this->OsPrint(at.Os());
+}
 //---------------------------------------------------------------------------
 //	@function:
 //		CPartIndexMap::OsPrintPartCnstrMap

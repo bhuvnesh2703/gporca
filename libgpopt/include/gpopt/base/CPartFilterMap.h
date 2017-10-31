@@ -182,6 +182,8 @@ namespace gpopt
 
 			// print function
 			IOstream &OsPrint(IOstream &os) const;
+		
+			void DbgPrint();
 
 	}; // class CPartFilterMap
 

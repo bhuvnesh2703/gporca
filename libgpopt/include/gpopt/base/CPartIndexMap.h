@@ -357,6 +357,8 @@ namespace gpopt
 			// combine the two given maps and return the resulting map
 			static
 			CPartIndexMap *PpimCombine(IMemoryPool *pmp, const CPartIndexMap &pimFst, const CPartIndexMap &pimSnd);
+		
+			void DbgPrint();
 
 	}; // class CPartIndexMap
 
