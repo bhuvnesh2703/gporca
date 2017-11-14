@@ -94,9 +94,10 @@ def main():
     status = make()
     if status:
         return status
-    status = run_tests()
-    if status:
-        return status
+
+    #status = run_tests()
+    #if status:
+    #    return status
     status = install()
     if status:
         return status
