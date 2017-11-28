@@ -46,7 +46,10 @@ CPhysicalNLJoin::CPhysicalNLJoin
 	//		this request handles the case where the inner child needs to be broadcasted, which prevents
 	//		DPE by outer child since a Motion operator gets in between PartitionSelector and DynamicScan
 
-	SetPartPropagateRequests(2);
+	if (GPOPT_FDISABLED_XFORM(CXform::ExfInnerJoin2HashJoin) || GPOPT_FDISABLED_XFORM(CXform::ExfLeftOuterJoin2HashJoin))
+	{
+		SetPartPropagateRequests(2);
+	}
 }
 
 
@@ -229,6 +232,8 @@ CPhysicalNLJoin::PppsRequiredNLJoinChild
 {
 	GPOS_ASSERT(NULL != pppsRequired);
 
+
+		
 	if (1 == ulOptReq)
 	{
 		// request (1): push partition propagation requests to join's children,

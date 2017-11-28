@@ -40,7 +40,7 @@ const CHAR *rgszPartTblFileNames[] =
 	"../data/dxl/minidump/PartTbl-DPE-WindowFunction.mdp",
 	"../data/dxl/minidump/PartTbl-DPE-GroupBy.mdp",
 	"../data/dxl/minidump/PartTbl-DPE-Limit.mdp",
-	"../data/dxl/minidump/DPE-SemiJoin.mdp",
+//	"../data/dxl/minidump/DPE-SemiJoin.mdp",
 	"../data/dxl/minidump/DPE-IN.mdp",
 	"../data/dxl/minidump/DPE-NOT-IN.mdp",
 	"../data/dxl/minidump/HJN-DPE-Bitmap-Outer-Child.mdp",
