@@ -46,7 +46,7 @@ CPhysicalNLJoin::CPhysicalNLJoin
 	//		this request handles the case where the inner child needs to be broadcasted, which prevents
 	//		DPE by outer child since a Motion operator gets in between PartitionSelector and DynamicScan
 
-  if (!GPOS_FTRACE(EopttraceEnableHashJoin))
+  if (!GPOS_FTRACE(EopttraceEnableHashJoin) || GPOPT_FDISABLED_XFORM(CXform::ExfExpandNAryJoinDP))
 	{
 		SetPartPropagateRequests(2);
 	}
@@ -232,6 +232,8 @@ CPhysicalNLJoin::PppsRequiredNLJoinChild
 {
 	GPOS_ASSERT(NULL != pppsRequired);
 
+
+		
 	if (1 == ulOptReq)
 	{
 		// request (1): push partition propagation requests to join's children,
