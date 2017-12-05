@@ -11,6 +11,7 @@
 
 #include "gpos/base.h"
 #include "gpos/sync/CAutoMutex.h"
+#include "gpopt/xforms/CXformUtils.h"
 
 #include "gpopt/base/CUtils.h"
 #include "gpopt/base/CCastUtils.h"
@@ -91,7 +92,7 @@ CPhysicalHashJoin::CPhysicalHashJoin
 	// will not be created for the above query if we send only 1 request.
 	// Also, increasing the number of request increases the optimization time, so
 	// set 2 only when needed.
-	if (GPOPT_FDISABLED_XFORM(CXform::ExfExpandNAryJoinDP))
+	if (GPOPT_FDISABLED_XFORM(CXform::ExfExpandNAryJoinDP) || CXformUtils::FNestLoopXformDisabled())
 		SetPartPropagateRequests(2);
 }
 

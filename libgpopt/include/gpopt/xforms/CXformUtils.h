@@ -1112,6 +1112,12 @@ namespace gpopt
 			static
 			CExpression *PexprGbAggOnCTEConsumer2Join(IMemoryPool *pmp, CExpression *pexprGbAgg);
 
+			static
+			BOOL FHashJoinXformDisabled();
+
+			static
+			BOOL FNestLoopXformDisabled();
+
 	}; // class CXformUtils
 }
 

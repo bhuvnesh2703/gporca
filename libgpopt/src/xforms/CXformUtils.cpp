@@ -4851,4 +4851,26 @@ CXformUtils::PexprGbAggOnCTEConsumer2Join
 	return pexprJoin;
 }
 
+
+BOOL
+CXformUtils::FHashJoinXformDisabled()
+{
+	return GPOPT_FDISABLED_XFORM(CXform::ExfInnerJoin2HashJoin) ||
+	GPOPT_FDISABLED_XFORM(CXform::ExfInnerJoin2HashJoin) ||
+	GPOPT_FDISABLED_XFORM(CXform::ExfLeftOuterJoin2HashJoin) ||
+	GPOPT_FDISABLED_XFORM(CXform::ExfLeftSemiJoin2HashJoin) ||
+	GPOPT_FDISABLED_XFORM(CXform::ExfLeftAntiSemiJoin2HashJoin) ||
+	GPOPT_FDISABLED_XFORM(CXform::ExfLeftAntiSemiJoinNotIn2HashJoinNotIn);
+}
+
+BOOL
+CXformUtils::FNestLoopXformDisabled()
+{
+	return GPOPT_FDISABLED_XFORM(CXform::ExfInnerJoin2NLJoin) ||
+	GPOPT_FDISABLED_XFORM(CXform::ExfInnerJoin2HashJoin) ||
+	GPOPT_FDISABLED_XFORM(CXform::ExfLeftOuterJoin2NLJoin) ||
+	GPOPT_FDISABLED_XFORM(CXform::ExfLeftSemiJoin2NLJoin) ||
+	GPOPT_FDISABLED_XFORM(CXform::ExfLeftAntiSemiJoin2NLJoin) ||
+	GPOPT_FDISABLED_XFORM(CXform::ExfLeftAntiSemiJoinNotIn2NLJoinNotIn);
+}
 // EOF
