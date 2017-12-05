@@ -165,6 +165,11 @@ namespace gpos
 
 		// create constraint intervals from array expressions in preprocessing
 		EopttraceArrayConstraints = 103026,
+		
+		
+		EopttraceEnableHashJoin = 103027,
+		
+		EopttraceEnableNLJoin = 103028,
 
 		///////////////////////////////////////////////////////
 		///////////////////// statistics flags ////////////////

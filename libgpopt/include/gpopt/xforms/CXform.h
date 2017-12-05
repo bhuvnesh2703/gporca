@@ -329,6 +329,9 @@ namespace gpopt
 			// caller takes ownership of the returned set
 			static
 			CBitSet *PbsHashJoinXforms(IMemoryPool *pmp);
+		
+			static
+			CBitSet *PbsNestLoopJoinXforms(IMemoryPool *pmp);
 
 			// returns a set containing xforms to use only the join order as available
 			// in the query
