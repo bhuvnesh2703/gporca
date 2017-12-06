@@ -11,6 +11,7 @@
 
 #include "gpos/base.h"
 #include "gpopt/base/CUtils.h"
+#include "gpopt/xforms/CXformUtils.h"
 
 #include "gpopt/base/COptCtxt.h"
 #include "gpopt/operators/CPhysicalNLJoin.h"
@@ -45,8 +46,8 @@ CPhysicalNLJoin::CPhysicalNLJoin
 	//		request to both children,
 	//		this request handles the case where the inner child needs to be broadcasted, which prevents
 	//		DPE by outer child since a Motion operator gets in between PartitionSelector and DynamicScan
-
-	SetPartPropagateRequests(2);
+	if (GPOPT_FDISABLED_XFORM(CXform::ExfExpandNAryJoinDP) || CXformUtils::FHashJoinXformDisabled())
+		SetPartPropagateRequests(2);
 }
 
 
