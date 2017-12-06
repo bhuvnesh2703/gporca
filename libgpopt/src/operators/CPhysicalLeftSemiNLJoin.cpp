@@ -32,7 +32,9 @@ CPhysicalLeftSemiNLJoin::CPhysicalLeftSemiNLJoin
 	)
 	:
 	CPhysicalNLJoin(pmp)
-{}
+{
+	SetPartPropagateRequests(2);
+}
 
 
 //---------------------------------------------------------------------------
