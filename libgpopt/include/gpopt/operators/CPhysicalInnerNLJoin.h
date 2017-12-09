@@ -81,6 +81,8 @@ namespace gpopt
 
 				return dynamic_cast<CPhysicalInnerNLJoin*>(pop);
 			}
+		
+
 
 					
 	}; // class CPhysicalInnerNLJoin

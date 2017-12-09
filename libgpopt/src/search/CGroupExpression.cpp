@@ -864,6 +864,15 @@ CGroupExpression::Transform
 	while (NULL != pexpr)
 	{
 		pxform->Transform(pxfctxt, pxfres, pexpr);
+		
+		if (pexpr->Pop()->Eopid() == COperator::EopLogicalInnerJoin && (pxform->Exfid() == CXform::ExfInnerJoin2NLJoin || pxform->Exfid() == CXform::ExfInnerJoin2HashJoin))
+		{
+			if (pxfres->Pdrgpexpr()->UlLength() > 0)
+			{
+				CLogicalInnerJoin *pLogicalInnerJoin = CLogicalInnerJoin::PopConvert(pexpr->Pop());
+				pLogicalInnerJoin->FSetUsed();
+			}
+		}
 		PrintXform(pmp, pxform, pexpr, pxfres);
 
 		if (CXformUtils::FApplyOnce(pxform->Exfid()) ||

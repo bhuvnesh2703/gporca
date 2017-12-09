@@ -39,6 +39,7 @@ CLogicalInnerJoin::CLogicalInnerJoin
 	CLogicalJoin(pmp)
 {
 	GPOS_ASSERT(NULL != pmp);
+	m_fUsed = false;
 }
 
 

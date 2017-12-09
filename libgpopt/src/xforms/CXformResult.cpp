@@ -10,7 +10,13 @@
 //---------------------------------------------------------------------------
 
 #include "gpos/base.h"
+
 #include "gpopt/xforms/CXformResult.h"
+
+#ifdef GPOS_DEBUG
+#include "gpos/error/CAutoTrace.h"
+#include "gpopt/base/COptCtxt.h"
+#endif // GPOS_DEBUG
 
 using namespace gpopt;
 
@@ -121,5 +127,14 @@ CXformResult::OsPrint
 	return os;
 }
 
+#ifdef GPOS_DEBUG
+void
+CXformResult::DbgPrint() const
+{
+	IMemoryPool *pmp = COptCtxt::PoctxtFromTLS()->Pmp();
+	CAutoTrace at(pmp);
+	(void) this->OsPrint(at.Os());
+}
+#endif // GPOS_DEBUG
 // EOF
 

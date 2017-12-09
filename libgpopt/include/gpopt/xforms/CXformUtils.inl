@@ -54,16 +54,32 @@ namespace gpopt
 		pexprRight->AddRef();
 		pexprScalar->AddRef();
 
-		// assemble physical operator
+		T *pTmp = GPOS_NEW(pmp) T(pmp);
 		CExpression *pexprBinary =
 			GPOS_NEW(pmp) CExpression
 				(
 				pmp,
-				GPOS_NEW(pmp) T(pmp),
+				pTmp,
 				pexprLeft,
 				pexprRight,
 				pexprScalar
 				);
+		
+		if (pexprBinary->Pop()->Eopid() == COperator::EopPhysicalInnerNLJoin)
+		{
+			CLogicalInnerJoin *pIJoin = CLogicalInnerJoin::PopConvert(pexpr->Pop());
+			CPhysicalInnerNLJoin *pJoin = CPhysicalInnerNLJoin::PopConvert(pexprBinary->Pop());
+			
+			if (!pIJoin->FGetUsed())
+			{
+				pJoin->SetPartPropR(2);
+			}
+
+			if (GPOPT_FDISABLED_XFORM(CXform::ExfExpandNAryJoinDP))
+			{
+				pJoin->SetPartPropR(2);
+			}
+		}
 
 #ifdef GPOS_DEBUG
 		COperator::EOperatorId eopid = pexprBinary->Pop()->Eopid();
@@ -111,11 +127,20 @@ namespace gpopt
 		{
 			(*pexprJoin)[ul]->AddRef();
 		}
+		
 		CExpression *pexprResult = GPOS_NEW(pmp) CExpression(pmp,
 														GPOS_NEW(pmp) T(pmp, pdrgpexprOuter, pdrgpexprInner),
 														(*pexprJoin)[0],
 														(*pexprJoin)[1],
 														(*pexprJoin)[2]);
+		if (pexprResult->Pop()->Eopid() == COperator::EopPhysicalInnerHashJoin)
+		{
+			CPhysicalInnerHashJoin *pJoin = CPhysicalInnerHashJoin::PopConvert(pexprResult->Pop());
+			if (GPOPT_FDISABLED_XFORM(CXform::ExfExpandNAryJoinDP))
+			{
+				pJoin->SetPartPropR(2);
+			}
+		}
 		pxfres->Add(pexprResult);
 	}
 	

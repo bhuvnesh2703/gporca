@@ -31,6 +31,7 @@ namespace gpopt
 	{
 		private:
 
+			BOOL m_fUsed;
 			// private copy ctor
 			CLogicalInnerJoin(const CLogicalInnerJoin &);
 
@@ -58,6 +59,17 @@ namespace gpopt
 			{
 				return "CLogicalInnerJoin";
 			}
+		
+			void FSetUsed()
+			{
+				m_fUsed = true;
+			}
+		
+			BOOL FGetUsed()
+			{
+				return m_fUsed;
+			}
+
 
 			//-------------------------------------------------------------------------------------
 			// Derived Relational Properties

@@ -46,6 +46,8 @@ CPhysicalInnerNLJoin::CPhysicalInnerNLJoin
 }
 
 
+
+
 //---------------------------------------------------------------------------
 //	@function:
 //		CPhysicalInnerNLJoin::~CPhysicalInnerNLJoin

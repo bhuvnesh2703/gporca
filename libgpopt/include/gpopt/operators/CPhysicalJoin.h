@@ -460,6 +460,12 @@ namespace gpopt
 			static
 			ULONG UlDistrRequestsForCorrelatedJoin();
 
+			void SetPartPropR
+				(
+				ULONG optRequest
+				);
+			
+
 	}; // class CPhysicalJoin
 
 }

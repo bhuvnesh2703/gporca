@@ -92,8 +92,9 @@ CPhysicalHashJoin::CPhysicalHashJoin
 	// will not be created for the above query if we send only 1 request.
 	// Also, increasing the number of request increases the optimization time, so
 	// set 2 only when needed.
-	if (GPOPT_FDISABLED_XFORM(CXform::ExfExpandNAryJoinDP) || CXformUtils::FNestLoopXformDisabled())
-		SetPartPropagateRequests(2);
+//	if (GPOPT_FDISABLED_XFORM(CXform::ExfExpandNAryJoinDP))
+// || CXformUtils::FNestLoopXformDisabled())
+//		SetPartPropagateRequests(1);
 }
 
 //---------------------------------------------------------------------------
