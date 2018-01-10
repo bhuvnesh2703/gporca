@@ -31,7 +31,7 @@ const CHAR *rgszPruneColumnsFileNames[] =
 	"../data/dxl/minidump/RemoveUnusedProjElementsInGbAgg.mdp",
 	"../data/dxl/minidump/RemoveUnusedProjElements.mdp",
 	"../data/dxl/minidump/CPruneColumnsTest/PruneIntermediateUnusedColumns.mdp", // prune all unused columns
-	"../data/dxl/minidump/CPruneColumnsTest/AggTopOfSingleSetRetFuncs.mdp", // no pruning done
+    "../data/dxl/minidump/CPruneColumnsTest/AggTopOfSingleSetRetFuncs.mdp", // no pruning done
 	"../data/dxl/minidump/CPruneColumnsTest/AggTopOfSetRetFuncsAndUnusedScalar.mdp", // partial pruning
 	"../data/dxl/minidump/CPruneColumnsTest/AggTopOfMultipleSetRetFuncs.mdp", // no pruning done
 	"../data/dxl/minidump/CPruneColumnsTest/AggTopOfMultipleSetRetFuncsAndUnusedScalar.mdp", // partial prune

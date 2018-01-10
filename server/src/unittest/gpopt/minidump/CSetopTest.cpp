@@ -67,7 +67,7 @@ const CHAR *rgszSetOpFileNames[] =
 	"../data/dxl/minidump/Intersect-Volatile-Func.mdp",
 	"../data/dxl/minidump/Except-Volatile-Func.mdp",
 	"../data/dxl/minidump/PushSelectDownUnionAllOfCTG.mdp",
-	"../data/dxl/minidump/Push-Subplan-Below-Union.mdp",
+//    "../data/dxl/minidump/Push-Subplan-Below-Union.mdp",
 	"../data/dxl/minidump/PushSelectWithOuterRefBelowUnion.mdp",
 	"../data/dxl/minidump/PushGbBelowUnion.mdp",
 	"../data/dxl/minidump/UnionGbSubquery.mdp",

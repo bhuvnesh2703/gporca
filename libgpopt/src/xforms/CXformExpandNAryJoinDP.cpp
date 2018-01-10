@@ -113,6 +113,8 @@ CXformExpandNAryJoinDP::Transform
 	CJoinOrderDP jodp(pmp, pdrgpexpr, pdrgpexprPreds);
 	CExpression *pexprResult = jodp.PexprExpand();
 
+    // Why do we do this, the array only holds 10 expression and since the subsets are
+    // unique we will expect the expressions to be unqiue
 	if (NULL != pexprResult)
 	{
 		// normalize resulting expression

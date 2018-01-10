@@ -302,6 +302,7 @@ CJoinOrderDP::PexprPred
 			{
 				return NULL;
 			}
+
 			return pexprPred;
 		}
 
@@ -876,13 +877,13 @@ CJoinOrderDP::PexprBestJoinOrder
 
 	// find maximal covered subset
 	CBitSet *pbsCovered = PbsCovered(pbs);
-	if (0 == pbsCovered->CElements())
-	{
-		// set is not covered, return a cross product
-		pbsCovered->Release();
+    if (0 == pbsCovered->CElements())
+    {
+        // set is not covered, return a cross product
+        pbsCovered->Release();
 
-		return PexprCross(pbs);
-	}
+        return PexprCross(pbs);
+    }
 
 	if (!pbsCovered->FEqual(pbs))
 	{
