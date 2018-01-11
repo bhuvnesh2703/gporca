@@ -876,13 +876,35 @@ CJoinOrderDP::PexprBestJoinOrder
 
 	// find maximal covered subset
 	CBitSet *pbsCovered = PbsCovered(pbs);
-	if (0 == pbsCovered->CElements())
-	{
-		// set is not covered, return a cross product
-		pbsCovered->Release();
-
-		return PexprCross(pbs);
-	}
+    BOOL matching = false;
+    if (0 == pbsCovered->CElements())
+    {
+        // set is not covered, return a cross product
+        for (ULONG ul = 0; ul < m_ulEdges; ul++)
+        {
+            CBitSet *pbsIntersection = GPOS_NEW(m_pmp) CBitSet(m_pmp, *pbs);
+            SEdge *pedge = m_rgpedge[ul];
+            CBitSet *pedgebitset = pedge->m_pbs;
+            pbsIntersection->Intersection(pedgebitset);
+            if (pbsIntersection->CElements() > 0)
+            {
+                // matching
+                matching = true;
+                pbsIntersection->Release();
+                break;
+            }
+            pbsIntersection->Release();
+        }
+        pbsCovered->Release();
+        if (!matching)
+        {
+            return PexprCross(pbs);
+        }
+        else
+        {
+            return NULL;
+        }
+    }
 
 	if (!pbsCovered->FEqual(pbs))
 	{
