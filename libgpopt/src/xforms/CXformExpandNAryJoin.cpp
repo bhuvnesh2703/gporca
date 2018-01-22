@@ -100,20 +100,17 @@ CXformExpandNAryJoin::AddSpecifiedJoinOrder
 	GPOS_ASSERT(COperator::EopLogicalNAryJoin == pexpr->Pop()->Eopid());
 
 	const ULONG ulArity = pexpr->UlArity();
-	if (4 > ulArity)
-	{
-		return;
-	}
 
 	// create a join order with same order of given relations
 	(*pexpr)[0]->AddRef();
 	(*pexpr)[1]->AddRef();
 	CExpression *pexprJoin = CUtils::PexprLogicalJoin<CLogicalInnerJoin>(pmp, (*pexpr)[0], (*pexpr)[1], CPredicateUtils::PexprConjunction(pmp, NULL));
-	for (ULONG ul = 2; ul < ulArity - 1; ul++)
-	{
-		(*pexpr)[ul]->AddRef();
-		pexprJoin = CUtils::PexprLogicalJoin<CLogicalInnerJoin>(pmp, pexprJoin, (*pexpr)[ul], CPredicateUtils::PexprConjunction(pmp, NULL));
-	}
+    for (ULONG ul = 2; ul < ulArity - 1; ul++)
+    {
+        (*pexpr)[ul]->AddRef();
+        pexprJoin = CUtils::PexprLogicalJoin<CLogicalInnerJoin>(pmp, pexprJoin, (*pexpr)[ul], CPredicateUtils::PexprConjunction(pmp, NULL));
+    }
+    
 	CExpression *pexprScalar = (*pexpr)[ulArity - 1];
 	pexprScalar->AddRef();
 	CExpression *pexprSelect = CUtils::PexprLogicalSelect(pmp, pexprJoin, pexprScalar);
@@ -145,31 +142,31 @@ CXformExpandNAryJoin::Transform
 	GPOS_ASSERT(FPromising(pxfctxt->Pmp(), this, pexpr));
 	GPOS_ASSERT(FCheckPattern(pexpr));
 
-	IMemoryPool *pmp = pxfctxt->Pmp();
-
-	const ULONG ulArity = pexpr->UlArity();
-	GPOS_ASSERT(ulArity >= 3);
-
-	DrgPexpr *pdrgpexpr = GPOS_NEW(pmp) DrgPexpr(pmp);
-	for (ULONG ul = 0; ul < ulArity - 1; ul++)
-	{
-		CExpression *pexprChild = (*pexpr)[ul];
-		pexprChild->AddRef();
-		pdrgpexpr->Append(pexprChild);
-	}
-
-	CExpression *pexprScalar = (*pexpr)[ulArity - 1];
-
-	DrgPexpr *pdrgpexprPreds = CPredicateUtils::PdrgpexprConjuncts(pmp, pexprScalar);
-
-	// create a join order based on query-specified order of joins
-	CJoinOrder jo(pmp, pdrgpexpr, pdrgpexprPreds);
-	CExpression *pexprResult = jo.PexprExpand();
-
-	// normalize resulting expression
-	CExpression *pexprNormalized = CNormalizer::PexprNormalize(pmp, pexprResult);
-	pexprResult->Release();
-	pxfres->Add(pexprNormalized);
+    IMemoryPool *pmp = pxfctxt->Pmp();
+//
+//    const ULONG ulArity = pexpr->UlArity();
+//    GPOS_ASSERT(ulArity >= 3);
+//
+//    DrgPexpr *pdrgpexpr = GPOS_NEW(pmp) DrgPexpr(pmp);
+//    for (ULONG ul = 0; ul < ulArity - 1; ul++)
+//    {
+//        CExpression *pexprChild = (*pexpr)[ul];
+//        pexprChild->AddRef();
+//        pdrgpexpr->Append(pexprChild);
+//    }
+//
+//    CExpression *pexprScalar = (*pexpr)[ulArity - 1];
+//
+//    DrgPexpr *pdrgpexprPreds = CPredicateUtils::PdrgpexprConjuncts(pmp, pexprScalar);
+//
+//    // create a join order based on query-specified order of joins
+//    CJoinOrder jo(pmp, pdrgpexpr, pdrgpexprPreds);
+//    CExpression *pexprResult = jo.PexprExpand();
+//
+//    // normalize resulting expression
+//    CExpression *pexprNormalized = CNormalizer::PexprNormalize(pmp, pexprResult);
+//    pexprResult->Release();
+//    pxfres->Add(pexprNormalized);
 
 	AddSpecifiedJoinOrder(pmp, pexpr, pxfres);
 }
