@@ -1972,6 +1972,8 @@ CTranslatorExprToDXL::PdxlnRemapOutputColumns
 
 	// get project list
 	CDXLNode *pdxlnPrL = (*pdxln)[0];
+	CExpression *pexprHashJoin = (*pexpr)[0];
+	
 
 	DrgPcr *pdrgpcrOrderedReqdCols = PdrgpcrMerge(m_pmp, pdrgpcrOrder, pdrgpcrRequired);
 	
@@ -1991,20 +1993,92 @@ CTranslatorExprToDXL::PdxlnRemapOutputColumns
 
 	CDXLNode *pdxlnPrLNew = PdxlnProjList(pcrsOutput, pdrgpcrOrder);
 	pcrsOutput->Release();
+	
+	const DrgPdxln *prgdxln = pdxlnPrLNew->PdrgpdxlnChildren();
+	BOOL fHasScalarSubplan = false;
+	BOOL fHasScalarIdent = false;
+	
+	for (ULONG ul=0; ul < pdxlnPrLNew->PdrgpdxlnChildren()->UlLength(); ul++)
+	{
+		CDXLNode *pdxlnChild = (*prgdxln)[ul];
+		const DrgPdxln *prgdxlnChild = pdxlnChild->PdrgpdxlnChildren();
+		CDXLNode *prgdxlnChildPrjElem = (*prgdxlnChild)[0];
 
+		gpdxl::Edxlopid rgeopidSubPlan[] =
+		{
+			EdxlopScalarSubPlan
+		};
+		fHasScalarSubplan = CUtils::FHasOpMod(prgdxlnChildPrjElem, rgeopidSubPlan, GPOS_ARRAY_SIZE(rgeopidSubPlan));
+		if (fHasScalarSubplan)
+		{
+			continue;
+		}
+		
+		gpdxl::Edxlopid rgeopidIdent[] =
+		{
+			EdxlopScalarIdent
+		};
+		
+		fHasScalarIdent = CUtils::FHasOpMod(prgdxlnChildPrjElem, rgeopidIdent, GPOS_ARRAY_SIZE(rgeopidIdent));
+	}
+	
 	// empty one time filter
 	CDXLNode *pdxlnOneTimeFilter = GPOS_NEW(m_pmp) CDXLNode(m_pmp, GPOS_NEW(m_pmp) CDXLScalarOneTimeFilter(m_pmp));
+	if (fHasScalarSubplan & fHasScalarIdent)
+	{
 
+		gpdxl::Edxlopid rgeopid[] =
+		{
+			EdxlopPhysicalMotionBroadcast,
+			EdxlopPhysicalMotionRedistribute,
+			EdxlopPhysicalMotionRoutedDistribute,
+			EdxlopPhysicalMotionRandom,
+		};
+		
+		BOOL fHasMotion = CUtils::FHasOpMod(pdxln, rgeopid, GPOS_ARRAY_SIZE(rgeopid));
+		
+		if (fHasMotion)
+		{
+			CDXLPhysicalMaterialize *pdxlopMat = GPOS_NEW(m_pmp) CDXLPhysicalMaterialize(m_pmp, true /* fEager */);
+			CDXLNode *pdxlnMaterialize = GPOS_NEW(m_pmp) CDXLNode(m_pmp, pdxlopMat);
+			CDXLPhysicalProperties *pdxlprop = Pdxlprop(pexprHashJoin);
+			pdxlnMaterialize->SetProperties(pdxlprop);
+			
+			// construct an empty filter node
+			CDXLNode *pdxlnFilter = PdxlnFilter(NULL /* pdxlnCond */);
+			
+			CDXLNode *pdxlnProjListChild = (*pdxln)[0];
+			CDXLNode *pdxlnProjList = CTranslatorExprToDXLUtils::PdxlnProjListFromChildProjList(m_pmp, m_pcf, m_phmcrdxln, pdxlnProjListChild);
+			
+			// add children
+			pdxlnMaterialize->AddChild(pdxlnProjList);
+			pdxlnMaterialize->AddChild(pdxlnFilter);
+			pdxlnMaterialize->AddChild(pdxln);
+			
+			CDXLNode *pdxlnResult = CTranslatorExprToDXLUtils::PdxlnResult
+			(
+			 m_pmp,
+			 Pdxlprop(pexpr),
+			 pdxlnPrLNew,
+			 PdxlnFilter(NULL),
+			 pdxlnOneTimeFilter,
+			 pdxlnMaterialize
+			 );
+			
+			return pdxlnResult;
+		}
+	}
+	
 	CDXLNode *pdxlnResult = CTranslatorExprToDXLUtils::PdxlnResult
-														(
-														m_pmp,
-														Pdxlprop(pexpr),
-														pdxlnPrLNew,
-														PdxlnFilter(NULL),
-														pdxlnOneTimeFilter,
-														pdxln
-														);
-
+	(
+	 m_pmp,
+	 Pdxlprop(pexpr),
+	 pdxlnPrLNew,
+	 PdxlnFilter(NULL),
+	 pdxlnOneTimeFilter,
+	 pdxln
+	 );
+	
 	return pdxlnResult;
 }
 

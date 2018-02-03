@@ -704,10 +704,20 @@ namespace gpopt
 			// check if given operator exists in the given list
 			static
 			BOOL FOpExists(const COperator *pop, const COperator::EOperatorId *peopid, ULONG ulOps);
+		
+			static
+			BOOL FDXLOpExists(const CDXLOperator *pop, const gpdxl::Edxlopid *peopid, ULONG ulOps);
 
 			// check if given expression has any operator in the given list
 			static
 			BOOL FHasOp(const CExpression *pexpr, const COperator::EOperatorId *peopid, ULONG ulOps);
+		
+						// check if given expression has any operator in the given list
+//			static
+//			BOOL FHasOpMod(const CExpression *pexpr, const COperator::EOperatorId *peopid, ULONG ulOps);
+		
+			static
+			BOOL FHasOpMod(const CDXLNode *pdxln, const gpdxl::Edxlopid *peopid, ULONG ulOps);
 
 			// return number of inlinable CTEs in the given expression
 			static

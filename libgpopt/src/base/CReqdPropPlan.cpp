@@ -682,9 +682,9 @@ CReqdPropPlan::OsPrint
 	{
 		os << (*m_pcter);
 	}
-	os << "], req order: [" << (*m_peo);
-	os << "], req dist: [" << (*m_ped);
-	os << "], req rewind: [" << (*m_per);	
+//	os << "], req order: [" << (*m_peo);
+//	os << "], req dist: [" << (*m_ped);
+//	os << "], req rewind: [" << (*m_per);	
 	os	<<	"], req partition propagation: [" << pp(m_pepp);
 	os <<  "]";
 	

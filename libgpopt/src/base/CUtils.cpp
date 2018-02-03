@@ -3044,6 +3044,31 @@ CUtils::FOpExists
 	return false;
 }
 
+// check if given operator exists in the given list
+BOOL
+CUtils::FDXLOpExists
+	(
+	const CDXLOperator *pop,
+	const gpdxl::Edxlopid *peopid,
+	ULONG ulOps
+	)
+{
+	GPOS_ASSERT(NULL != pop);
+	GPOS_ASSERT(NULL != peopid);
+
+	gpdxl::Edxlopid eopid = pop->Edxlop();
+	for (ULONG ul = 0; ul < ulOps; ul++)
+	{
+		if (eopid == peopid[ul])
+		{
+			return true;
+		}
+	}
+
+	return false;
+}
+
+
 // check if given expression has any operator in the given list
 BOOL
 CUtils::FHasOp
@@ -3069,6 +3094,92 @@ CUtils::FHasOp
 		if (FHasOp((*pexpr)[ul], peopid, ulOps))
 		{
 			return true;
+		}
+	}
+
+	return false;
+}
+
+//// check if given expression has any operator in the given list
+//BOOL
+//CUtils::FHasOpMod
+//	(
+//	const CExpression *pexpr,
+//	const COperator::EOperatorId *peopid,
+//	ULONG ulOps
+//	)
+//{
+//	GPOS_CHECK_STACK_SIZE;
+//	GPOS_ASSERT(NULL != pexpr);
+//	GPOS_ASSERT(NULL != peopid);
+//
+//	if (FOpExists(pexpr->Pop(), peopid, ulOps))
+//	{
+//		return true;
+//	}
+//
+//	// recursively check children
+//	const ULONG ulArity = pexpr->UlArity();
+//	
+//	if (CUtils::FPhysicalJoin(pexpr->Pop()))
+//	{
+//		if (FHasOpMod((*pexpr)[0], peopid, ulOps))
+//		{
+//			return true;
+//		}
+//	}
+//	else
+//	{
+//		for (ULONG ul = 0; ul < ulArity; ul++)
+//		{
+//			if (FHasOpMod((*pexpr)[ul], peopid, ulOps))
+//			{
+//				return true;
+//			}
+//		}
+//	}
+//
+//	return false;
+//}
+
+// check if given expression has any operator in the given list
+BOOL
+CUtils::FHasOpMod
+	(
+	const CDXLNode *pdxln,
+	const gpdxl::Edxlopid *peopid,
+	ULONG ulOps
+	)
+{
+	GPOS_CHECK_STACK_SIZE;
+	GPOS_ASSERT(NULL != pdxln);
+	GPOS_ASSERT(NULL != peopid);
+
+	if (FDXLOpExists(pdxln->Pdxlop(), peopid, ulOps))
+	{
+		return true;
+	}
+
+	// recursively check children
+	const DrgPdxln *pdrgpdxlnChildren = pdxln->PdrgpdxlnChildren();
+	const ULONG ulArity = pdrgpdxlnChildren->UlLength();
+
+	if (pdxln->Pdxlop()->Edxlop() == EdxlopPhysicalNLJoin ||
+		pdxln->Pdxlop()->Edxlop() == EdxlopPhysicalHashJoin)
+	{
+		if (FHasOpMod((*pdxln)[/*EdxlhjIndexHashLeft*/4], peopid, ulOps))
+		{
+			return true;
+		}
+	}
+	else
+	{
+		for (ULONG ul = 0; ul < ulArity; ul++)
+		{
+			if (FHasOpMod((*pdrgpdxlnChildren)[ul], peopid, ulOps))
+			{
+				return true;
+			}
 		}
 	}
 
