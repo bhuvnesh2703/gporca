@@ -2202,7 +2202,15 @@ CEngine::FCheckEnfdProps
 	BOOL fRewindabilityReqd =
 		!GPOS_FTRACE(EopttraceDisableSpool) &&
 		(CRewindabilitySpec::ErtNone != prpp->Per()->PrsRequired()->Ert());
-
+	
+	BOOL fRewindabilityReqdTest = false;
+	if (popPhysical->Eopid() == COperator::EopPhysicalLeftOuterHashJoin)
+		{
+		fRewindabilityReqdTest =
+		!GPOS_FTRACE(EopttraceDisableSpool) && prpp->PerTest() != NULL &&
+		(CRewindabilitySpec::ErtNone != prpp->PerTest()->PrsRequired()->Ert());
+		}
+	
 	BOOL fPartPropagationReqd =
 		!GPOS_FTRACE(EopttraceDisablePartPropagation) &&
 		prpp->Pepp()->PppsRequired()->FPartPropagationReqd();
@@ -2217,6 +2225,10 @@ CEngine::FCheckEnfdProps
 	// get rewindability enforcing type
 	CEnfdProp::EPropEnforcingType epetRewindability =
 			prpp->Per()->Epet(exprhdl, popPhysical, fRewindabilityReqd);
+	
+	// get rewindability enforcing type
+	CEnfdProp::EPropEnforcingType epetRewindabilityTest =
+	prpp->PerTest()->Epet(exprhdl, popPhysical, fRewindabilityReqdTest);
 
 	// get partition propagation enforcing type
 	CEnfdProp::EPropEnforcingType epetPartitionPropagation =
@@ -2251,10 +2263,19 @@ CEngine::FCheckEnfdProps
 //			
 ////		}
 //	}
+
 	prpp->Peo()->AppendEnforcers(pmp, prpp, pdrgpexprEnforcers, pexpr, epetOrder, exprhdl);
 	prpp->Ped()->AppendEnforcers(pmp, prpp, pdrgpexprEnforcers, pexpr, epetDistribution, exprhdl);
-//	if (fDistributionReqdChild)
+	BOOL optimize = false;
+	if (popPhysical->FMotionHazard() && fRewindabilityReqdTest)
+	{
+		prpp->PerTest()->AppendEnforcers(pmp, prpp, pdrgpexprEnforcers, pexpr, epetRewindabilityTest, exprhdl);
+		optimize = true;
+	}
+	else
+	{
 		prpp->Per()->AppendEnforcers(pmp, prpp, pdrgpexprEnforcers, pexpr, epetRewindability, exprhdl);
+	}
 	prpp->Pepp()->AppendEnforcers(pmp, prpp, pdrgpexprEnforcers, pexpr, epetPartitionPropagation, exprhdl);
 
 	if (0 < pdrgpexprEnforcers->UlLength())
@@ -2263,7 +2284,8 @@ CEngine::FCheckEnfdProps
 	}
 	pdrgpexprEnforcers->Release();
 	pexpr->Release();
-	
+	if (optimize)
+		return true;
 	return FOptimize(epetOrder, epetDistribution, epetRewindability, epetPartitionPropagation);
 }
 
@@ -2347,6 +2369,22 @@ CEngine::FOptimize
 	       CEnfdProp::FOptimize(epetRewindability) && 
 	       CEnfdProp::FOptimize(epetPropagation);
 }
+
+//BOOL
+//CEngine::FOptimize
+//(
+// CEnfdProp::EPropEnforcingType epetOrder,
+// CEnfdProp::EPropEnforcingType epetDistribution,
+// CEnfdProp::EPropEnforcingType epetRewindability,
+// CEnfdProp::EPropEnforcingType epetPropagation,
+// CEnfdProp::EPropEnforcingType //epetRewindabilityTest
+// )
+//{
+//	return (CEnfdProp::FOptimize(epetOrder) &&
+//	CEnfdProp::FOptimize(epetDistribution) &&
+//	CEnfdProp::FOptimize(epetRewindability) &&
+//	CEnfdProp::FOptimize(epetPropagation);
+//}
 
 //---------------------------------------------------------------------------
 //	@function:
@@ -2451,7 +2489,9 @@ CEngine::FCheckReqdProps
 	// this check is required to avoid self-deadlocks, i.e.
 	// spool optimizing same group with the same optimization context;
 	BOOL fRewindabilityReqd =
-			(CRewindabilitySpec::ErtNone != prpp->Per()->PrsRequired()->Ert());
+//			(CRewindabilitySpec::ErtNone != prpp->Per()->PrsRequired()->Ert()) || (CRewindabilitySpec::ErtNone != prpp->PerTest()->PrsRequired()->Ert());
+	(CRewindabilitySpec::ErtNone != prpp->PerTest()->PrsRequired()->Ert());
+	
 	if (!fRewindabilityReqd && COperator::EopPhysicalSpool == eopid)
 	{
 		return false;

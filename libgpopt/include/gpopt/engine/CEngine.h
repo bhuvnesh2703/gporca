@@ -215,6 +215,16 @@ namespace gpopt
 				CEnfdProp::EPropEnforcingType epetRewindability, 
 				CEnfdProp::EPropEnforcingType epetPropagation
 				);
+		
+		static
+		BOOL FOptimize
+		(
+		 CEnfdProp::EPropEnforcingType epetOrder,
+		 CEnfdProp::EPropEnforcingType epetDistribution,
+		 CEnfdProp::EPropEnforcingType epetRewindability,
+		 CEnfdProp::EPropEnforcingType epetPropagation,
+		 CEnfdProp::EPropEnforcingType epetRewindabilityTest
+		 );
 			
 			// check if partition propagation resolver is passed an empty part
 			// propagation spec

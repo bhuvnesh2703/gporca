@@ -957,32 +957,30 @@ CPhysicalJoin::PrsRequiredCorrelatedJoin
 	CRewindabilitySpec *prsRequired,
 	ULONG ulChildIndex,
 	DrgPdp *pdrgpdpCtxt, //pdrgpdpCtxt
-	ULONG ulOptReq
+	ULONG //ulOptReq
 	)
 	const
 {
 	GPOS_ASSERT(3 == exprhdl.UlArity());
-	GPOS_ASSERT(2 > ulChildIndex);
+//	GPOS_ASSERT(2 > ulChildIndex);
 	GPOS_ASSERT(CUtils::FCorrelatedNLJoin(exprhdl.Pop()));
 	GPOS_ASSERT(pdrgpdpCtxt);
-	
-	// Do we have subplan and the columns are projected from outer (Motion Hazard Chances)
-	// Do we have any motions in outer child
-	if (exprhdl.Pop()->Eopid() == COperator::EopPhysicalCorrelatedLeftOuterNLJoin)
-	{
-		CColRefSet *pcrsUsed = CReqdPropPlan::Prpp(exprhdl.Prp())->PcrsRequired();
-		CColRefSet *pcrsCorrelatedApply = exprhdl.Pdprel()->PcrsCorrelatedApply();
-		CDrvdPropRelational *pdprelOuter = exprhdl.Pdprel(0);
-		CColRefSet *pcrsOuterChild = pdprelOuter->PcrsOutput();
-		if (!pcrsUsed->FDisjoint(pcrsCorrelatedApply) && !pcrsUsed->FDisjoint(pcrsOuterChild))
-			return GPOS_NEW(pmp) CRewindabilitySpec(CRewindabilitySpec::ErtGeneral);
-		GPOS_ASSERT(ulOptReq);
-	}
 
 	// if there are outer references, then we need a materialize on both children
 	if (exprhdl.FHasOuterRefs())
 	{
 		return GPOS_NEW(pmp) CRewindabilitySpec(CRewindabilitySpec::ErtGeneral);
+	}
+	
+	// Do we have subplan and the columns are projected from outer (Motion Hazard Chances)
+	// Do we have any motions in outer child
+	if ((ulChildIndex == 7 && exprhdl.Pop()->Eopid() == COperator::EopPhysicalCorrelatedLeftOuterNLJoin))
+	{
+		CColRefSet *pcrsUsed = CReqdPropPlan::Prpp(exprhdl.Prp())->PcrsRequired();
+		CColRefSet *pcrsCorrelatedApply = exprhdl.Pdprel()->PcrsCorrelatedApply();
+		CColRefSet *pcrsOuterChild = exprhdl.Pdprel(0)->PcrsOutput();
+		if (!pcrsUsed->FDisjoint(pcrsCorrelatedApply) && !pcrsUsed->FDisjoint(pcrsOuterChild))
+			return GPOS_NEW(pmp) CRewindabilitySpec(CRewindabilitySpec::ErtGeneral);
 	}
 
 	if (1 == ulChildIndex)

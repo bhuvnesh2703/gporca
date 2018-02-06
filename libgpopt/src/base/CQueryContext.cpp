@@ -240,10 +240,13 @@ CQueryContext::PqcGenerate
 	CEnfdDistribution *ped = GPOS_NEW(pmp) CEnfdDistribution(pds, CEnfdDistribution::EdmSatisfy);
 
 	CEnfdRewindability *per = GPOS_NEW(pmp) CEnfdRewindability(prs, CEnfdRewindability::ErmSatisfy);
+	
+	prs->AddRef();
+	CEnfdRewindability *perTest = GPOS_NEW(pmp) CEnfdRewindability(prs, CEnfdRewindability::ErmSatisfy);
 
 	CCTEReq *pcter = poptctxt->Pcteinfo()->PcterProducers(pmp);
 
-	CReqdPropPlan *prpp = GPOS_NEW(pmp) CReqdPropPlan(pcrs, peo, ped, per, pcter);
+	CReqdPropPlan *prpp = GPOS_NEW(pmp) CReqdPropPlan(pcrs, peo, ped, per, pcter, perTest);
 
 	pdrgpmdname->AddRef();
 	return GPOS_NEW(pmp) CQueryContext(pmp, pexprResult, prpp, pdrgpcr, pdrgpmdname, fDeriveStats);

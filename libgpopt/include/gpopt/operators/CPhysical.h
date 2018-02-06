@@ -172,6 +172,8 @@ namespace gpopt
 
 			// total number of optimization requests
 			ULONG m_ulTotalOptRequests;
+		
+			BOOL m_fMotionHazard;
 
 			// update number of requests of a given property
 			void UpdateOptRequests(ULONG ulPropIndex, ULONG ulRequests);
@@ -706,6 +708,12 @@ namespace gpopt
 			// helper for computing a singleton distribution matching the given distribution
 			static
 			CDistributionSpecSingleton *PdssMatching(IMemoryPool *pmp, CDistributionSpecSingleton *pdss);
+
+			BOOL FMotionHazard();
+		
+			void SetMotionHazard();
+		
+		
 
 	}; // class CPhysical
 

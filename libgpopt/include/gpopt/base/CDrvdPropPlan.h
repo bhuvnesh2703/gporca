@@ -61,6 +61,9 @@ namespace gpopt
 
 			// derived cte map
 			CCTEMap *m_pcm;
+		
+		// derived rewindability
+		CRewindabilitySpec *m_prsTest;
 
 			 // copy CTE producer plan properties from given context to current object
 			void CopyCTEProducerPlanProps(IMemoryPool *pmp, CDrvdPropCtxt *pdpctxt, COperator *pop);
@@ -120,6 +123,12 @@ namespace gpopt
 			{
 				return m_ppfm;
 			}
+		
+		// rewindability accessor
+		CRewindabilitySpec *PrsTest() const
+		{
+			return m_prsTest;
+		}
 
 			// cte map
 			CCTEMap *Pcm() const

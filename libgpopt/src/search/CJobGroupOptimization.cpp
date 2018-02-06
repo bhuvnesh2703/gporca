@@ -162,6 +162,8 @@ CJobGroupOptimization::FScheduleGroupExpressions
 		// optimization level
 		if (psc->Peng()->FOptimizeChild(m_pgexprOrigin, pgexpr, m_poc, EolCurrent()))
 		{
+			if (pgexpr->Pop()->Eopid() == COperator::EopPhysicalSpool)
+				GPOS_ASSERT(true);
 			const ULONG ulOptRequests = CPhysical::PopConvert(pgexpr->Pop())->UlOptRequests();
 			for (ULONG ul = 0; ul < ulOptRequests; ul++)
 			{

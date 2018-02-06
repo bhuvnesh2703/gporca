@@ -64,6 +64,9 @@ namespace gpopt
 
 			// required ctes
 			CCTEReq *m_pcter;
+		
+			// required rewindability
+			CEnfdRewindability *m_perTest;
 
 			// private copy ctor
 			CReqdPropPlan(const CReqdPropPlan &);
@@ -89,7 +92,8 @@ namespace gpopt
 				m_ped(NULL),
 				m_per(NULL),
 				m_pepp(NULL),
-				m_pcter(NULL)
+				m_pcter(NULL),
+				m_perTest(NULL)
 			{}
 
 			// ctor
@@ -102,6 +106,25 @@ namespace gpopt
 				CCTEReq *pcter
 				);
 
+		CReqdPropPlan
+		(
+		 CColRefSet *pcrs,
+		 CEnfdOrder *peo,
+		 CEnfdDistribution *ped,
+		 CEnfdRewindability *per,
+		 CCTEReq *pcter,
+		 CEnfdRewindability *perTest
+		 );
+		
+		CReqdPropPlan
+		(
+		 CColRefSet *pcrs,
+		 CEnfdOrder *peo,
+		 CEnfdDistribution *ped,
+		 CEnfdRewindability *per,
+		 CEnfdPartitionPropagation *pepp,
+		 CCTEReq *pcter
+		 );
 			// ctor
 			CReqdPropPlan
 				(
@@ -110,7 +133,8 @@ namespace gpopt
 				CEnfdDistribution *ped,
 				CEnfdRewindability *per,
 				CEnfdPartitionPropagation *pepp,
-				CCTEReq *pcter
+				CCTEReq *pcter,
+				 CEnfdRewindability *perTest
 				);
 
 			// dtor
@@ -192,6 +216,12 @@ namespace gpopt
 			{
 				return m_pcter;
 			}
+		
+			// required rewindability accessor
+			CEnfdRewindability *PerTest() const
+			{
+				return m_perTest	;
+			}
 
 			// given a property spec type, return the corresponding property spec member
 			CPropSpec *Pps(ULONG ul) const;
@@ -227,7 +257,8 @@ namespace gpopt
 			{
 				GPOS_ASSERT(NULL != prp);
 
-				return dynamic_cast<CReqdPropPlan*>(prp);
+				CReqdPropPlan *preqdPropPlan = dynamic_cast<CReqdPropPlan*>(prp);
+				return preqdPropPlan;
 			}
 
 			//generate empty required properties

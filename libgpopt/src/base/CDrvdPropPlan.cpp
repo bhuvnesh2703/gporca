@@ -39,7 +39,8 @@ CDrvdPropPlan::CDrvdPropPlan
 	m_prs(NULL),
 	m_ppim(NULL),
 	m_ppfm(NULL),
-	m_pcm(NULL)
+	m_pcm(NULL),
+m_prsTest(NULL)
 {}
 
 
@@ -56,6 +57,7 @@ CDrvdPropPlan::~CDrvdPropPlan()
 	CRefCount::SafeRelease(m_pos);
 	CRefCount::SafeRelease(m_pds);
 	CRefCount::SafeRelease(m_prs);
+	CRefCount::SafeRelease(m_prsTest);
 	CRefCount::SafeRelease(m_ppim);
 	CRefCount::SafeRelease(m_ppfm);
 	CRefCount::SafeRelease(m_pcm);
@@ -112,6 +114,7 @@ CDrvdPropPlan::Derive
 		m_prs = popPhysical->PrsDerive(pmp, exprhdl);
 		m_ppim = popPhysical->PpimDerive(pmp, exprhdl, pdpctxt);
 		m_ppfm = popPhysical->PpfmDerive(pmp, exprhdl);
+		m_prsTest = popPhysical->PrsDerive(pmp, exprhdl);
 
 		GPOS_ASSERT(NULL != m_ppim);
 		GPOS_ASSERT(CDistributionSpec::EdtAny != m_pds->Edt() && "CDistributionAny is a require-only, cannot be derived");
@@ -152,6 +155,8 @@ CDrvdPropPlan::CopyCTEProducerPlanProps
 		// we add-ref producer's properties directly
 		pdpplan->Prs()->AddRef();
 		m_prs = pdpplan->Prs();
+		pdpplan->PrsTest()->AddRef();
+		m_prsTest = pdpplan->PrsTest();
 
 		pdpplan->Ppfm()->AddRef();
 		m_ppfm = pdpplan->Ppfm();
@@ -190,7 +195,8 @@ CDrvdPropPlan::FSatisfies
 	return
 		m_pos->FSatisfies(prpp->Peo()->PosRequired()) &&
 		m_pds->FSatisfies(prpp->Ped()->PdsRequired()) &&
-		m_prs->FSatisfies(prpp->Per()->PrsRequired()) && 
+		(m_prs->FSatisfies(prpp->Per()->PrsRequired()) ||
+		m_prsTest->FSatisfies(prpp->PerTest()->PrsRequired())) &&
 		m_ppim->FSatisfies(prpp->Pepp()->PppsRequired()) &&
 		m_pcm->FSatisfies(prpp->Pcter());
 }
@@ -209,6 +215,7 @@ CDrvdPropPlan::UlHash() const
 {
 	ULONG ulHash = gpos::UlCombineHashes(m_pos->UlHash(), m_pds->UlHash());
 	ulHash = gpos::UlCombineHashes(ulHash, m_prs->UlHash());
+	ulHash = gpos::UlCombineHashes(ulHash, m_prsTest->UlHash());
 	ulHash = gpos::UlCombineHashes(ulHash, m_ppim->UlHash());
 	ulHash = gpos::UlCombineHashes(ulHash, m_pcm->UlHash());
 
@@ -233,6 +240,7 @@ CDrvdPropPlan::FEqual
 	return m_pos->FMatch(pdpplan->Pos()) &&
 			m_pds->FMatch(pdpplan->Pds()) &&
 			m_prs->FMatch(pdpplan->Prs()) &&
+	m_prsTest->FMatch(pdpplan->PrsTest()) &&
 			m_ppim->FEqual(pdpplan->Ppim()) &&
 			m_pcm->FEqual(pdpplan->Pcm());
 }
@@ -256,7 +264,8 @@ CDrvdPropPlan::OsPrint
 			<< "ORD: " << (*m_pos)
 			<< ", DIST: " << (*m_pds)
 			<< ", REWIND: " << (*m_prs) << ")"
-			<< ", Part-Index Map: [" << *m_ppim << "]";
+			<< ", Part-Index Map: [" << *m_ppim << "]"
+			<< ", REWIND Hazard: " << (*m_prsTest) << ")";
 			os << ", Part Filter Map: ";
 			m_ppfm->OsPrint(os);
 			os << ", CTE Map: [" << *m_pcm << "]";

@@ -671,7 +671,9 @@ CPhysicalHashJoin::PdsRequired
 		ulOptReq == ulHashDistributeRequests + 1)
 	{
 		// requests N+1, N+2 are (hashed/non-singleton, replicate)
-
+		CPhysical *pop = CPhysicalJoin::PopConvert(exprhdl.Pop());
+		pop->SetMotionHazard();
+		GPOS_ASSERT(pop);
 		return PdsRequiredReplicate(pmp, exprhdl, pdsInput, ulChildIndex, pdrgpdpCtxt, ulOptReq);
 	}
 

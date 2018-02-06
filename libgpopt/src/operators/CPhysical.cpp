@@ -1366,5 +1366,15 @@ CPhysical::Erm(CReqdPropPlan *, ULONG , DrgPdp *, ULONG)
 	return CEnfdRewindability::ErmSatisfy;
 }
 
+BOOL
+CPhysical::FMotionHazard()
+{
+	return m_fMotionHazard;
+}
 
+void
+CPhysical::SetMotionHazard()
+{
+	m_fMotionHazard = true;
+}
 // EOF

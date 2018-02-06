@@ -65,6 +65,33 @@ CReqdPropPlan::CReqdPropPlan
 	GPOS_ASSERT(NULL != ped);
 	GPOS_ASSERT(NULL != per);
 	GPOS_ASSERT(NULL != pcter);
+	m_perTest = NULL;
+}
+
+CReqdPropPlan::CReqdPropPlan
+(
+ CColRefSet *pcrs,
+ CEnfdOrder *peo,
+ CEnfdDistribution *ped,
+ CEnfdRewindability *per,
+ CCTEReq *pcter,
+ CEnfdRewindability *perTest
+ )
+:
+m_pcrs(pcrs),
+m_peo(peo),
+m_ped(ped),
+m_per(per),
+m_pepp(NULL),
+m_pcter(pcter),
+m_perTest(perTest)
+{
+	GPOS_ASSERT(NULL != pcrs);
+	GPOS_ASSERT(NULL != peo);
+	GPOS_ASSERT(NULL != ped);
+	GPOS_ASSERT(NULL != per);
+	GPOS_ASSERT(NULL != pcter);
+	GPOS_ASSERT(NULL != perTest);
 }
 
 
@@ -101,6 +128,34 @@ CReqdPropPlan::CReqdPropPlan
 	GPOS_ASSERT(NULL != pcter);
 }
 
+CReqdPropPlan::CReqdPropPlan
+(
+ CColRefSet *pcrs,
+ CEnfdOrder *peo,
+ CEnfdDistribution *ped,
+ CEnfdRewindability *per,
+ CEnfdPartitionPropagation *pepp,
+ CCTEReq *pcter,
+ CEnfdRewindability *perTest
+ )
+:
+m_pcrs(pcrs),
+m_peo(peo),
+m_ped(ped),
+m_per(per),
+m_pepp(pepp),
+m_pcter(pcter),
+m_perTest(perTest)
+{
+	GPOS_ASSERT(NULL != pcrs);
+	GPOS_ASSERT(NULL != peo);
+	GPOS_ASSERT(NULL != ped);
+	GPOS_ASSERT(NULL != per);
+	GPOS_ASSERT(NULL != pepp);
+	GPOS_ASSERT(NULL != pcter);
+	GPOS_ASSERT(NULL != perTest);
+}
+
 
 //---------------------------------------------------------------------------
 //	@function:
@@ -118,6 +173,7 @@ CReqdPropPlan::~CReqdPropPlan()
 	CRefCount::SafeRelease(m_per);
 	CRefCount::SafeRelease(m_pepp);
 	CRefCount::SafeRelease(m_pcter);
+	CRefCount::SafeRelease(m_perTest);
 }
 
 
@@ -264,6 +320,39 @@ CReqdPropPlan::Compute
 							CEnfdPartitionPropagation::EppmSatisfy,
 							ppfmDerived
 							);
+	if (COperator::EopPhysicalCorrelatedLeftOuterNLJoin == popPhysical->Eopid())
+	{
+	ULONG testChild = ulChildIndex == 0 ? 7: ulChildIndex;
+	m_perTest = GPOS_NEW(pmp) CEnfdRewindability
+	(
+	 popPhysical->PrsRequired
+	 (
+	  pmp,
+	  exprhdl,
+	  prppInput->PerTest()->PrsRequired(),
+	  testChild,
+	  pdrgpdpCtxt,
+	  ulRewindReq
+	  ),
+	 popPhysical->Erm(prppInput, ulChildIndex, pdrgpdpCtxt, ulRewindReq)
+	 );
+	}
+	else
+	{
+		m_perTest = GPOS_NEW(pmp) CEnfdRewindability
+		(
+		 popPhysical->PrsRequired
+		 (
+		  pmp,
+		  exprhdl,
+		  prppInput->PerTest()->PrsRequired(),
+		  ulChildIndex,
+		  pdrgpdpCtxt,
+		  ulRewindReq
+		  ),
+		 popPhysical->Erm(prppInput, ulChildIndex, pdrgpdpCtxt, ulRewindReq)
+		 );
+	}
 }
 
 //---------------------------------------------------------------------------
@@ -542,11 +631,14 @@ CReqdPropPlan::UlHash() const
 	GPOS_ASSERT(NULL != m_ped);
 	GPOS_ASSERT(NULL != m_per);
 	GPOS_ASSERT(NULL != m_pcter);
+	if (NULL == m_perTest)
+		GPOS_ASSERT(NULL != m_perTest);
 
 	ULONG ulHash = m_pcrs->UlHash();
 	ulHash = gpos::UlCombineHashes(ulHash, m_peo->UlHash());
 	ulHash = gpos::UlCombineHashes(ulHash, m_ped->UlHash());
 	ulHash = gpos::UlCombineHashes(ulHash, m_per->UlHash());
+	ulHash = gpos::UlCombineHashes(ulHash, m_perTest->UlHash());
 	ulHash = gpos::UlCombineHashes(ulHash, m_pcter->UlHash());
 
 	return ulHash;
@@ -587,7 +679,8 @@ CReqdPropPlan::FSatisfied
 		
 		return
 			pdpplan->Pds()->FSatisfies(this->Ped()->PdsRequired()) &&
-			pdpplan->Prs()->FSatisfies(this->Per()->PrsRequired()) &&
+			(pdpplan->Prs()->FSatisfies(this->Per()->PrsRequired()) ||
+			pdpplan->PrsTest()->FSatisfies(this->PerTest()->PrsRequired())) &&
 			pdpplan->Ppim()->FSatisfies(this->Pepp()->PppsRequired()) &&
 			pdpplan->Pcm()->FSatisfies(this->Pcter());
 	}
@@ -626,6 +719,7 @@ CReqdPropPlan::FCompatible
 	return m_peo->FCompatible(pdpplan->Pos()) &&
 	       m_ped->FCompatible(pdpplan->Pds()) &&
 	       m_per->FCompatible(pdpplan->Prs()) &&
+		m_perTest->FCompatible(pdpplan->PrsTest()) &&
 	       pdpplan->Ppim()->FSatisfies(m_pepp->PppsRequired()) &&
 	       popPhysical->FProvidesReqdCTEs(exprhdl, m_pcter);
 }
@@ -651,9 +745,11 @@ CReqdPropPlan::PrppEmpty
 	CEnfdOrder *peo = GPOS_NEW(pmp) CEnfdOrder(pos, CEnfdOrder::EomSatisfy);
 	CEnfdDistribution *ped = GPOS_NEW(pmp) CEnfdDistribution(pds, CEnfdDistribution::EdmExact);
 	CEnfdRewindability *per = GPOS_NEW(pmp) CEnfdRewindability(prs, CEnfdRewindability::ErmSatisfy);
+	prs->AddRef();
+	CEnfdRewindability *perTest = GPOS_NEW(pmp) CEnfdRewindability(prs, CEnfdRewindability::ErmSatisfy);
 	CCTEReq *pcter = GPOS_NEW(pmp) CCTEReq(pmp);
 
-	return GPOS_NEW(pmp) CReqdPropPlan(pcrs, peo, ped, per, pcter);
+	return GPOS_NEW(pmp) CReqdPropPlan(pcrs, peo, ped, per, pcter, perTest);
 }
 
 //---------------------------------------------------------------------------
@@ -682,10 +778,11 @@ CReqdPropPlan::OsPrint
 	{
 		os << (*m_pcter);
 	}
-//	os << "], req order: [" << (*m_peo);
-//	os << "], req dist: [" << (*m_ped);
-//	os << "], req rewind: [" << (*m_per);	
+	os << "], req order: [" << (*m_peo);
+	os << "], req dist: [" << (*m_ped);
+	os << "], req rewind: [" << (*m_per);	
 	os	<<	"], req partition propagation: [" << pp(m_pepp);
+	os << "], req rewind motion: [" << (*m_perTest);
 	os <<  "]";
 	
 	return os;
