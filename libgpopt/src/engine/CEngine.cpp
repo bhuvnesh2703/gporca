@@ -2236,10 +2236,25 @@ CEngine::FCheckEnfdProps
 		binding.PexprExtract(m_pmp, exprhdl.Pgexpr(), m_pexprEnforcerPattern, NULL /* pexprLast */);
 	GPOS_ASSERT(NULL != pexpr);
 	GPOS_ASSERT(pexpr->Pgexpr()->Pgroup() == pgexpr->Pgroup());
-		
+	
+//	BOOL fDistributionReqdChild = true;
+//	ULONG ulArity = pdrgpoc->UlLength();
+//	if (popPhysical->Eopid() == COperator::EopPhysicalLeftOuterHashJoin && fRewindabilityReqd)
+//	{
+////		for (ULONG ul = 0; ul < ulArity; ul++)
+////		{
+//			COptimizationContext *pocChild = (*pdrgpoc)[0];
+//			CReqdPropPlan *preqdPropChild = pocChild->Prpp();
+//			fDistributionReqdChild =
+//			!GPOS_FTRACE(EopttraceDisableMotions) &&
+//			(CDistributionSpec::EdtAny != preqdPropChild->Ped()->PdsRequired()->Edt());
+//			
+////		}
+//	}
 	prpp->Peo()->AppendEnforcers(pmp, prpp, pdrgpexprEnforcers, pexpr, epetOrder, exprhdl);
 	prpp->Ped()->AppendEnforcers(pmp, prpp, pdrgpexprEnforcers, pexpr, epetDistribution, exprhdl);
-	prpp->Per()->AppendEnforcers(pmp, prpp, pdrgpexprEnforcers, pexpr, epetRewindability, exprhdl);
+//	if (fDistributionReqdChild)
+		prpp->Per()->AppendEnforcers(pmp, prpp, pdrgpexprEnforcers, pexpr, epetRewindability, exprhdl);
 	prpp->Pepp()->AppendEnforcers(pmp, prpp, pdrgpexprEnforcers, pexpr, epetPartitionPropagation, exprhdl);
 
 	if (0 < pdrgpexprEnforcers->UlLength())

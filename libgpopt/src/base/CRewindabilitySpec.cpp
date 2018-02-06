@@ -130,7 +130,6 @@ CRewindabilitySpec::AppendEnforcers
 	GPOS_ASSERT(NULL != pexpr);
 	GPOS_ASSERT(this == prpp->Per()->PrsRequired() &&
 				"required plan properties don't match enforced rewindability spec");
-
 	pexpr->AddRef();
 	CExpression *pexprSpool = GPOS_NEW(pmp) CExpression
 									(
