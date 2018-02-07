@@ -970,7 +970,18 @@ CPhysicalJoin::PrsRequiredCorrelatedJoin
 	{
 		return GPOS_NEW(pmp) CRewindabilitySpec(CRewindabilitySpec::ErtGeneral);
 	}
-
+	// Do we have subplan and the columns are projected from outer (Motion Hazard Chances)
+	// Do we have any motions in outer child
+	if ((ulChildIndex == 0) && exprhdl.Pop()->Eopid() == COperator::EopPhysicalCorrelatedLeftOuterNLJoin)
+	{
+		CColRefSet *pcrsUsed = CReqdPropPlan::Prpp(exprhdl.Prp())->PcrsRequired();
+		CColRefSet *pcrsCorrelatedApply = exprhdl.Pdprel()->PcrsCorrelatedApply();
+		CDrvdPropRelational *pdprelOuter = exprhdl.Pdprel(0);
+		CColRefSet *pcrsOuterChild = pdprelOuter->PcrsOutput();
+		if (!pcrsUsed->FDisjoint(pcrsCorrelatedApply) && !pcrsUsed->FDisjoint(pcrsOuterChild))
+			return GPOS_NEW(pmp) CRewindabilitySpec(CRewindabilitySpec::ErtGeneral);
+	}
+	
 	if (1 == ulChildIndex)
 	{
 		// inner child has no rewindability requirement. if there is something

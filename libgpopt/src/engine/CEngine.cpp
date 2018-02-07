@@ -2236,7 +2236,22 @@ CEngine::FCheckEnfdProps
 		binding.PexprExtract(m_pmp, exprhdl.Pgexpr(), m_pexprEnforcerPattern, NULL /* pexprLast */);
 	GPOS_ASSERT(NULL != pexpr);
 	GPOS_ASSERT(pexpr->Pgexpr()->Pgroup() == pgexpr->Pgroup());
-		
+
+	if (exprhdl.Pop()->Eopid() == COperator::EopPhysicalLeftOuterHashJoin || exprhdl.Pop()->Eopid() == COperator::EopPhysicalInnerHashJoin)
+	{
+			//if (!CUtils::FPhysicalMotion((*pdrgpoc)[0]->PgexprBest()->Pop())
+			if ((*pdrgpoc)[0]->PgexprBest()->Pop()->Eopid() != COperator::EopPhysicalMotionBroadcast ||
+				(*pdrgpoc)[0]->PgexprBest()->Pop()->Eopid() != COperator::EopPhysicalMotionHashDistribute)
+			{
+				epetRewindability = CEnfdProp::EpetUnnecessary;
+				CRewindabilitySpec *prs = GPOS_NEW(pmp) CRewindabilitySpec(CRewindabilitySpec::ErtNone /*ert*/);
+				//prs->AddRef();
+				
+				CEnfdRewindability *newPer = GPOS_NEW(pmp) CEnfdRewindability(prs, CEnfdRewindability::ErmSatisfy);
+				prpp->remapPrs(newPer);
+			}
+	}
+
 	prpp->Peo()->AppendEnforcers(pmp, prpp, pdrgpexprEnforcers, pexpr, epetOrder, exprhdl);
 	prpp->Ped()->AppendEnforcers(pmp, prpp, pdrgpexprEnforcers, pexpr, epetDistribution, exprhdl);
 	prpp->Per()->AppendEnforcers(pmp, prpp, pdrgpexprEnforcers, pexpr, epetRewindability, exprhdl);

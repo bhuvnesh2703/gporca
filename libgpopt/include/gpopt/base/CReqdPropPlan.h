@@ -246,6 +246,8 @@ namespace gpopt
 			static
 			CReqdPropPlan *PrppRemap(IMemoryPool *pmp, CReqdPropPlan *prppInput, CDrvdPropPlan *pdpplanInput, HMUlCr *phmulcr);
 
+			void remapPrs(CEnfdRewindability *newSpec);
+
 			// print function
 			virtual
 			IOstream &OsPrint(IOstream &os) const;

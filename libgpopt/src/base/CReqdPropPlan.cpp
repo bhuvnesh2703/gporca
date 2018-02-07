@@ -587,7 +587,7 @@ CReqdPropPlan::FSatisfied
 		
 		return
 			pdpplan->Pds()->FSatisfies(this->Ped()->PdsRequired()) &&
-			pdpplan->Prs()->FSatisfies(this->Per()->PrsRequired()) &&
+			//pdpplan->Prs()->FSatisfies(this->Per()->PrsRequired()) &&
 			pdpplan->Ppim()->FSatisfies(this->Pepp()->PppsRequired()) &&
 			pdpplan->Pcm()->FSatisfies(this->Pcter());
 	}
@@ -818,4 +818,10 @@ CReqdPropPlan::DbgPrint() const
 	(void) this->OsPrint(at.Os());
 }
 #endif // GPOS_DEBUG
+
+void
+CReqdPropPlan::remapPrs(CEnfdRewindability *newSpec)
+{
+	m_per = newSpec;
+}
 // EOF

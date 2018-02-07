@@ -80,10 +80,11 @@ CRewindabilitySpec::FSatisfies
 	)
 	const
 {
-	return
-		FMatch(prs) ||
-		ErtNone == prs->Ert() ||
-		(ErtMarkRestore == Ert() && ErtGeneral == prs->Ert());
+	GPOS_ASSERT(prs);
+	return true;
+//		FMatch(prs) ||
+//		ErtNone == prs->Ert() ||
+//		(ErtMarkRestore == Ert() && ErtGeneral == prs->Ert());
 }
 
 
