@@ -138,7 +138,7 @@ CPartTbl2Test:
 DPE-SemiJoin DPE-IN DPE-NOT-IN HJN-DPE-Bitmap-Outer-Child
 NLJ-Broadcast-DPE-Outer-Child Part-Selection-IN Part-Selection-NOT-IN
 Part-Selection-ConstArray-1 Part-Selection-ConstArray-2 PartTbl-WindowFunction
-PartTbl-MultiWayJoin PartTbl-MultiWayJoinWithDPE PartTbl-MultiWayJoinWithDPE-2
+PartTbl-MultiWayJoin PartTbl-MultiWayJoinWithDPE-2
 PartTbl-AsymmetricRangePredicate PartTbl-NEqPredicate PartTbl-SQExists;
 
 CPartTbl3Test:
@@ -181,7 +181,7 @@ Union-OuterRefs-Output Union-OuterRefs-Casting-Output
 Union-OuterRefs-InnerChild MS-UnionAll-2;
 
 CSetop3Test:
-UnionWithOuterRefs UnionAll Union-On-HJNs
+UnionWithOuterRefs UnionAll
 Union-Distributed-Table-With-Const-Table ExceptAllCompatibleDataType
 UnionAllCompatibleDataType UnionOfDQAQueries Union-Volatile-Func
 Intersect-Volatile-Func Except-Volatile-Func;

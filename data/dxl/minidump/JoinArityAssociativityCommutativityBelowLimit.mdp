@@ -1,11 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  Repro:
-  - CREATE TEMP TABLE table1 (i int, j int);
-  - CREATE TEMP TABLE table2 (i int, j int);
-  - CREATE TEMP TABLE table3 (i int, j int);
-
-  - EXPLAIN SELECT * FROM table1 NATURAL JOIN table2 NATURAL JOIN table3;
+  CREATE TABLE table1 (i int, j int);
+  CREATE TABLE table2 (i int, j int);
+  CREATE TABLE table3 (i int, j int);
+  insert into table1 select i, i from generate_series(1,1000)i;
+  insert into table2 select i, i from generate_series(1,10000)i;
+  insert into table3 select i, i from generate_series(1,100000)i;
+  analyze table1;
+  analyze table2;
+  analyze table3;
+	set optimizer_join_arity_for_associativity_commutativity = 2;
+	EXPLAIN SELECT * FROM table1 NATURAL JOIN table2 NATURAL JOIN table3;
 -->
 <dxl:DXLMessage xmlns:dxl="http://greenplum.com/dxl/2010/12/">
   <dxl:Thread Id="0">
@@ -333,7 +338,7 @@
       </dxl:LogicalJoin>
     </dxl:Query>
   </dxl:Thread>
-  <dxl:Plan Id="0" SpaceSize="438">
+  <dxl:Plan Id="0" SpaceSize="350">
     <dxl:GatherMotion InputSegments="0,1,2" OutputSegments="-1">
       <dxl:Properties>
         <dxl:Cost StartupCost="0" TotalCost="1293.001949" Rows="1.000000" Width="8"/>
