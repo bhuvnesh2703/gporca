@@ -826,13 +826,14 @@ CGroupExpression::Transform
 	GPOS_ASSERT(NULL != pulElapsedTime);
 	GPOS_CHECK_ABORT;
 
-	CTimerUser timer;
+	BOOL fOptStats = GPOS_FTRACE(EopttracePrintOptimizationStatistics);
+	CTimerUser timer(fOptStats);
 
 	*pulElapsedTime = 0;
 	// check traceflag and compatibility with origin xform
 	if (GPOPT_FDISABLED_XFORM(pxform->Exfid())|| !pxform->FCompatible(m_exfidOrigin))
 	{
-		if (GPOS_FTRACE(EopttracePrintOptimizationStatistics))
+		if (fOptStats)
 		{
 			*pulElapsedTime = timer.UlElapsedMS();
 		}
@@ -888,7 +889,7 @@ CGroupExpression::Transform
 	// post-prcoessing before applying xform to group expression
 	PostprocessTransform(pmpLocal, pmp, pxform);
 
-	if (GPOS_FTRACE(EopttracePrintOptimizationStatistics))
+	if (fOptStats)
 	{
 		*pulElapsedTime = timer.UlElapsedMS();
 	}

@@ -556,7 +556,8 @@ CMDAccessor::Pimdobj
 	IMDId *pmdid
 	)
 {
-	CTimerUser timerLookup; // timer to measure lookup time
+	BOOL fOptStats = GPOS_FTRACE(EopttracePrintOptimizationStatistics);
+	CTimerUser timerLookup(fOptStats); // timer to measure lookup time
 
 	const IMDCacheObject *pimdobj = NULL;
 
@@ -587,7 +588,7 @@ CMDAccessor::Pimdobj
 		if (NULL == pmdobjNew)
 		{
 			// object not found in MD cache: retrieve it from MD provider
-			CTimerUser timerFetch;  // timer to measure fetch time
+			CTimerUser timerFetch(fOptStats);  // timer to measure fetch time
 			CAutoP<CWStringBase> a_pstr;
 			a_pstr = pmdp->PstrObject(m_pmp, this, pmdid);
 			

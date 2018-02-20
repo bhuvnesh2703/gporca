@@ -78,12 +78,15 @@ namespace gpopt
 			// restart timer
 			void RestartTimer()
 			{
-				m_timer.Restart();
+				if (m_ulTimeThreshold != ULONG_MAX)
+					m_timer.Restart();
 			}
 
 			// is search stage timed-out?
 			BOOL FTimedOut() const
 			{
+				if (m_ulTimeThreshold == ULONG_MAX)
+					return false;
 				return m_timer.UlElapsedMS() > m_ulTimeThreshold;
 			}
 

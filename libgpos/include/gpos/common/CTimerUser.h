@@ -35,8 +35,13 @@ namespace gpos
 
 			// ctor
 			CTimerUser()
+			{}
+
+			// explicit ctor
+			CTimerUser(BOOL fOptStats)
 			{
-				Restart();
+				if (fOptStats)
+					Restart();
 			}
 
 			// retrieve elapsed user time in micro-seconds
