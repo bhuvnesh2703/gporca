@@ -75,7 +75,7 @@ namespace gpopt
 			virtual
 			~CSearchStage();
 
-			// restart timer
+			// restart timer if time threshold is not default indicating don't timeout
 			void RestartTimer()
 			{
 				if (m_ulTimeThreshold != ULONG_MAX)
@@ -83,6 +83,7 @@ namespace gpopt
 			}
 
 			// is search stage timed-out?
+			// if threshold is ULONG_MAX, its the default and we need not time out
 			BOOL FTimedOut() const
 			{
 				if (m_ulTimeThreshold == ULONG_MAX)

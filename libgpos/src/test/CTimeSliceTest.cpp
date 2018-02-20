@@ -62,7 +62,7 @@ CTimeSliceTest::EresUnittest_Basic()
 
 	GPOS_TRY
 	{
-		CTimerUser timer;
+		CTimerUser timer(true);
 
 		// loop until time slice is exceeded
 		ULONG ulThreads = std::max((ULONG) 1, CWorkerPoolManager::Pwpm()->UlWorkersRunning());
