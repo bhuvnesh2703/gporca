@@ -64,8 +64,8 @@ namespace gpos
 			// acquire lock
 			void Lock()
 			{
-				m_mutex.Lock();
-				++m_cLock;
+//				m_mutex.Lock();
+//				++m_cLock;
 			}
 			
 			// attempt locking
@@ -82,10 +82,10 @@ namespace gpos
 			// release lock
 			void Unlock()
 			{
-				GPOS_ASSERT(0 < m_cLock && "Mutex not locked");
-				
-				--m_cLock;
-				m_mutex.Unlock();
+//				GPOS_ASSERT(0 < m_cLock && "Mutex not locked");
+//
+//				--m_cLock;
+//				m_mutex.Unlock();
 			}
 
 	}; // class CAutoMutex
