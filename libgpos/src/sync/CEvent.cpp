@@ -180,6 +180,10 @@ CEvent::EresTimedWait
 	GPOS_ASSERT(m_pmutex->FOwned());
 
 	CWallClock clock;
+	if (ulTimeoutMs != ULONG_MAX)
+	{
+		clock.Restart();
+	}
 
 	ULLONG ulSignalsPrevious = m_ulSignalsTotal;
 	ULLONG ulBroadcastsPrevious = m_ulBroadcastsTotal;
@@ -191,20 +195,24 @@ CEvent::EresTimedWait
 
 	do
 	{
-		// check if timeout has expired
-		ULONG ulElapsedMs = clock.UlElapsedMS();
-		if (ulElapsedMs >= ulTimeoutMs)
+		if (ulTimeoutMs != ULONG_MAX)
 		{
-			return GPOS_TIMEOUT;
+			// check if timeout has expired
+			ULONG ulElapsedMs = clock.UlElapsedMS();
+			if (ulElapsedMs >= ulTimeoutMs)
+			{
+				return GPOS_TIMEOUT;
+			}
+			
+			ULONG ulTimeoutInternalMs = ulTimeoutMs - ulElapsedMs;
+			if (GPOS_MUTEX_CHECK_ABORT_INTERVAL_MSEC < ulTimeoutInternalMs)
+			{
+				ulTimeoutInternalMs = GPOS_MUTEX_CHECK_ABORT_INTERVAL_MSEC;
+			}
+			
+			InternalTimedWait(ulTimeoutInternalMs);
 		}
 
-		ULONG ulTimeoutInternalMs = ulTimeoutMs - ulElapsedMs;
-		if (GPOS_MUTEX_CHECK_ABORT_INTERVAL_MSEC < ulTimeoutInternalMs)
-		{
-			ulTimeoutInternalMs = GPOS_MUTEX_CHECK_ABORT_INTERVAL_MSEC;
-		}
-
-		InternalTimedWait(ulTimeoutInternalMs);
 
 #ifdef GPOS_DEBUG
 		// do not enforce time slicing while waiting for event
@@ -227,7 +235,7 @@ CEvent::EresTimedWait
 				m_ulSignals--;
 				eres = GPOS_OK;
 			}
-			else
+			else if (ulTimeoutMs != ULONG_MAX)
 			{
 				eres = GPOS_TIMEOUT;
 
