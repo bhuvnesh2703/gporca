@@ -35,9 +35,7 @@ namespace gpos
 
 			// ctor
 			CWallClock()
-			{
-				Restart();
-			}
+			{}
 
 			// retrieve elapsed wall-clock time in micro-seconds
 			virtual
