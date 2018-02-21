@@ -53,17 +53,17 @@ namespace gpos
 			// acquire lock
 			void Lock()
 			{
-				m_slock.Lock();
-				m_fLocked = true;
+//				m_slock.Lock();
+//				m_fLocked = true;
 			}
 			
 			// release lock
 			void Unlock()
 			{
-				GPOS_ASSERT(m_fLocked);
-				
-				m_slock.Unlock();
-				m_fLocked = false;
+//				GPOS_ASSERT(m_fLocked);
+//				
+//				m_slock.Unlock();
+//				m_fLocked = false;
 			}
 
 	}; // class CAutoSpinlock
