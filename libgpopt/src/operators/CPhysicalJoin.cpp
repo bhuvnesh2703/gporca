@@ -1262,8 +1262,8 @@ CPhysicalJoin::PppsRequiredJoinChild
 		return PppsRequiredCompute(pmp, exprhdl, pppsRequired, ulChildIndex, fNLJoin);
 	}
 
-	CAutoMutex am(m_mutexJoin);
-	am.Lock();
+//	CAutoMutex am(m_mutexJoin);
+//	am.Lock();
 
 	CPartitionPropagationSpec *ppps = m_phmpp->PtLookup(pppr);
 	if (NULL == ppps)

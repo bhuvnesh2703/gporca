@@ -2058,8 +2058,8 @@ CGroup::PstatsCompute
 	// add computed stats to local map -- we can't use group proxy here due to potential memory allocation
 	// which is disallowed with spin locks
 	{
-		CAutoMutex am(m_mutexStats);
-		am.Lock();
+//		CAutoMutex am(m_mutexStats);
+//		am.Lock();
 		poc->AddRef();
 #ifdef GPOS_DEBUG
 		fSuccess =

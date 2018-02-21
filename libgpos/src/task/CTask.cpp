@@ -264,8 +264,8 @@ CTask::Signal
 		SuspendAbort();
 
 		// use lock to prevent a waiting worker from missing a signal
-		CAutoMutex am(*m_pmutex);
-		am.Lock();
+//		CAutoMutex am(*m_pmutex);
+//		am.Lock();
 
 		// update task status
 		SetStatus(Ets);

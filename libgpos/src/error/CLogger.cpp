@@ -79,8 +79,8 @@ CLogger::Log
 	)
 {
 	// get exclusive access
-	CAutoMutex am(m_mutex);
-	am.Lock();
+//	CAutoMutex am(m_mutex);
+//	am.Lock();
 
 	// format log message
 	Format(wszMsg, ulSeverity, szFilename, ulLine);

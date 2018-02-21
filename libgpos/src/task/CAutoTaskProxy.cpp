@@ -235,8 +235,8 @@ CAutoTaskProxy::Wait
 	CTask *ptsk
 	)
 {
-	CAutoMutex am(m_mutex);
-	am.Lock();
+//	CAutoMutex am(m_mutex);
+//	am.Lock();
 
 	GPOS_ASSERT(FOwnerOf(ptsk) && "Task not owned by this ATP object");
 	GPOS_ASSERT(ptsk->FScheduled() && "Task not scheduled yet");
@@ -272,8 +272,8 @@ CAutoTaskProxy::EresTimedWait
 	ULONG ulTimeoutMs
 	)
 {
-	CAutoMutex am(m_mutex);
-	am.Lock();
+//	CAutoMutex am(m_mutex);
+//	am.Lock();
 
 	GPOS_ASSERT(FOwnerOf(ptsk) && "Task not owned by this ATP object");
 	GPOS_ASSERT(ptsk->FScheduled() && "Task not scheduled yet");
@@ -323,8 +323,8 @@ CAutoTaskProxy::WaitAny
 
 	*pptsk = NULL;
 
-	CAutoMutex am(m_mutex);
-	am.Lock();
+//	CAutoMutex am(m_mutex);
+//	am.Lock();
 
 	// check if any task has completed so far
 	if (GPOS_OK != EresFindFinished(pptsk))
@@ -368,8 +368,8 @@ CAutoTaskProxy::EresTimedWaitAny
 
 	*pptsk = NULL;
 
-	CAutoMutex am(m_mutex);
-	am.Lock();
+//	CAutoMutex am(m_mutex);
+//	am.Lock();
 
 	// check if any task has completed so far
 	if (GPOS_OK != EresFindFinished(pptsk))

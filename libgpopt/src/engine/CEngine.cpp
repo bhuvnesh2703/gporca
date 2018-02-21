@@ -373,8 +373,8 @@ CEngine::InsertXformResult
 		(void) UlpExchangeAdd(&(*m_pdrgpulpXformCalls)[m_ulCurrSearchStage][exfidOrigin], 1);
 
 		{
-			CAutoMutex am(m_mutexOptStats);
-			am.Lock();
+//			CAutoMutex am(m_mutexOptStats);
+//			am.Lock();
 			(*m_pdrgpulpXformTimes)[m_ulCurrSearchStage][exfidOrigin] += ulXformTime;
 		}
 	}

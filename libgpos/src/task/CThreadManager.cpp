@@ -83,8 +83,8 @@ CThreadManager::EresCreate()
 
 	// scope for lock
 	{
-		CAutoMutex am(m_mutex);
-		am.Lock();
+//		CAutoMutex am(m_mutex);
+//		am.Lock();
 
 		// if all thread descriptors are used, try to claim some back
 		if (m_tdlUnused.FEmpty())
@@ -187,8 +187,8 @@ CThreadManager::SetFinished
 	SThreadDescriptor *ptd
 	)
 {
-	CAutoMutex am(m_mutex);
-	am.Lock();
+//	CAutoMutex am(m_mutex);
+//	am.Lock();
 
 	// run garbage collection
 	GC();
@@ -242,8 +242,8 @@ CThreadManager::ShutDown()
 	{
 		clib::USleep(100);
 
-		CAutoMutex am(m_mutex);
-		am.Lock();
+//		CAutoMutex am(m_mutex);
+//		am.Lock();
 
 		// run garbage collection to join any remaining thread
 		GC();

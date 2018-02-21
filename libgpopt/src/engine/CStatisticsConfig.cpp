@@ -84,8 +84,8 @@ CStatisticsConfig::AddMissingStatsColumn
 
 	// add the new column information to the hash set
 	// to be sure that no one else does this at the same time, lock the mutex
-	CAutoMutex am(m_mutexMissingColStats);
-	am.Lock();
+//	CAutoMutex am(m_mutexMissingColStats);
+//	am.Lock();
 
 	if (m_phsmdidcolinfo->FInsert(pmdidCol))
 	{
@@ -110,8 +110,8 @@ CStatisticsConfig::CollectMissingStatsColumns
 {
 	GPOS_ASSERT(NULL != pdrgmdid);
 
-	CAutoMutex am(m_mutexMissingColStats);
-	am.Lock();
+//	CAutoMutex am(m_mutexMissingColStats);
+//	am.Lock();
 
 	HSIterMDId hsiter(m_phsmdidcolinfo);
 	while (hsiter.FAdvance())

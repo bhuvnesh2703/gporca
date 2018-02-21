@@ -142,8 +142,8 @@ CScheduler::ProcessJobs
 
 		DecrTasksActive();
 
-		CAutoMutex am(m_mutex);
-		am.Lock();
+//		CAutoMutex am(m_mutex);
+//		am.Lock();
 
 		// stop when all jobs have completed
 		if (FEmpty())
@@ -189,10 +189,10 @@ CScheduler::ExecuteJobs
 
 #ifdef GPOS_DEBUG
 		// restrict parallelism to keep track of jobs
-		CAutoMutex am(m_mutex);
+//		CAutoMutex am(m_mutex);
 		if (FTrackingJobs())
 		{
-			am.Lock();
+//			am.Lock();
 			m_listjRunning.Remove(pj);
 		}
 #endif // GPOS_DEBUG
@@ -261,10 +261,10 @@ CScheduler::Add
 
 #ifdef GPOS_DEBUG
 	// restrict parallelism to keep track of jobs
-	CAutoMutex am(m_mutex);
+//	CAutoMutex am(m_mutex);
 	if (FTrackingJobs())
 	{
-		am.Lock();
+//		am.Lock();
 	}
 #endif // GPOS_DEBUG
 
@@ -357,14 +357,14 @@ CScheduler::Schedule
 	// check if there is enough work for another worker
 	if (FIncreaseWorkers())
 	{
-		CAutoMutex am(m_mutex);
+//		CAutoMutex am(m_mutex);
 #ifdef GPOS_DEBUG
 		if (!FTrackingJobs())
 		{
-			am.Lock();
+//			am.Lock();
 		}
 #else
-		am.Lock();
+//		am.Lock();
 #endif // GPOS_DEBUG
 
 		// wake up worker to pick up a job
@@ -510,10 +510,10 @@ CScheduler::PjRetrieve()
 {
 #ifdef GPOS_DEBUG
 	// restrict parallelism to keep track of jobs
-	CAutoMutex am(m_mutex);
+//	CAutoMutex am(m_mutex);
 	if (FTrackingJobs())
 	{
-		am.Lock();
+//		am.Lock();
 	}
 #endif // GPOS_DEBUG
 
@@ -639,10 +639,10 @@ CScheduler::CompleteQueued
 
 #ifdef GPOS_DEBUG
 	// restrict parallelism to keep track of jobs
-	CAutoMutex am(m_mutex);
+//	CAutoMutex am(m_mutex);
 	if (FTrackingJobs())
 	{
-		am.Lock();
+//		am.Lock();
 
 		GPOS_ASSERT(CJob::EjsSuspended == pj->Ejs());
 
@@ -742,8 +742,8 @@ CScheduler::OsPrintActiveJobs
 	IOstream &os
 	)
 {
-	CAutoMutex am(m_mutex);
-	am.Lock();
+//	CAutoMutex am(m_mutex);
+//	am.Lock();
 
 	os << "Scheduler - active jobs: " << std::endl << std::endl;
 

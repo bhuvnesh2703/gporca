@@ -153,8 +153,8 @@ CWorkerPoolManager::Shutdown()
 
 	// scope for mutex
 	{
-		CAutoMutex am(pwpm->m_mutex);
-		am.Lock();
+//		CAutoMutex am(pwpm->m_mutex);
+//		am.Lock();
 
 		// stop scheduling tasks
 		pwpm->m_fActive = false;
@@ -395,8 +395,8 @@ CWorkerPoolManager::Schedule
 
 	// scope for lock
 	{
-		CAutoMutex am(m_mutex);
-		am.Lock();
+//		CAutoMutex am(m_mutex);
+//		am.Lock();
 
 		// add task to scheduler's queue
 		m_ts.Enqueue(ptsk);
@@ -429,8 +429,8 @@ CWorkerPoolManager::EsrTskNext
 	CTask **pptsk
 	)
 {
-	CAutoMutex am(m_mutex);
-	am.Lock();
+//	CAutoMutex am(m_mutex);
+//	am.Lock();
 
 	*pptsk = NULL;
 
@@ -529,8 +529,8 @@ CWorkerPoolManager::Cancel
 
 		// scope for lock
 		{
-			CAutoMutex am(m_mutex);
-			am.Lock();
+//			CAutoMutex am(m_mutex);
+//			am.Lock();
 
 			eres = m_ts.EresCancel(ptsk);
 		}
@@ -574,8 +574,8 @@ CWorkerPoolManager::SetWorkersLim
 	// signal workers if their number exceeds maximum
 	if (m_ulWorkersMax < m_ulpWorkers)
 	{
-		CAutoMutex am(m_mutex);
-		am.Lock();
+//		CAutoMutex am(m_mutex);
+//		am.Lock();
 
 		m_event.Signal();
 	}
