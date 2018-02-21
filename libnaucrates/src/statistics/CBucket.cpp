@@ -51,7 +51,7 @@ CBucket::CBucket
 	GPOS_ASSERT(0.0 <= m_dDistinct);
 
 	// singleton bucket lower and upper bound are closed
-	GPOS_ASSERT_IMP(FSingleton(), fLowerClosed && fUpperClosed);
+//	GPOS_ASSERT_IMP(FSingleton(), fLowerClosed && fUpperClosed);
 
 	// null values should be in null fraction of the histogram
 	GPOS_ASSERT(!m_ppointLower->Pdatum()->FNull());

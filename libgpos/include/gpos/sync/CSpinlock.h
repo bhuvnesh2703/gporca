@@ -156,87 +156,87 @@ namespace gpos
 		// acquire lock
 		void Lock()
         {
-#ifdef GPOS_DEBUG
-            GPOS_ASSERT_IMP(0 < ulRank && IWorker::PwrkrSelf(),
-                            IWorker::PwrkrSelf()->FCanAcquireSpinlock(this) &&
-                            "Tried to acquire spinlock in incorrect order or detected deadlock.");
-#endif // GPOS_DEBUG
-
-            ULONG ulAttempts = 0;
-
-            // attempt getting the lock
-            while(1)
-            {
-                // do not attempt a sync'd increment unless the counter is likely to be 0
-                if (0 == m_ulpLock)
-                {
-                    // attempt sync'd increment
-                    if (0 == gpos::UlpExchangeAdd(&m_ulpLock, 1))
-                    {
-                        break;
-                    }
-
-                    // count back down
-                    gpos::UlpExchangeAdd(&m_ulpLock, -1);
-                }
-
-                // assert it is not us who holds the lock
-                GPOS_ASSERT(!FOwned() && "self-deadlock detected");
-
-                // trigger a back-off after a certain number of attempts
-                if (ulAttempts++ > GPOS_SPIN_ATTEMPTS)
-                {
-                    // up stats
-                    gpos::UlpExchangeAdd(&m_ulpCollisions, ulAttempts);
-                    ulAttempts = 0;
-
-                    clib::USleep(GPOS_SPIN_BACKOFF);
-
-                    // TODO: 08/02/2009; add warning when burning
-                    // a non-trackable lock; dependent on OPT-87, OPT-86
-
-                    // non-trackable locks don't know about aborts
-                    if (FTrackable())
-                    {
-                        // TODO: 03/09/2008; log that we're burning CPU
-
-                        GPOS_CHECK_ABORT;
-                    }
-                }
-            }
-
-            // got the lock
-            GPOS_ASSERT(m_ulpLock > 0);
-
-            // final update of collision stats
-            gpos::UlpExchangeAdd(&m_ulpCollisions, ulAttempts);
-
-#ifdef GPOS_DEBUG
-            if (0 < ulRank && NULL != IWorker::PwrkrSelf())
-            {
-                IWorker::PwrkrSelf()->RegisterSpinlock(this);
-            }
-
-            m_wid.Current();
-#endif // GPOS_DEBUG
-            m_fLocked = true;
+//#ifdef GPOS_DEBUG
+//            GPOS_ASSERT_IMP(0 < ulRank && IWorker::PwrkrSelf(),
+//                            IWorker::PwrkrSelf()->FCanAcquireSpinlock(this) &&
+//                            "Tried to acquire spinlock in incorrect order or detected deadlock.");
+//#endif // GPOS_DEBUG
+//
+//            ULONG ulAttempts = 0;
+//
+//            // attempt getting the lock
+//            while(1)
+//            {
+//                // do not attempt a sync'd increment unless the counter is likely to be 0
+//                if (0 == m_ulpLock)
+//                {
+//                    // attempt sync'd increment
+//                    if (0 == gpos::UlpExchangeAdd(&m_ulpLock, 1))
+//                    {
+//                        break;
+//                    }
+//
+//                    // count back down
+//                    gpos::UlpExchangeAdd(&m_ulpLock, -1);
+//                }
+//
+//                // assert it is not us who holds the lock
+//                GPOS_ASSERT(!FOwned() && "self-deadlock detected");
+//
+//                // trigger a back-off after a certain number of attempts
+//                if (ulAttempts++ > GPOS_SPIN_ATTEMPTS)
+//                {
+//                    // up stats
+//                    gpos::UlpExchangeAdd(&m_ulpCollisions, ulAttempts);
+//                    ulAttempts = 0;
+//
+//                    clib::USleep(GPOS_SPIN_BACKOFF);
+//
+//                    // TODO: 08/02/2009; add warning when burning
+//                    // a non-trackable lock; dependent on OPT-87, OPT-86
+//
+//                    // non-trackable locks don't know about aborts
+//                    if (FTrackable())
+//                    {
+//                        // TODO: 03/09/2008; log that we're burning CPU
+//
+//                        GPOS_CHECK_ABORT;
+//                    }
+//                }
+//            }
+//
+//            // got the lock
+//            GPOS_ASSERT(m_ulpLock > 0);
+//
+//            // final update of collision stats
+//            gpos::UlpExchangeAdd(&m_ulpCollisions, ulAttempts);
+//
+//#ifdef GPOS_DEBUG
+//            if (0 < ulRank && NULL != IWorker::PwrkrSelf())
+//            {
+//                IWorker::PwrkrSelf()->RegisterSpinlock(this);
+//            }
+//
+//            m_wid.Current();
+//#endif // GPOS_DEBUG
+//            m_fLocked = true;
         }
 		
 		// release
 		void Unlock()
         {
-#ifdef GPOS_DEBUG
-            if (0 < ulRank && NULL != IWorker::PwrkrSelf())
-            {
-                IWorker::PwrkrSelf()->UnregisterSpinlock(this);
-            }
-
-            m_wid.Invalid();
-            m_fLocked = false;
-#endif // GPOS_DEBUG
-
-            GPOS_ASSERT(m_ulpLock > 0);
-            gpos::UlpExchangeAdd(&m_ulpLock, -1);
+//#ifdef GPOS_DEBUG
+//            if (0 < ulRank && NULL != IWorker::PwrkrSelf())
+//            {
+//                IWorker::PwrkrSelf()->UnregisterSpinlock(this);
+//            }
+//
+//            m_wid.Invalid();
+//            m_fLocked = false;
+//#endif // GPOS_DEBUG
+//
+//            GPOS_ASSERT(m_ulpLock > 0);
+//            gpos::UlpExchangeAdd(&m_ulpLock, -1);
         }
 		
 #ifdef GPOS_DEBUG
@@ -244,7 +244,8 @@ namespace gpos
 		BOOL FOwned() const
         {
             CWorkerId wid;
-            return m_fLocked && m_wid.FEqual(wid);
+//            return m_fLocked && m_wid.FEqual(wid);
+			return m_wid.FEqual(wid);
         }
 #endif // GPOS_ASSERT
 
