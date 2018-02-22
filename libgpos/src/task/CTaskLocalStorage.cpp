@@ -12,16 +12,20 @@
 #include "gpos/task/CTaskLocalStorage.h"
 #include "gpos/task/CTaskLocalStorageObject.h"
 #include "gpos/common/CSyncHashtableAccessByKey.h"
+#include "gpos/common/CHashtableAccessByKey.h"
 
 using namespace gpos;
 
 
 // shorthand for HT accessor
-typedef	CSyncHashtableAccessByKey
-			<CTaskLocalStorageObject, 
-			CTaskLocalStorage::Etlsidx, 
-			CSpinlockOS> ShtAcc;
+//typedef	CSyncHashtableAccessByKey
+//			<CTaskLocalStorageObject, 
+//			CTaskLocalStorage::Etlsidx,
+//			CSpinlockOS> ShtAcc;
 
+typedef	CHashtableAccessByKey
+<CTaskLocalStorageObject,
+CTaskLocalStorage::Etlsidx> ShtAcc;
 
 // invalid Etlsidx
 const CTaskLocalStorage::Etlsidx CTaskLocalStorage::m_etlsidxInvalid = EtlsidxInvalid;

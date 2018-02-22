@@ -14,10 +14,14 @@
 #ifndef GPOS_CMemoryPoolManager_H
 #define GPOS_CMemoryPoolManager_H
 
-#include "gpos/common/CSyncHashtable.h"
-#include "gpos/common/CSyncHashtableAccessByKey.h"
-#include "gpos/common/CSyncHashtableAccessByIter.h"
-#include "gpos/common/CSyncHashtableIter.h"
+//#include "gpos/common/CSyncHashtable.h"
+//#include "gpos/common/CSyncHashtableAccessByKey.h"
+//#include "gpos/common/CSyncHashtableAccessByIter.h"
+//#include "gpos/common/CSyncHashtableIter.h"
+#include "gpos/common/CHashtable.h"
+#include "gpos/common/CHashtableAccessByKey.h"
+#include "gpos/common/CHashtableAccessByIter.h"
+#include "gpos/common/CHashtableIter.h"
 #include "gpos/memory/CMemoryPool.h"
 
 
@@ -47,14 +51,21 @@ namespace gpos
 
 		private:
 
-			typedef CSyncHashtableAccessByKey<CMemoryPool, ULONG_PTR, CSpinlockOS>
-				MemoryPoolKeyAccessor;
+//			typedef CSyncHashtableAccessByKey<CMemoryPool, ULONG_PTR, CSpinlockOS>
+//				MemoryPoolKeyAccessor;
+		
+			typedef CHashtableAccessByKey<CMemoryPool, ULONG_PTR> MemoryPoolKeyAccessor;
 
-			typedef CSyncHashtableIter<CMemoryPool, ULONG_PTR, CSpinlockOS>
-				MemoryPoolIter;
+//			typedef CSyncHashtableIter<CMemoryPool, ULONG_PTR, CSpinlockOS>
+//				MemoryPoolIter;
+		
+		typedef CHashtableIter<CMemoryPool, ULONG_PTR> MemoryPoolIter;
 
-			typedef CSyncHashtableAccessByIter<CMemoryPool, ULONG_PTR, CSpinlockOS>
-				MemoryPoolIterAccessor;
+//			typedef CSyncHashtableAccessByIter<CMemoryPool, ULONG_PTR, CSpinlockOS>
+//				MemoryPoolIterAccessor;
+		
+		typedef CHashtableAccessByIter<CMemoryPool, ULONG_PTR>
+		MemoryPoolIterAccessor;
 
 			// memory pool used to get memory from the underlying system
 			// all created pools use this as their underlying allocator
@@ -72,7 +83,9 @@ namespace gpos
 			BOOL m_fAllowGlobalNew;
 
 			// hash table to maintain created pools
-			CSyncHashtable<CMemoryPool, ULONG_PTR, CSpinlockOS> m_sht;
+//			CSyncHashtable<CMemoryPool, ULONG_PTR, CSpinlockOS> m_sht;
+		
+			CHashtable<CMemoryPool, ULONG_PTR> m_sht;
 
 			// global instance
 			static CMemoryPoolManager *m_pmpm;

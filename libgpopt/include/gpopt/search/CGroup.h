@@ -17,7 +17,11 @@
 #include "naucrates/statistics/CStatistics.h"
 
 #include "gpos/common/CDynamicPtrArray.h"
-#include "gpos/common/CSyncHashtable.h"
+//#include "gpos/common/CSyncHashtable.h"
+#include "gpos/common/CHashtableAccessByKey.h"
+#include "gpos/common/CHashtableIter.h"
+#include "gpos/common/CHashtable.h"
+#include "gpos/common/CHashtableAccessByIter.h"
 #include "gpos/common/CSyncList.h"
 #include "gpos/sync/atomic.h"
 #include "gpos/sync/CSpinlock.h"
@@ -84,10 +88,14 @@ namespace gpopt
 
 			// type definition of optimization context hash table
 			typedef
-				CSyncHashtable<
-					COptimizationContext, // entry
-					COptimizationContext, // search key
-					CSpinlockOC> ShtOC;
+//				CSyncHashtable<
+//					COptimizationContext, // entry
+//					COptimizationContext, // search key
+//					CSpinlockOC> ShtOC;
+		
+		CHashtable<
+		COptimizationContext, // entry
+		COptimizationContext> ShtOC;
 
 			// states of a group
 			enum EState
@@ -110,25 +118,41 @@ namespace gpopt
 		private:
 
 			// definition of hash table iter
-			typedef
-				CSyncHashtableIter<
-					COptimizationContext, // entry
-					COptimizationContext , // search key
-					CSpinlockOC> ShtIter;
+//			typedef
+//				CSyncHashtableIter<
+//					COptimizationContext, // entry
+//					COptimizationContext , // search key
+//					CSpinlockOC> ShtIter;
+		
+		typedef
+		CHashtableIter<
+		COptimizationContext, // entry
+		COptimizationContext> ShtIter;
 
 			// definition of hash table iter accessor
-			typedef
-				CSyncHashtableAccessByIter<
-					COptimizationContext, // entry
-					COptimizationContext, // search key
-					CSpinlockOC> ShtAccIter;
+//			typedef
+//				CSyncHashtableAccessByIter<
+//					COptimizationContext, // entry
+//					COptimizationContext, // search key
+//					CSpinlockOC> ShtAccIter;
+		
+		typedef
+		CHashtableAccessByIter<
+		COptimizationContext, // entry
+		COptimizationContext> ShtAccIter;
 
-			// definition of hash table accessor
-			typedef
-				CSyncHashtableAccessByKey<
-					COptimizationContext, // entry
-					COptimizationContext, // search key
-					CSpinlockOC> ShtAcc;
+//			// definition of hash table accessor
+//			typedef
+//				CSyncHashtableAccessByKey<
+//					COptimizationContext, // entry
+//					COptimizationContext, // search key
+//					CSpinlockOC> ShtAcc;
+		
+		typedef
+		CHashtableAccessByKey<
+		COptimizationContext, // entry
+		COptimizationContext> ShtAcc;
+
 
 			//---------------------------------------------------------------------------
 			//	@class:

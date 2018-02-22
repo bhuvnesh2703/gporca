@@ -96,6 +96,7 @@ CMemoryPoolTracker::PvAllocate
 {
 	GPOS_ASSERT(GPOS_MEM_ALLOC_MAX >= ulBytes);
 
+	
 	CAutoSpinlock as(m_slock);
 
 	ULONG ulAlloc = GPOS_MEM_BYTES_TOTAL(ulBytes);

@@ -49,8 +49,8 @@ CJobQueue::EjqrAdd
 	// check if job has completed before getting the lock
 	if (!m_fCompleted)
 	{
-		CAutoSpinlock as(m_slock);
-		as.Lock();
+//		CAutoSpinlock as(m_slock);
+//		as.Lock();
 
 		// check if this is the main job
 		if (pj == m_pj)
@@ -105,8 +105,8 @@ CJobQueue::NotifyCompleted
 {
 	// scope for auto spinlock
 	{
-		CAutoSpinlock as(m_slock);
-		as.Lock();
+//		CAutoSpinlock as(m_slock);
+//		as.Lock();
 
 		GPOS_ASSERT(!m_fCompleted);
 		m_fCompleted = true;

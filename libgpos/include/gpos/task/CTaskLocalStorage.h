@@ -18,6 +18,7 @@
 
 #include "gpos/base.h"
 #include "gpos/common/CSyncHashtable.h"
+#include "gpos/common/CHashtable.h"
 
 namespace gpos
 {
@@ -92,10 +93,14 @@ namespace gpos
 		private:
 		
 			// hash table
-			CSyncHashtable
-				<CTaskLocalStorageObject, 
-				Etlsidx,
-				CSpinlockOS> m_sht;
+//			CSyncHashtable
+//				<CTaskLocalStorageObject,
+//				Etlsidx,
+//				CSpinlockOS> m_sht;
+		
+		CHashtable
+		<CTaskLocalStorageObject,
+		Etlsidx> m_sht;
 
 			// private copy ctor
 			CTaskLocalStorage(const CTaskLocalStorage &);

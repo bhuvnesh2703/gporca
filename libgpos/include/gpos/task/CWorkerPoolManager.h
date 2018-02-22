@@ -87,12 +87,18 @@ namespace gpos
 			BOOL m_fActive;
 
 			// WLS
-			CSyncHashtable
-			<CWorker, CWorkerId, CSpinlockOS> m_shtWLS;
+//			CSyncHashtable
+//			<CWorker, CWorkerId, CSpinlockOS> m_shtWLS;
+		
+		CHashtable
+		<CWorker, CWorkerId> m_shtWLS;
 
-			// task storage
-			CSyncHashtable
-			<CTask, CTaskId, CSpinlockOS> m_shtTS;
+//			// task storage
+//			CSyncHashtable
+//			<CTask, CTaskId, CSpinlockOS> m_shtTS;
+		
+		CHashtable
+		<CTask, CTaskId> m_shtTS;
 
 			//-------------------------------------------------------------------
 			// Interface for CAutoTaskProxy

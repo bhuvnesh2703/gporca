@@ -13,6 +13,10 @@
 
 #include "gpos/sync/CSpinlock.h"
 #include "gpos/error/CMessageTable.h"
+#include "gpos/common/CHashtable.h"
+#include "gpos/common/CHashtableAccessByKey.h"
+#include "gpos/common/CHashtableAccessByIter.h"
+#include "gpos/common/CHashtableIter.h"
 
 namespace gpos
 {
@@ -36,16 +40,25 @@ namespace gpos
 			IMemoryPool *m_pmp;
 
 			// short hand for Table of Message Tables (TMT)
-			typedef CSyncHashtable<
-						CMessageTable, 
-						ELocale, 
-						CSpinlockOS> TMT;
+//			typedef CSyncHashtable<
+//						CMessageTable,
+//						ELocale,
+//						CSpinlockOS> TMT;
+		
+		// short hand for Table of Message Tables (TMT)
+		typedef CHashtable<
+		CMessageTable,
+		ELocale> TMT;
 
 			// short hand for TMT accessor
-			typedef CSyncHashtableAccessByKey<
-						CMessageTable, 
-						ELocale, 
-						CSpinlockOS> TMTAccessor;
+//			typedef CSyncHashtableAccessByKey<
+//						CMessageTable,
+//						ELocale,
+//						CSpinlockOS> TMTAccessor;
+//
+		typedef CHashtableAccessByKey<
+		CMessageTable,
+		ELocale> TMTAccessor;
 		
 			// basic hash table
 			TMT m_tmt;

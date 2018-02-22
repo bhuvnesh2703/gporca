@@ -12,6 +12,10 @@
 #define GPOS_CMessageTable_H
 
 #include "gpos/error/CMessage.h"
+#include "gpos/common/CHashtable.h"
+#include "gpos/common/CHashtableAccessByKey.h"
+#include "gpos/common/CHashtableAccessByIter.h"
+#include "gpos/common/CHashtableIter.h"
 
 #define GPOS_MSGTAB_SIZE	4096
 
@@ -28,16 +32,24 @@ namespace gpos
 	class CMessageTable
 	{
 			// short hand for message tables
-			typedef CSyncHashtable<
-						CMessage, 
-						CException, 
-						CSpinlockOS> MT;
+//			typedef CSyncHashtable<
+//						CMessage,
+//						CException,
+//						CSpinlockOS> MT;
+		
+		typedef CHashtable<
+		CMessage,
+		CException> MT;
 
 			// short hand for message table accessor
-			typedef CSyncHashtableAccessByKey<
-						CMessage, 
-						CException, 
-						CSpinlockOS> MTAccessor;
+//			typedef CSyncHashtableAccessByKey<
+//						CMessage, 
+//						CException, 
+//						CSpinlockOS> MTAccessor;
+		
+		typedef CHashtableAccessByKey<
+		CMessage,
+		CException> MTAccessor;
 		
 			// message hashtable
 			MT m_sht;

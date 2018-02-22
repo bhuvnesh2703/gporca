@@ -146,8 +146,8 @@ namespace gpos
 				CSerializable *pserial
 				)
 			{
-				CAutoSpinlock asl(m_slockSerial);
-				asl.Lock();
+//				CAutoSpinlock asl(m_slockSerial);
+//				asl.Lock();
 
 				m_listSerial.Append(pserial);
 			}
@@ -158,8 +158,8 @@ namespace gpos
 				CSerializable *pserial
 				)
 			{
-				CAutoSpinlock asl(m_slockSerial);
-				asl.Lock();
+//				CAutoSpinlock asl(m_slockSerial);
+//				asl.Lock();
 
 				m_listSerial.Remove(pserial);
 			}

@@ -237,7 +237,9 @@ CWorkerPoolManager::RegisterWorker
 	{
 		// get access
 		CWorkerId wid = pwrkr->Wid();
-		CSyncHashtableAccessByKey<CWorker, CWorkerId, CSpinlockOS> shta(m_shtWLS, wid);
+//		CSyncHashtableAccessByKey<CWorker, CWorkerId, CSpinlockOS> shta(m_shtWLS, wid);
+		CHashtableAccessByKey<CWorker, CWorkerId> shta(m_shtWLS, wid);
+
 		
 		// must be first to register
 		GPOS_ASSERT(NULL == shta.PtLookup() && "Found registered worker.");
@@ -276,7 +278,8 @@ CWorkerPoolManager::PwrkrRemoveWorker
 	// scope for hash table accessor
 	{
 		// get access
-		CSyncHashtableAccessByKey<CWorker, CWorkerId, CSpinlockOS> shta(m_shtWLS, wid);
+//		CSyncHashtableAccessByKey<CWorker, CWorkerId, CSpinlockOS> shta(m_shtWLS, wid);
+		CHashtableAccessByKey<CWorker, CWorkerId> shta(m_shtWLS, wid);
 		
 		pwrkr = shta.PtLookup();
 		if (NULL != pwrkr)
@@ -307,7 +310,8 @@ CWorkerPoolManager::Pwrkr
 	)
 {
 	// get access
-	CSyncHashtableAccessByKey<CWorker, CWorkerId, CSpinlockOS> shta(m_shtWLS, wid);
+//	CSyncHashtableAccessByKey<CWorker, CWorkerId, CSpinlockOS> shta(m_shtWLS, wid);
+	CHashtableAccessByKey<CWorker, CWorkerId> shta(m_shtWLS, wid);
 
 	return shta.PtLookup();
 }
@@ -333,7 +337,8 @@ CWorkerPoolManager::RegisterTask
 	{
 		// get access
 		CTaskId &tid = ptsk->m_tid;
-		CSyncHashtableAccessByKey<CTask, CTaskId, CSpinlockOS> shta(m_shtTS, tid);
+//		CSyncHashtableAccessByKey<CTask, CTaskId, CSpinlockOS> shta(m_shtTS, tid);
+		CHashtableAccessByKey<CTask, CTaskId> shta(m_shtTS, tid);
 
 		// must be first to register
 		GPOS_ASSERT(NULL == shta.PtLookup() && "Found registered task.");
@@ -363,7 +368,8 @@ CWorkerPoolManager::PtskRemoveTask
 	// scope for hash table accessor
 	{
 		// get access
-		CSyncHashtableAccessByKey<CTask, CTaskId, CSpinlockOS> shta(m_shtTS, tid);
+//		CSyncHashtableAccessByKey<CTask, CTaskId, CSpinlockOS> shta(m_shtTS, tid);
+		CHashtableAccessByKey<CTask, CTaskId> shta(m_shtTS, tid);
 
 		ptsk = shta.PtLookup();
 		if (NULL != ptsk)
@@ -511,7 +517,8 @@ CWorkerPoolManager::Cancel
 
 	// scope for hash table accessor
 	{
-		CSyncHashtableAccessByKey<CTask, CTaskId, CSpinlockOS> shta(m_shtTS, tid);
+//		CSyncHashtableAccessByKey<CTask, CTaskId, CSpinlockOS> shta(m_shtTS, tid);
+		CHashtableAccessByKey<CTask, CTaskId> shta(m_shtTS, tid);
 		ptsk = shta.PtLookup();
 		if (NULL != ptsk)
 		{

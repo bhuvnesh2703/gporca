@@ -321,8 +321,12 @@ CColumnFactory::PcrLookup
 	ULONG ulId
 	)
 {
-	CSyncHashtableAccessByKey<CColRef, ULONG,
-		CSpinlockColumnFactory> shtacc(m_sht, ulId);
+//	CSyncHashtableAccessByKey<CColRef, ULONG,
+//		CSpinlockColumnFactory> shtacc(m_sht, ulId);
+	
+	CHashtableAccessByKey<CColRef, ULONG> shtacc(m_sht, ulId);
+	
+//	CHashtableAccessByKey<CColRef, ULONG> shtacc(m_sht, ulId);
 	
 	CColRef *pcr = shtacc.PtLookup();
 	
@@ -350,8 +354,11 @@ CColumnFactory::Destroy
 	
 	{
 		// scope for the hash table accessor
-		CSyncHashtableAccessByKey<CColRef, ULONG, CSpinlockColumnFactory>
-			shtacc(m_sht, ulId);
+//		CSyncHashtableAccessByKey<CColRef, ULONG, CSpinlockColumnFactory>
+//			shtacc(m_sht, ulId);
+		
+		CHashtableAccessByKey<CColRef, ULONG>
+		shtacc(m_sht, ulId);
 		
 		CColRef *pcrFound = shtacc.PtLookup();
 		GPOS_ASSERT(pcr == pcrFound);

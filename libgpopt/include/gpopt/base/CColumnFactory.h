@@ -13,7 +13,9 @@
 
 #include "gpos/base.h"
 #include "gpos/common/CList.h"
-#include "gpos/common/CSyncHashtable.h"
+//#include "gpos/common/CSyncHashtable.h"
+#include "gpos/common/CHashtable.h"
+#include "gpos/common/CHashtableAccessByKey.h"
 #include "gpos/sync/CAtomicCounter.h"
 
 #include "gpopt/spinlock.h"
@@ -53,11 +55,15 @@ namespace gpopt
 			// id counter
 			CAtomicULONG m_aul;
 
-			// hash table
-			CSyncHashtable
-				<CColRef,
-				ULONG,
-				CSpinlockColumnFactory> m_sht;
+//			// hash table
+//			CSyncHashtable
+//				<CColRef,
+//				ULONG,
+//				CSpinlockColumnFactory> m_sht;
+		
+		CHashtable
+		<CColRef,
+		ULONG> m_sht;
 
 			// private copy ctor
 			CColumnFactory(const CColumnFactory &);

@@ -13,7 +13,11 @@
 
 #include "gpos/base.h"
 #include "gpos/common/CRefCount.h"
-#include "gpos/common/CSyncHashtable.h"
+//#include "gpos/common/CSyncHashtable.h"
+#include "gpos/common/CHashtable.h"
+#include "gpos/common/CHashtableAccessByKey.h"
+#include "gpos/common/CHashtableIter.h"
+#include "gpos/common/CHashtableAccessByIter.h"
 #include "gpos/common/CSyncList.h"
 #include "gpos/sync/CAtomicCounter.h"
 
@@ -45,27 +49,43 @@ namespace gpopt
 	{
 		private:
 		
-			// definition of hash table key accessor
-			typedef
-					CSyncHashtableAccessByKey<
-						CGroupExpression, // entry
-						CGroupExpression, // search key
-						CSpinlockMemo> ShtAcc;
+//			// definition of hash table key accessor
+//			typedef
+//					CSyncHashtableAccessByKey<
+//						CGroupExpression, // entry
+//						CGroupExpression, // search key
+//						CSpinlockMemo> ShtAcc;
+//
+//			// definition of hash table iterator
+//			typedef
+//					CSyncHashtableIter<
+//						CGroupExpression, // entry
+//						CGroupExpression, // search key
+//						CSpinlockMemo> ShtIter;
+//
+//			// definition of hash table iterator accessor
+//			typedef
+//					CSyncHashtableAccessByIter<
+//						CGroupExpression, // entry
+//						CGroupExpression, // search key
+//						CSpinlockMemo> ShtAccIter;
 
-			// definition of hash table iterator
-			typedef
-					CSyncHashtableIter<
-						CGroupExpression, // entry
-						CGroupExpression, // search key
-						CSpinlockMemo> ShtIter;
-
-			// definition of hash table iterator accessor
-			typedef
-					CSyncHashtableAccessByIter<
-						CGroupExpression, // entry
-						CGroupExpression, // search key
-						CSpinlockMemo> ShtAccIter;
-
+		typedef
+		CHashtableAccessByKey<
+		CGroupExpression, // entry
+		CGroupExpression> ShtAcc;
+		
+		// definition of hash table iterator
+		typedef
+		CHashtableIter<
+		CGroupExpression, // entry
+		CGroupExpression> ShtIter;
+		
+		// definition of hash table iterator accessor
+		typedef
+		CHashtableAccessByIter<
+		CGroupExpression, // entry
+		CGroupExpression> ShtAccIter;
 			// memory pool
 			IMemoryPool *m_pmp;
 		
@@ -85,10 +105,14 @@ namespace gpopt
 			CSyncList<CGroup> m_listGroups;
 
 			// hashtable of all group expressions
-			CSyncHashtable<
-				CGroupExpression, // entry
-				CGroupExpression, // search key
-				CSpinlockMemo> m_sht;
+//			CSyncHashtable<
+//				CGroupExpression, // entry
+//				CGroupExpression, // search key
+//				CSpinlockMemo> m_sht;
+		
+		CHashtable<
+		CGroupExpression, // entry
+		CGroupExpression> m_sht;
 
 			// add new group
 			void Add(CGroup *pgroup, CExpression *pexprOrigin);

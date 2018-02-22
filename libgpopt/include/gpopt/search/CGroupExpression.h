@@ -23,6 +23,10 @@
 #include "gpopt/search/CBinding.h"
 #include "gpopt/search/CGroup.h"
 #include "gpopt/xforms/CXform.h"
+#include "gpos/common/CHashtableAccessByKey.h"
+#include "gpos/common/CHashtableIter.h"
+#include "gpos/common/CHashtable.h"
+#include "gpos/common/CHashtableAccessByIter.h"
 
 #define GPOPT_INVALID_GEXPR_ID	ULONG_MAX
 
@@ -64,11 +68,16 @@ namespace gpopt
 			};
 
 			// type definition of cost context hash table
-			typedef
-				CSyncHashtable<
-					CCostContext, // entry
-					OPTCTXT_PTR, // search key
-					CSpinlockCC> ShtCC;
+//			typedef
+//				CSyncHashtable<
+//					CCostContext, // entry
+//					OPTCTXT_PTR, // search key
+//					CSpinlockCC> ShtCC;
+		
+		typedef
+		CHashtable<
+		CCostContext, // entry
+		OPTCTXT_PTR> ShtCC;
 
 		private:
 
@@ -76,26 +85,42 @@ namespace gpopt
 			IMemoryPool *m_pmp;
 
 			// definition of context hash table accessor
-			typedef
-				CSyncHashtableAccessByKey<
-					CCostContext, // entry
-					OPTCTXT_PTR, // search key
-					CSpinlockCC> ShtAcc;
+//			typedef
+//				CSyncHashtableAccessByKey<
+//					CCostContext, // entry
+//					OPTCTXT_PTR, // search key
+//					CSpinlockCC> ShtAcc;
+//
+//			// definition of context hash table iter
+//			typedef
+//				CSyncHashtableIter<
+//					CCostContext, // entry
+//					OPTCTXT_PTR, // search key
+//					CSpinlockCC> ShtIter;
+//
+//			// definition of context hash table iter accessor
+//			typedef
+//				CSyncHashtableAccessByIter<
+//					CCostContext, // entry
+//					OPTCTXT_PTR, // search key
+//					CSpinlockCC> ShtAccIter;
 
-			// definition of context hash table iter
-			typedef
-				CSyncHashtableIter<
-					CCostContext, // entry
-					OPTCTXT_PTR, // search key
-					CSpinlockCC> ShtIter;
-
-			// definition of context hash table iter accessor
-			typedef
-				CSyncHashtableAccessByIter<
-					CCostContext, // entry
-					OPTCTXT_PTR, // search key
-					CSpinlockCC> ShtAccIter;
-
+		typedef
+		CHashtableAccessByKey<
+		CCostContext, // entry
+		OPTCTXT_PTR> ShtAcc;
+		
+		// definition of context hash table iter
+		typedef
+		CHashtableIter<
+		CCostContext, // entry
+		OPTCTXT_PTR> ShtIter;
+		
+		// definition of context hash table iter accessor
+		typedef
+		CHashtableAccessByIter<
+		CCostContext, // entry
+		OPTCTXT_PTR> ShtAccIter;
 			// map of partial plans to their costs
 			typedef CHashMap<CPartialPlan, CCost, CPartialPlan::UlHash, CPartialPlan::FEqual,
 						CleanupRelease<CPartialPlan>, CleanupDelete<CCost> > PartialPlanCostMap;

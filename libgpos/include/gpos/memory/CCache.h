@@ -28,9 +28,14 @@
 #include "gpos/sync/CSpinlock.h"
 
 #include "gpos/common/CAutoTimer.h"
-#include "gpos/common/CSyncHashtableAccessByKey.h"
-#include "gpos/common/CSyncHashtableIter.h"
-#include "gpos/common/CSyncHashtableAccessByIter.h"
+//#include "gpos/common/CSyncHashtableAccessByKey.h"
+//#include "gpos/common/CSyncHashtableIter.h"
+//#include "gpos/common/CSyncHashtableAccessByIter.h"
+
+#include "gpos/common/CHashtableAccessByKey.h"
+#include "gpos/common/CHashtableIter.h"
+#include "gpos/common/CHashtable.h"
+#include "gpos/common/CHashtableAccessByIter.h"
 
 #include "gpos/sync/CAutoSpinlock.h"
 
@@ -89,14 +94,24 @@ namespace gpos
 			typedef CCacheEntry<T, K> CCacheHashTableEntry;
 
 			// type definition of hashtable, accessor and iterator
-			typedef CSyncHashtable<CCacheHashTableEntry, K, CSpinlockCache>
-				CCacheHashtable;
-			typedef CSyncHashtableAccessByKey<CCacheHashTableEntry, K, CSpinlockCache>
-				CCacheHashtableAccessor;
-			typedef CSyncHashtableIter<CCacheHashTableEntry, K, CSpinlockCache>
-				CCacheHashtableIter;
-			typedef CSyncHashtableAccessByIter<CCacheHashTableEntry, K, CSpinlockCache>
-					CCacheHashtableIterAccessor;
+//			typedef CSyncHashtable<CCacheHashTableEntry, K, CSpinlockCache>
+//				CCacheHashtable;
+//			typedef CSyncHashtableAccessByKey<CCacheHashTableEntry, K, CSpinlockCache>
+//				CCacheHashtableAccessor;
+//			typedef CSyncHashtableIter<CCacheHashTableEntry, K, CSpinlockCache>
+//				CCacheHashtableIter;
+//			typedef CSyncHashtableAccessByIter<CCacheHashTableEntry, K, CSpinlockCache>
+//					CCacheHashtableIterAccessor;
+		
+		// type definition of hashtable, accessor and iterator
+		typedef CHashtable<CCacheHashTableEntry, K>
+		CCacheHashtable;
+		typedef CHashtableAccessByKey<CCacheHashTableEntry, K>
+		CCacheHashtableAccessor;
+		typedef CHashtableIter<CCacheHashTableEntry, K>
+		CCacheHashtableIter;
+		typedef CHashtableAccessByIter<CCacheHashTableEntry, K>
+		CCacheHashtableIterAccessor;
 
 			// memory pool for allocating hashtable and cache entries
 			IMemoryPool *m_pmp;
