@@ -43,6 +43,7 @@ CPhysicalFilter::CPhysicalFilter
 	// (2) Singleton
 
 	SetDistrRequests(2 /*ulDistrReqs*/);
+	m_phmpp = GPOS_NEW(pmp) HMPartPropagation(pmp);
 }
 
 
@@ -55,7 +56,9 @@ CPhysicalFilter::CPhysicalFilter
 //
 //---------------------------------------------------------------------------
 CPhysicalFilter::~CPhysicalFilter()
-{}
+{
+	m_phmpp->Release();
+}
 
 
 //---------------------------------------------------------------------------
@@ -189,7 +192,7 @@ CPhysicalFilter::PrsRequired
 //
 //---------------------------------------------------------------------------
 CPartitionPropagationSpec *
-CPhysicalFilter::PppsRequired
+CPhysicalFilter::PppsRequiredFilter
 	(
 	IMemoryPool *pmp,
 	CExpressionHandle &exprhdl,
@@ -279,6 +282,97 @@ CPhysicalFilter::PppsRequired
 	pdrgpul->Release();
 
 	return GPOS_NEW(pmp) CPartitionPropagationSpec(ppimResult, ppfmResult);
+}
+
+
+CPartitionPropagationSpec *
+CPhysicalFilter::PppsRequired
+	(
+	IMemoryPool *pmp,
+	CExpressionHandle &exprhdl,
+	CPartitionPropagationSpec *pppsRequired,
+	ULONG ulChildIndex,
+	DrgPdp *pdrgpdpCtxt,
+	ULONG ulOptReq
+	)
+{
+	CPartPropReq *pppr = PpprCreate(pmp, exprhdl, pppsRequired);
+	if (NULL == pppr)
+	{
+		return PppsRequiredFilter(pmp, exprhdl, pppsRequired, ulChildIndex, pdrgpdpCtxt, ulOptReq);
+	}
+
+	CPartitionPropagationSpec *ppps = m_phmpp->PtLookup(pppr);
+	if (NULL == ppps)
+	{
+		ppps = PppsRequiredFilter(pmp, exprhdl, pppsRequired, ulChildIndex, pdrgpdpCtxt, ulOptReq);
+#ifdef GPOS_DEBUG
+		BOOL fSuccess =
+#endif // GPOS_DEBUG
+			m_phmpp->FInsert(pppr, ppps);
+		GPOS_ASSERT(fSuccess);
+	}
+	else
+	{
+		pppr->Release();
+	}
+
+	ppps->AddRef();
+	return ppps;
+}
+
+ULONG
+CPhysicalFilter::CPartPropReq::UlHash
+	(
+	const CPartPropReq *pppr
+	)
+{
+	GPOS_ASSERT(NULL != pppr);
+
+	ULONG ulHash = pppr->Ppps()->UlHash();
+	ulHash = UlCombineHashes(ulHash , pppr->UlOuterChild());
+
+	return UlCombineHashes(ulHash , pppr->UlScalarChild());
+}
+
+BOOL
+CPhysicalFilter::CPartPropReq::FEqual
+	(
+	const CPartPropReq *ppprFst,
+	const CPartPropReq *ppprSnd
+	)
+{
+	GPOS_ASSERT(NULL != ppprFst);
+	GPOS_ASSERT(NULL != ppprSnd);
+
+	return
+		ppprFst->UlOuterChild() == ppprSnd->UlOuterChild() &&
+		ppprFst->UlScalarChild() == ppprSnd->UlScalarChild() &&
+		ppprFst->Ppps()->FMatch(ppprSnd->Ppps());
+}
+
+
+// Create partition propagation request
+CPhysicalFilter::CPartPropReq *
+CPhysicalFilter::PpprCreate
+	(
+	IMemoryPool *pmp,
+	CExpressionHandle &exprhdl,
+	CPartitionPropagationSpec *pppsRequired
+	)
+{
+	GPOS_ASSERT(exprhdl.Pop() == this);
+	GPOS_ASSERT(NULL != pppsRequired);
+	if (NULL == exprhdl.Pgexpr())
+	{
+		return NULL;
+	}
+
+	ULONG ulOuterChild = (*exprhdl.Pgexpr())[0]->UlId();
+	ULONG ulScalarChild = (*exprhdl.Pgexpr())[1]->UlId();
+
+	pppsRequired->AddRef();
+	return  GPOS_NEW(pmp) CPartPropReq(pppsRequired, ulOuterChild, ulScalarChild);
 }
 
 //---------------------------------------------------------------------------
