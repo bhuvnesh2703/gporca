@@ -42,8 +42,7 @@ namespace gpopt
 
 			// dtor
 			virtual
-			~CLogicalSelect()
-			{}
+			~CLogicalSelect();
 
 			// ident accessors
 			virtual 
@@ -138,6 +137,11 @@ namespace gpopt
 						DrgPstat *pdrgpstatCtxt
 						)
 						const;
+
+		typedef CHashMap<CExpression, CExpression, CExpression::UlHash, CUtils::FEqual,
+						CleanupRelease<CExpression>, CleanupRelease<CExpression> > HMPexprPred;
+
+		HMPexprPred *hmpexprPred;
 
 	}; // class CLogicalSelect
 
