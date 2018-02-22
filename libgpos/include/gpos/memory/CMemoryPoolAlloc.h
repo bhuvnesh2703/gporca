@@ -44,7 +44,7 @@ namespace gpos
 					(
 					NULL /*pmpUnderlying*/,
 					false /*fOwnsUnderlying*/,
-					true /*fThreadSafe*/
+					false /*fThreadSafe*/
 					),
 				m_pfnAlloc(pfnAlloc),
 				m_pfnFree(pfnFree)

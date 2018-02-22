@@ -72,7 +72,7 @@ CMemoryPoolManager::CMemoryPoolManager
 		);
 
 	// create pool used in allocations made using global new operator
-	m_pmpGlobal = PmpCreate(EatTracker, true, ULLONG_MAX);
+	m_pmpGlobal = PmpCreate(EatTracker, false, ULLONG_MAX);
 }
 
 //---------------------------------------------------------------------------
@@ -114,7 +114,7 @@ CMemoryPoolManager::EresInit
 			(
 			pmpBase,
 			ULLONG_MAX, // ullMaxMemory
-			true, // FThreadSafe
+			false, // FThreadSafe
 			false //fOwnsUnderlyingPmp
 			);
 

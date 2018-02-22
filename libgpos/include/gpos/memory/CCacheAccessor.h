@@ -164,7 +164,7 @@ namespace gpos
 				m_pmp = CMemoryPoolManager::Pmpm()->PmpCreate
 						(
 						CMemoryPoolManager::EatTracker,
-						true /*fThreadSafe*/,
+						false /*fThreadSafe*/,
 						ULLONG_MAX
 						);
 

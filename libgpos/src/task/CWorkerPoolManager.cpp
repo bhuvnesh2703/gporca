@@ -100,7 +100,7 @@ CWorkerPoolManager::EresInit
 		CMemoryPoolManager::Pmpm()->PmpCreate
 			(
 			CMemoryPoolManager::EatTracker,
-			true /*fThreadSafe*/,
+			false /*fThreadSafe*/,
 			GPOS_WORKERPOOL_MEM_POOL_SIZE
 			);
 

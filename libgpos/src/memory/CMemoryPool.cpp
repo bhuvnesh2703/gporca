@@ -50,6 +50,10 @@ CMemoryPool::CMemoryPool
 	m_fThreadSafe(fThreadSafe)
 {
 	GPOS_ASSERT_IMP(fOwnsUnderlying, NULL != pmpUnderlying);
+	if (m_fThreadSafe)
+	{
+		GPOS_ASSERT(m_fThreadSafe);
+	}
 
 	m_ulpKey = reinterpret_cast<ULONG_PTR>(this);
 #ifdef GPOS_DEBUG

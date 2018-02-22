@@ -73,7 +73,7 @@ CCacheFactory::EresInit()
 	IMemoryPool *pmp = CMemoryPoolManager::Pmpm()->PmpCreate
 							(
 							CMemoryPoolManager::EatTracker,
-							true /*fThreadSafe*/,
+							false /*fThreadSafe*/,
 							ULLONG_MAX
 							);
 	GPOS_TRY
