@@ -40,9 +40,14 @@ CLogicalSelect::CLogicalSelect
 	)
 	:
 	CLogicalUnary(pmp)
-{}
+{
+	m_hmPexprPred = GPOS_NEW(pmp) HMPexprPred(pmp);
+}
 
-	
+CLogicalSelect::~CLogicalSelect()
+{
+	m_hmPexprPred->Release();
+}
 //---------------------------------------------------------------------------
 //	@function:
 //		CLogicalSelect::PcrsDeriveOutput
@@ -237,22 +242,35 @@ CLogicalSelect::PexprPartPred
 		return NULL;
 	}
 
-	CExpression *pexprPredOnPartKey = NULL;
-
-	DrgPpartkeys *pdrgppartkeys = ppartinfo->Pdrgppartkeys(0 /*ulPos*/);
-	const ULONG ulKeySets = pdrgppartkeys->UlLength();
-	for (ULONG ul = 0; NULL == pexprPredOnPartKey && ul < ulKeySets; ul++)
+	CExpression *pexprPredOnPartKey = m_hmPexprPred->PtLookup(pexprScalar);
+	if (pexprPredOnPartKey == NULL)
 	{
-		pexprPredOnPartKey = CPredicateUtils::PexprExtractPredicatesOnPartKeys
-												(
-												pmp,
-												pexprScalar,
-												(*pdrgppartkeys)[ul]->Pdrgpdrgpcr(),
-												NULL, //pcrsAllowedRefs
-												true //fUseConstraints
-												);
+		DrgPpartkeys *pdrgppartkeys = ppartinfo->Pdrgppartkeys(0 /*ulPos*/);
+		const ULONG ulKeySets = pdrgppartkeys->UlLength();
+		for (ULONG ul = 0; NULL == pexprPredOnPartKey && ul < ulKeySets; ul++)
+		{
+			pexprPredOnPartKey = CPredicateUtils::PexprExtractPredicatesOnPartKeys
+			(
+			 pmp,
+			 pexprScalar,
+			 (*pdrgppartkeys)[ul]->Pdrgpdrgpcr(),
+			 NULL, //pcrsAllowedRefs
+			 true //fUseConstraints
+			 );
+		}
+	}
+	else
+	{
+		pexprPredOnPartKey->AddRef();
+		return pexprPredOnPartKey;
 	}
 
+	if (pexprPredOnPartKey != NULL)
+	{
+		pexprPredOnPartKey->AddRef();
+		pexprScalar->AddRef();
+		m_hmPexprPred->FInsert(pexprScalar, pexprPredOnPartKey);
+	}
 	return pexprPredOnPartKey;
 }
 
