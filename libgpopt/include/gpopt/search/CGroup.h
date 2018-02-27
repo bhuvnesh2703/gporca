@@ -108,27 +108,12 @@ namespace gpopt
 
 
 		private:
-
-			// definition of hash table iter
-			typedef
-				CSyncHashtableIter<
-					COptimizationContext, // entry
-					COptimizationContext , // search key
-					CSpinlockOC> ShtIter;
-
-			// definition of hash table iter accessor
-			typedef
-				CSyncHashtableAccessByIter<
-					COptimizationContext, // entry
-					COptimizationContext, // search key
-					CSpinlockOC> ShtAccIter;
-
-			// definition of hash table accessor
-			typedef
-				CSyncHashtableAccessByKey<
-					COptimizationContext, // entry
-					COptimizationContext, // search key
-					CSpinlockOC> ShtAcc;
+		
+			typedef CHashMap<COptimizationContext, COptimizationContext, COptimizationContext::UlHash, COptimizationContext::FEqual, CleanupRelease<COptimizationContext>, CleanupRelease<COptimizationContext> > HMOptCtxt;
+		
+					typedef CHashMapIter<COptimizationContext, COptimizationContext, COptimizationContext::UlHash, COptimizationContext::FEqual, CleanupRelease<COptimizationContext>, CleanupRelease<COptimizationContext> > HMOptCtxtIter;
+		
+			HMOptCtxt *phOptCtxt;
 
 			//---------------------------------------------------------------------------
 			//	@class:
@@ -228,10 +213,6 @@ namespace gpopt
 
 			// mutex for locking stats map when adding a new entry
 			CMutex m_mutexStats;
-
-
-			// hashtable of optimization contexts
-			ShtOC m_sht;
 
 			// spin lock to protect operations on expression list
 			CSpinlockGroup m_slock;
@@ -441,10 +422,10 @@ namespace gpopt
 			}
 			
 			// optimization contexts hash table accessor
-			ShtOC &Sht()
-			{
-				return m_sht;
-			}
+//			ShtOC &Sht()
+//			{
+//				return m_sht;
+//			}
 
 			// exploration job queue accessor
 			CJobQueue *PjqExploration()

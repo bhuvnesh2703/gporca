@@ -123,7 +123,7 @@ void
 CEvent::Broadcast()
 {
 	GPOS_ASSERT(m_fInit && "Event not initialized.");
-	GPOS_ASSERT(m_pmutex->FOwned());
+//	GPOS_ASSERT(m_pmutex->FOwned());
 	
 	// check if anyone is waiting
 	if (0 < m_ulWaiters)

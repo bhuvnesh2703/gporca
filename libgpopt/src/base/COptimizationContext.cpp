@@ -487,6 +487,26 @@ COptimizationContext::OsPrint
 	return os;
 }
 
+BOOL COptimizationContext::FEqual
+(
+ const COptimizationContext *ocLeft,
+ const COptimizationContext *ocRight
+ )
+{
+	return ocLeft->Prpp()->UlHash() == ocRight->Prpp()->UlHash();
+}
+
+ULONG COptimizationContext::UlHash
+(
+ const COptimizationContext *oc
+ )
+{
+	GPOS_ASSERT(NULL != oc->Prpp());
+	ULONG ulHash = oc->Prpp()->UlHash();
+	
+	return ulHash;
+}
+
 #ifdef GPOS_DEBUG
 void
 COptimizationContext::DbgPrint()

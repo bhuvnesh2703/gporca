@@ -368,6 +368,9 @@ namespace gpopt
 			// invalid optimization context pointer, needed for cost contexts hash table iteration
 			static
 			const OPTCTXT_PTR m_pocInvalid;
+		
+			static BOOL FEqual(const COptimizationContext *ocLeft, const COptimizationContext *ocRight);
+			static ULONG UlHash(const COptimizationContext *oc);
 
 #ifdef GPOS_DEBUG
 			// debug print; for interactive debugging sessions only

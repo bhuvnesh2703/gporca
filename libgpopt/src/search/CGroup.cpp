@@ -191,19 +191,10 @@ CGroup::CGroup
 	m_listGExprs.Init(GPOS_OFFSET(CGroupExpression, m_linkGroup));
 	m_listDupGExprs.Init(GPOS_OFFSET(CGroupExpression, m_linkGroup));
 
-	m_sht.Init
-			(
-			pmp,
-			GPOPT_OPTCTXT_HT_BUCKETS,
-			GPOS_OFFSET(COptimizationContext, m_link),
-			0, /*cKeyOffset (0 because we use COptimizationContext class as key)*/
-			&(COptimizationContext::m_ocInvalid),
-			COptimizationContext::UlHash,
-			COptimizationContext::FEqual
-			);
 	m_plinkmap = GPOS_NEW(pmp) LinkMap(pmp);
 	m_pstatsmap = GPOS_NEW(pmp) StatsMap(pmp);
 	m_pcostmap = GPOS_NEW(pmp) CostMap(pmp);
+	phOptCtxt = GPOS_NEW(pmp) HMOptCtxt(pmp);
 }
 
 
@@ -250,7 +241,8 @@ CGroup::~CGroup()
 	}
 
 	// cleanup optimization contexts
-	CleanupContexts();
+	phOptCtxt->Release();
+//	CleanupContexts();
 }
 
 
@@ -266,30 +258,30 @@ void
 CGroup::CleanupContexts()
 {
 	// need to suspend cancellation while cleaning up
-	{
-		CAutoSuspendAbort asa;
+//	{
+//		CAutoSuspendAbort asa;
+//
+//		COptimizationContext *poc = NULL;
+//		ShtIter shtit(m_sht);
+//
+//		while (NULL != poc || shtit.FAdvance())
+//		{
+//			CRefCount::SafeRelease(poc);
+//
+//			// iter's accessor scope
+//			{
+//				ShtAccIter shtitacc(shtit);
+//				if (NULL != (poc = shtitacc.Pt()))
+//				{
+//					shtitacc.Remove(poc);
+//				}
+//			}
+//		}
+//	}
 
-		COptimizationContext *poc = NULL;
-		ShtIter shtit(m_sht);
-
-		while (NULL != poc || shtit.FAdvance())
-		{
-			CRefCount::SafeRelease(poc);
-
-			// iter's accessor scope
-			{
-				ShtAccIter shtitacc(shtit);
-				if (NULL != (poc = shtitacc.Pt()))
-				{
-					shtitacc.Remove(poc);
-				}
-			}
-		}
-	}
-
-#ifdef GPOS_DEBUG
-	CWorker::PwrkrSelf()->ResetTimeSlice();
-#endif // GPOS_DEBUG
+//#ifdef GPOS_DEBUG
+//	CWorker::PwrkrSelf()->ResetTimeSlice();
+//#endif // GPOS_DEBUG
 }
 
 
@@ -311,13 +303,13 @@ CGroup::UpdateBestCost
 {
 	GPOS_ASSERT(CCostContext::estCosted == pcc->Est());
 
-	COptimizationContext *pocFound  = NULL;
+	COptimizationContext *pocFound  = phOptCtxt->PtLookup(poc);
 	
-	{
-		// scope for accessor
-		ShtAcc shta(Sht(), *poc);
-		pocFound = shta.PtLookup();
-	}
+//	{
+//		// scope for accessor
+//		ShtAcc shta(Sht(), *poc);
+//		pocFound = shta.PtLookup();
+//	}
 
 	GPOS_ASSERT(NULL != pocFound);
 
@@ -361,12 +353,15 @@ CGroup::PocLookup
 								ulSearchStageIndex
 								);
 
-	COptimizationContext *pocFound = NULL;
-	{
-		ShtAcc shta(Sht(), *poc);
-		pocFound =  shta.PtLookup();
-	}
+	COptimizationContext *pocFound = phOptCtxt->PtLookup(poc);
 	poc->Release();
+//	{
+//		ShtAcc shta(Sht(), *poc);
+//		pocFound =  shta.PtLookup();
+//	}
+//	poc->Release();
+	if (pocFound != NULL)
+		pocFound->AddRef();
 
 	return pocFound;
 }
@@ -428,13 +423,17 @@ CGroup::PocInsert
 	COptimizationContext *poc
 	)
 {
-	ShtAcc shta(Sht(), *poc);
-
-	COptimizationContext *pocFound = shta.PtLookup();
+	COptimizationContext *pocFound = phOptCtxt->PtLookup(poc);
+//	ShtAcc shta(Sht(), *poc);
+//
+//	COptimizationContext *pocFound = shta.PtLookup();
 	if (NULL == pocFound)
 	{
 		poc->SetId((ULONG) UlpIncOptCtxts());
-		shta.Insert(poc);
+		poc->AddRef();
+		poc->AddRef();
+		phOptCtxt->FInsert(poc, poc);
+//		shta.Insert(poc);
 		return poc;
 	}
 
@@ -456,8 +455,8 @@ CGroup::PgexprBest
 	COptimizationContext *poc
 	)
 {
-	ShtAcc shta(Sht(), *poc);
-	COptimizationContext *pocFound = shta.PtLookup();
+//	ShtAcc shta(Sht(), *poc);
+	COptimizationContext *pocFound = phOptCtxt->PtLookup(poc);
 	if (NULL != pocFound)
 	{
 		return pocFound->PgexprBest();
@@ -1718,27 +1717,37 @@ CGroup::OsPrintGrpOptCtxts
 	const CHAR *szPrefix
 	)
 {
-	if (!FScalar() && !FDuplicateGroup() && GPOS_FTRACE(EopttracePrintOptimizationContext))
+//	if (!FScalar() && !FDuplicateGroup() && GPOS_FTRACE(EopttracePrintOptimizationContext))
+		if (!FScalar() && !FDuplicateGroup())
 	{
 		os << szPrefix << "Grp OptCtxts:" << std::endl;
-
-		COptimizationContext *poc = NULL;
-		ShtIter shtit(m_sht);
-		while (shtit.FAdvance())
+		
+		HMOptCtxtIter hmiter(phOptCtxt);
+		while (hmiter.FAdvance())
 		{
-			{
-				ShtAccIter shtitacc(shtit);
-				poc = shtitacc.Pt();
-			}
-
-			if (NULL != poc)
-			{
-				os << szPrefix;
-				(void) poc->OsPrint(os, szPrefix);
-			}
-
-			GPOS_CHECK_ABORT;
+			const COptimizationContext *pOptCtxt = hmiter.Pt();
+			os << szPrefix;
+			(void) pOptCtxt->OsPrint(os, szPrefix);
 		}
+		
+
+//		COptimizationContext *poc = phOptCtxt-;
+//		ShtIter shtit(m_sht);
+//		while (shtit.FAdvance())
+//		{
+//			{
+//				ShtAccIter shtitacc(shtit);
+//				poc = shtitacc.Pt();
+//			}
+//
+//			if (NULL != poc)
+//			{
+//				os << szPrefix;
+//				(void) poc->OsPrint(os, szPrefix);
+//			}
+//
+//			GPOS_CHECK_ABORT;
+//		}
 	}
 
 	return os;

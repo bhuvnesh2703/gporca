@@ -142,8 +142,8 @@ CScheduler::ProcessJobs
 
 		DecrTasksActive();
 
-		CAutoMutex am(m_mutex);
-		am.Lock();
+//		CAutoMutex am(m_mutex);
+//		am.Lock();
 
 		// stop when all jobs have completed
 		if (FEmpty())
@@ -153,7 +153,7 @@ CScheduler::ProcessJobs
 		}
 
 		// wait until there is enough work to pick up
-		m_event.Wait();
+//		m_event.Wait();
 
 		GPOS_CHECK_ABORT;
 	}
