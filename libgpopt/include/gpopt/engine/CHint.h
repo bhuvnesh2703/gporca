@@ -17,6 +17,7 @@
 
 #define JOIN_ORDER_DP_THRESHOLD ULONG(10)
 #define BROADCAST_THRESHOLD ULONG(10000000)
+#define DP_ALTERNATIVES ULONG(5)
 
 namespace gpopt
 {
@@ -46,6 +47,8 @@ namespace gpopt
 			ULONG m_ulBroadcastThreshold;
 
 			BOOL m_fEnforceConstraintsOnDML;
+		
+			ULONG m_ulDPAlternatives;
 
 			// private copy ctor
 			CHint(const CHint &);
@@ -60,7 +63,8 @@ namespace gpopt
 				ULONG ulArrayExpansionThreshold,
 				ULONG ulJoinOrderDPLimit,
 				ULONG ulBroadcastThreshold,
-				BOOL fEnforceConstraintsOnDML
+				BOOL fEnforceConstraintsOnDML,
+				ULONG ulDPAlternatives
 				)
 				:
 				m_ulMinNumOfPartsToRequireSortOnInsert(ulMinNumOfPartsToRequireSortOnInsert),
@@ -68,11 +72,16 @@ namespace gpopt
 				m_ulArrayExpansionThreshold(ulArrayExpansionThreshold),
 				m_ulJoinOrderDPLimit(ulJoinOrderDPLimit),
 				m_ulBroadcastThreshold(ulBroadcastThreshold),
-				m_fEnforceConstraintsOnDML(fEnforceConstraintsOnDML)
+				m_fEnforceConstraintsOnDML(fEnforceConstraintsOnDML),
+				m_ulDPAlternatives(ulDPAlternatives)
 			{
 			}
 
-
+			ULONG UlDPAlternatives() const
+			{
+				return m_ulDPAlternatives;
+			}
+		
 			// Minimum number of partitions required for sorting tuples during
 			// insertion in an append only row-oriented partitioned table
 			ULONG UlMinNumOfPartsToRequireSortOnInsert() const
@@ -131,7 +140,8 @@ namespace gpopt
 										INT_MAX, /* ulArrayExpansionThreshold */
 										JOIN_ORDER_DP_THRESHOLD, /*ulJoinOrderDPLimit*/
 										BROADCAST_THRESHOLD, /*ulBroadcastThreshold*/
-										true /* fEnforceConstraintsOnDML */
+										true /* fEnforceConstraintsOnDML */,
+										DP_ALTERNATIVES
 										);
 			}
 

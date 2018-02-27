@@ -15,6 +15,7 @@
 #include "gpos/common/CHashMap.h"
 #include "gpos/io/IOstream.h"
 #include "gpopt/xforms/CJoinOrder.h"
+#include "gpopt/optimizer/COptimizerConfig.h"
 
 
 namespace gpopt
@@ -31,6 +32,8 @@ namespace gpopt
 	//---------------------------------------------------------------------------
 	class CJoinOrderDP : public CJoinOrder
 	{
+
+//		class COptimizerConfig;
 
 		private:
 

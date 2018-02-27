@@ -194,7 +194,10 @@ CJoinOrderDP::AddJoinOrder
 	INT ulResults = m_pdrgpexprTopKOrders->UlLength();
 	INT iReplacePos = -1;
 	BOOL fAddJoinOrder = false;
-	if (ulResults < GPOPT_DP_JOIN_ORDERING_TOPK)
+	
+	COptimizerConfig *poconf = COptCtxt::PoctxtFromTLS()->Poconf();
+	INT ulDPAlternatives = poconf->Phint()->UlDPAlternatives();
+	if (ulResults < ulDPAlternatives)
 	{
 		// we have less than K results, always add the given expression
 		fAddJoinOrder = true;
