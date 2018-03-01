@@ -1,0 +1,126 @@
+groups: []
+resources:
+- name: xerces_patch
+  type: git
+  source:
+    branch: build-orca-use-tarball
+    paths:
+    - patches/xerces-c-gpdb.patch
+    - concourse/xerces-c
+    - concourse/package_tarball.bash
+    uri: https://github.com/bhuvnesh2703/gporca
+- name: bin_orca_centos5_release
+  type: s3
+  source:
+    access_key_id: AKIAJTBRWJ546CAFZFTA
+    bucket: gporca-concourse-bucket-bc
+    region_name: us-west-2
+    secret_access_key: n1yKTdwSSsVYi2lre54Y4ZG+7vEpQ8hnx4YnlcL1
+    versioned_file: bin_orca_centos5_release.tar.gz
+- name: orca_src
+  type: git
+  source:
+    branch: build-orca-use-tarball
+    uri: https://github.com/bhuvnesh2703/gporca
+- name: bin_orca_centos5_debug
+  type: s3
+  source:
+    access_key_id: AKIAJTBRWJ546CAFZFTA
+    bucket: gporca-concourse-bucket-bc
+    region_name: us-west-2
+    secret_access_key: n1yKTdwSSsVYi2lre54Y4ZG+7vEpQ8hnx4YnlcL1
+    versioned_file: bin_orca_centos5_debug.tar.gz
+- name: bin_gpdb_centos6
+  type: s3
+  source:
+    access_key_id: AKIAJTBRWJ546CAFZFTA
+    bucket: gporca-concourse-bucket-bc
+    region_name: us-west-2
+    secret_access_key: n1yKTdwSSsVYi2lre54Y4ZG+7vEpQ8hnx4YnlcL1
+    versioned_file: bin_gpdb_with_orca_centos6.tar.gz
+- name: bin_xerces_centos5
+  type: s3
+  source:
+    access_key_id: AKIAJTBRWJ546CAFZFTA
+    bucket: gporca-concourse-bucket-bc
+    region_name: us-west-2
+    secret_access_key: n1yKTdwSSsVYi2lre54Y4ZG+7vEpQ8hnx4YnlcL1
+    versioned_file: bin_xerces_centos5.tar.gz
+- name: gpdb_src
+  type: git
+  source:
+    branch: build-orca-use-tarball
+    ignore_paths:
+    - README.md
+    - LICENSE
+    - COPYRIGHT
+    - .gitignore
+    uri: https://github.com/bhuvnesh2703/gpdb
+resource_types: []
+jobs:
+- name: xerces_centos5
+  max_in_flight: 2
+  plan:
+  - get: xerces_patch
+    trigger: true
+  - aggregate:
+    - task: build
+      file: xerces_patch/concourse/xerces-c/build_xerces_centos5.yml
+  - aggregate:
+    - task: package_tarball
+      file: xerces_patch/concourse/xerces-c/package_tarball_centos5.yml
+  - aggregate:
+    - put: bin_xerces_centos5
+      params:
+        from: package_tarball_centos5/bin_xerces_centos5.tar.gz
+- name: orca_centos5_release
+  max_in_flight: 2
+  plan:
+  - get: orca_src
+    trigger: true
+  - get: bin_xerces_centos5
+    passed:
+    - xerces_centos5
+  - task: build_and_test_release
+    file: orca_src/concourse/build_and_test_centos5_release.yml
+  - task: package_tarball_release
+    file: orca_src/concourse/package_tarball_centos5_release.yml
+  - put: bin_orca_centos5_release
+    params:
+      from: package_tarball_release/bin_orca_centos5_release.tar.gz
+- name: orca_centos5_debug
+  max_in_flight: 2
+  plan:
+  - get: orca_src
+    trigger: true
+  - get: bin_xerces_centos5
+    passed:
+    - xerces_centos5
+  - task: build_and_test_debug
+    file: orca_src/concourse/build_and_test_centos5_debug.yml
+  - task: package_tarball_debug
+    file: orca_src/concourse/package_tarball_centos5_debug.yml
+  - put: bin_orca_centos5_debug
+    params:
+      from: package_tarball_debug/bin_orca_centos5_debug.tar.gz
+- name: build_gpdb
+  plan:
+  - aggregate:
+    - get: bin_orca
+      passed:
+      - orca_centos5_release
+      resource: bin_orca_centos5_release
+    - get: bin_xerces
+      passed:
+      - xerces_centos5
+      resource: bin_xerces_centos5
+    - get: gpdb_src
+      params:
+        submodules: none
+  - task: build_with_orca
+    file: gpdb_src/concourse/tasks/build_with_orca.yml
+  - task: package_tarball
+    file: gpdb_src/concourse/tasks/package_tarball.yml
+  - put: bin_gpdb_centos6
+    params:
+      file: package_tarball/bin_gpdb.tar.gz

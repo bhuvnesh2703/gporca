@@ -1,0 +1,11 @@
+platform: linux
+image_resource:
+  type: docker-image
+  source:
+    repository: yolo/orcadev
+    tag: centos5
+inputs:
+  - name: orca_src
+outputs:
+run:
+  path: orca_src/concourse/read-commit-info.py
