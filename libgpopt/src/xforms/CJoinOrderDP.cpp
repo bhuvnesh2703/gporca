@@ -197,7 +197,7 @@ CJoinOrderDP::AddJoinOrder
 	
 	COptimizerConfig *poconf = COptCtxt::PoctxtFromTLS()->Poconf();
 	INT ulDPAlternatives = poconf->Phint()->UlDPAlternatives();
-	if (ulResults < ulDPAlternatives)
+	if (ulResults <= ulDPAlternatives)
 	{
 		// we have less than K results, always add the given expression
 		fAddJoinOrder = true;
