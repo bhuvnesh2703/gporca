@@ -93,7 +93,13 @@ CConstraintNegation::Pcnstr
 	{
 		return NULL;
 	}
-
+	
+	CConstraint *pcnstrChild = this->PcnstrChild();
+	if (pcnstrChild->PcrsUsed()->CElements() > 1)
+	{
+		m_pcnstr->AddRef();
+		return GPOS_NEW(pmp) CConstraintNegation(pmp, m_pcnstr);
+	}
 	return GPOS_NEW(pmp) CConstraintNegation(pmp, m_pcnstr->Pcnstr(pmp, pcr));
 }
 
