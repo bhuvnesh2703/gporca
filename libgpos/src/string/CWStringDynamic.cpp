@@ -14,6 +14,8 @@
 #include "gpos/string/CStringStatic.h"
 #include "gpos/string/CWStringDynamic.h"
 #include "gpos/common/CAutoRg.h"
+#include "gpos/error/CException.h"
+
 using namespace gpos;
 
 
