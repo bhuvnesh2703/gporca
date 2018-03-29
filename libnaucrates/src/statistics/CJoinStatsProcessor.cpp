@@ -102,7 +102,7 @@ CJoinStatsProcessor::JoinHistograms
 				pdScaleFactor
 				);
 
-		if (CStatsPred::EstatscmptEq == escmpt || CStatsPred::EstatscmptINDF == escmpt)
+		if (CStatsPred::EstatscmptEq == escmpt || CStatsPred::EstatscmptINDF == escmpt || CStatsPred::EstatscmptEqNDV == escmpt)
 		{
 			if (phist1->FScaledNDV())
 			{

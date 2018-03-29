@@ -97,6 +97,9 @@ namespace gpnaucrates
 			// equality join
 			CHistogram *PhistJoinEquality(IMemoryPool *pmp, const CHistogram *phist) const;
 
+			// generate histogram based on NDV
+			CHistogram *PhistJoinEqualityNDV(IMemoryPool *pmp, const CHistogram *phist) const;
+
 			// construct a new histogram for an INDF join predicate
 			CHistogram *PhistJoinINDF(IMemoryPool *pmp, const CHistogram *phist) const;
 
@@ -243,6 +246,15 @@ namespace gpnaucrates
 						const CHistogram *phistOther,
 						CDouble dRowsOther
 						)
+						const;
+
+			CDouble DEqualityNDVJoinScaleFactor
+						 (
+						 CDouble dDistinctValuesOuter,
+						 CDouble dDistinctValuesInner,
+						 CDouble dRows1,
+						 CDouble dRows2
+						 )
 						const;
 
 			// left anti semi join with another histogram and normalize

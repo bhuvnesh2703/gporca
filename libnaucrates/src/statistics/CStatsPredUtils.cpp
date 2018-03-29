@@ -371,6 +371,23 @@ CStatsPredUtils::FCmpColsIgnoreCast
 
 	if (NULL == *ppcrLeft || NULL == *ppcrRight)
 	{
+		// if the scalar cmp is of equality type, we may not have been able to extract
+		// the column referenes of scalar ident if they had any other expression than cast
+		// on top of them.
+		// in such cases check if there is still a possibility to extract scalar ident, if so
+		// mark the comparision as NDV based, so that cardinality estimation could be based on it.
+		if (*pescmpt == CStatsPred::EstatscmptEq)
+		{
+			(*ppcrLeft) = CCastUtils::PcrExtractFromScExpression(pexprLeft);
+			(*ppcrRight) = CCastUtils::PcrExtractFromScExpression(pexprRight);
+
+			if (NULL == *ppcrLeft || NULL == *ppcrRight)
+			{
+				return false;
+			}
+			(*pescmpt) = CStatsPred::EstatscmptEqNDV;
+			return true;
+		}
 		// failed to extract a scalar ident
 		return false;
 	}

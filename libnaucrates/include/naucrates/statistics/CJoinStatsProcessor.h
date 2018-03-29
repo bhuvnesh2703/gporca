@@ -61,6 +61,8 @@ namespace gpnaucrates
 				 IStatistics::EStatsJoinType eStatsJoinType,
 				 BOOL fIgnoreLasjHistComputation
 				 );
+		
+
 
 		public:
 
