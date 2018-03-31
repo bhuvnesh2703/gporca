@@ -41,6 +41,9 @@ namespace gpopt
 			static
 			const CColRef *PcrExtractFromScIdOrCastScId(CExpression *pexpr);
 
+			static
+			const CColRef *PcrExtractFromScExpression(CExpression *pexpr);
+
 			// cast the input column reference to the destination mdid
 			static
 			CExpression *PexprCast( IMemoryPool *pmp, CMDAccessor *pmda, const CColRef *pcr, IMDId *pmdidDest);

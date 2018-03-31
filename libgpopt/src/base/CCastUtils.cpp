@@ -337,4 +337,18 @@ CCastUtils::PexprCast
     return pexprCast;
 }
 
+// extract scalar ident column reference from scalar expression containing
+// only one scalar ident in the tree
+const CColRef *
+CCastUtils::PcrExtractFromScExpression
+	(
+			CExpression *pexpr
+	)
+{
+	CDrvdPropScalar *pdrvdPropScalar = CDrvdPropScalar::Pdpscalar(pexpr->PdpDerive());
+	if (pdrvdPropScalar->PcrsUsed()->CElements() == 1)
+		return pdrvdPropScalar->PcrsUsed()->PcrFirst();
+	
+	return NULL;
+}
 // EOF
