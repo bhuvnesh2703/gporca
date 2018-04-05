@@ -6,6 +6,7 @@ image_resource:
     tag: centos6
 inputs:
   - name: orca
+  - name: committotest
 outputs:
   - name: package_tarball
 run:

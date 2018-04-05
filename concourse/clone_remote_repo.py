@@ -29,8 +29,8 @@ def remote_checkout(branch_or_commit, remote_url, dirname):
 
 if __name__ == "__main__":
   parser = optparse.OptionParser()
-  parser.add_option("--orcaRemoteInfo", dest="orcaRemoteInfo", default="orca/concourse/test_commit_files/orca_remote_info.txt")
-  parser.add_option("--gpdbRemoteInfo", dest="gpdbRemoteInfo", default="orca/concourse/test_commit_files/gpdb_remote_info.txt")
+  parser.add_option("--orcaRemoteInfo", dest="orcaRemoteInfo", default="committotest/orca_remote_info.txt")
+  parser.add_option("--gpdbRemoteInfo", dest="gpdbRemoteInfo", default="committotest/gpdb_remote_info.txt")
 
   (options, args) = parser.parse_args()
 
