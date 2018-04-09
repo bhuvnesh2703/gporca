@@ -3,12 +3,12 @@ resources:
 - name: xerces_patch
   type: git
   source:
-    branch: test-auto-commit
+    branch: master
     paths:
     - patches/xerces-c-gpdb.patch
     - concourse/xerces-c
     - concourse/package_tarball.bash
-    uri: https://github.com/bhuvnesh2703/gporca
+    uri: https://github.com/greenplum-db/gporca
 - name: regression_out
   type: s3
   source:
@@ -41,7 +41,7 @@ resources:
     region_name: us-west-2
     secret_access_key: {{secret_access_key}}
     versioned_file: bin_orca_centos5_debug.tar.gz
-- name: orca_test_trigger_branch
+- name: orca_main_src
   type: git
   source:
     branch: test-auto-commit
@@ -110,8 +110,7 @@ jobs:
 - name: orca_centos5_release
   max_in_flight: 2
   plan:
-  - get: orca
-    resource: orca_test_trigger_branch
+  - get: orca_main_src
     passed:
     - clone_repos_to_test
   - get: bin_xerces_centos5
@@ -122,16 +121,14 @@ jobs:
     - clone_repos_to_test
     trigger: true
   - task: untar_build_and_test_release
-    file: orca/concourse/untar_build_and_test_centos5_release.yml
-  - aggregate:
-    - put: bin_orca_centos5_release
-      params:
-        from: package_tarball_release/bin_orca_centos5_release.tar.gz
+    file: orca_main_src/concourse/untar_build_and_test_centos5_release.yml
+  - put: bin_orca_centos5_release
+    params:
+      from: package_tarball_release/bin_orca_centos5_release.tar.gz
 - name: orca_centos5_debug
   max_in_flight: 2
   plan:
-  - get: orca
-    resource: orca_test_trigger_branch
+  - get: orca_main_src
     passed:
     - clone_repos_to_test
   - get: bin_xerces_centos5
@@ -148,6 +145,7 @@ jobs:
       params:
         from: package_tarball_debug/bin_orca_centos5_debug.tar.gz
 - name: build_gpdb
+  max_in_flight: 1
   plan:
   - aggregate:
     - get: bin_orca
@@ -172,11 +170,11 @@ jobs:
       resource: gpdb_ref
   - task: build_with_orca
     file: gpdb/concourse/tasks/untar_build_with_orca.yml
-  - aggregate:
-    - put: bin_gpdb_centos6
-      params:
-        from: package_tarball/bin_gpdb.tar.gz
+  - put: bin_gpdb_centos6
+    params:
+      from: package_tarball/bin_gpdb.tar.gz
 - name: gpdb_icg_with_orca
+  max_in_flight: 1
   plan:
   - aggregate:
     - get: bin_orca
@@ -212,25 +210,25 @@ jobs:
       - put: regression_out
         params:
           file: icg_output/regression.out
-    timeout: 64m
+    timeout: 45m
 - name: clone_repos_to_test
-  max_in_flight: 2
   plan:
-  - get: orca
+  - get: committotest
     trigger: true
-    resource: orca_test_trigger_branch
+    version: every
+  - get: orca_main_src
   - aggregate:
     - task: clone_repos_to_test
-      file: orca/concourse/clone_remote_repo.yml
+      file: orca_main_src/concourse/clone_remote_repo.yml
   - aggregate:
     - put: orca_tarball
       params:
         from: package_tarball/orca_src.tar.gz
-  - aggregate:
     - put: gpdb_tarball
       params:
         from: package_tarball/gpdb_src.tar.gz
 - name: gpdb_icg_with_planner
+  max_in_flight: 1
   plan:
   - aggregate:
     - get: bin_orca
@@ -266,4 +264,4 @@ jobs:
       - put: regression_out
         params:
           file: icg_output/regression.out
-    timeout: 64m
+    timeout: 45m
