@@ -12,10 +12,9 @@ else:
 
 def exec_command(cmd):
   print "Executing command: {0}".format(cmd)
-  p = subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=True)
-  output = p.communicate()[0]
-  if p.returncode != 0:
-    sys.exit(p.returncode)
+  retcode = subprocess.call(cmd, shell=True)
+  if retcode != 0:
+    sys.exit(retcode)
 
 untar_orca_cmd = "mkdir -p orca_src && tar -xf orca_tarball/orca_src.tar.gz -C orca_src --strip 1"
 exec_command(untar_orca_cmd)

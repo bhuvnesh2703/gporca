@@ -1,5 +1,10 @@
 groups: []
 resources:
+- name: committotest
+  type: git
+  source:
+    branch: master
+    uri: https://github.com/bhuvnesh2703/committotest
 - name: xerces_patch
   type: git
   source:
@@ -46,7 +51,6 @@ resources:
   source:
     branch: test-auto-commit
     paths:
-    - concourse/test_commit_files/*.txt
     uri: https://github.com/bhuvnesh2703/gporca
 - name: gpdb_ref
   type: git
@@ -100,7 +104,6 @@ jobs:
   - aggregate:
     - task: build
       file: xerces_patch/concourse/xerces-c/build_xerces_centos5.yml
-  - aggregate:
     - task: package_tarball
       file: xerces_patch/concourse/xerces-c/package_tarball_centos5.yml
   - aggregate:
@@ -139,7 +142,7 @@ jobs:
     - clone_repos_to_test
     trigger: true
   - task: untar_build_and_test_debug
-    file: orca/concourse/untar_build_and_test_centos5_debug.yml
+    file: orca_main_src/concourse/untar_build_and_test_centos5_debug.yml
   - aggregate:
     - put: bin_orca_centos5_debug
       params:
@@ -194,14 +197,14 @@ jobs:
       - build_gpdb
       trigger: true
       resource: bin_gpdb_centos6
-    - get: gpdb_src
+    - get: gpdb_ref
       passed:
       - build_gpdb
-      resource: gpdb_ref
       params:
         submodules: none
+    - get: gpdb_tarball
   - task: icg_with_orca
-    file: gpdb_src/concourse/tasks/test_with_orca.yml
+    file: gpdb_ref/concourse/tasks/untar_test_with_orca.yml
     on_failure:
       aggregate:
       - put: regression_diffs
@@ -213,13 +216,13 @@ jobs:
     timeout: 45m
 - name: clone_repos_to_test
   plan:
-  - get: committotest
-    trigger: true
-    version: every
-  - get: orca_main_src
   - aggregate:
-    - task: clone_repos_to_test
-      file: orca_main_src/concourse/clone_remote_repo.yml
+    - get: committotest
+      trigger: true
+      version: every
+    - get: orca_main_src
+  - task: clone_repos_to_test
+    file: orca_main_src/concourse/clone_remote_repo.yml
   - aggregate:
     - put: orca_tarball
       params:
@@ -248,14 +251,14 @@ jobs:
       - build_gpdb
       trigger: true
       resource: bin_gpdb_centos6
-    - get: gpdb_src
+    - get: gpdb_ref
       passed:
       - build_gpdb
-      resource: gpdb_ref
       params:
         submodules: none
+    - get: gpdb_tarball
   - task: icg_with_planner
-    file: gpdb_src/concourse/tasks/test_with_planner.yml
+    file: gpdb_ref/concourse/tasks/untar_test_with_planner.yml
     on_failure:
       aggregate:
       - put: regression_diffs
