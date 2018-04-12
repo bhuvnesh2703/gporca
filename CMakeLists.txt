@@ -5,8 +5,13 @@ project(gpopt LANGUAGES CXX C)
 
 set(CMAKE_CXX_STANDARD 98)
 set(GPORCA_VERSION_MAJOR 2)
+<<<<<<< HEAD
 set(GPORCA_VERSION_MINOR 55)
 set(GPORCA_VERSION_PATCH 16)
+=======
+set(GPORCA_VERSION_MINOR 54)
+set(GPORCA_VERSION_PATCH 1)
+>>>>>>> parent of 94513e54... Generate Join Expression with as available in query
 set(GPORCA_VERSION_STRING "${GPORCA_VERSION_MAJOR}.${GPORCA_VERSION_MINOR}.${GPORCA_VERSION_PATCH}")
 
 # Whenever an ABI-breaking change is made to GPORCA, this should be incremented.

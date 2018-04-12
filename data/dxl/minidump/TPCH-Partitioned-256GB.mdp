@@ -3673,7 +3673,11 @@
         </dxl:And>
       </dxl:LogicalJoin>
     </dxl:Query>
+<<<<<<< HEAD
     <dxl:Plan Id="0" SpaceSize="260735">
+=======
+    <dxl:Plan Id="0" SpaceSize="260601">
+>>>>>>> parent of 94513e54... Generate Join Expression with as available in query
       <dxl:GatherMotion InputSegments="0,1" OutputSegments="-1">
         <dxl:Properties>
           <dxl:Cost StartupCost="0" TotalCost="865342008.829724" Rows="10325183.250315" Width="697"/>
