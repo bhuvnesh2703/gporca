@@ -342,11 +342,8 @@ add_orca_test(CBucketTest)
 add_orca_test(CHistogramTest)
 add_orca_test(CMCVTest)
 add_orca_test(CJoinCardinalityTest)
-<<<<<<< HEAD
 add_orca_test(CJoinCardinalityNDVBasedEqPredTest)
-=======
 add_orca_test(CFilterCardinalityTest)
->>>>>>> Refactor filter based tests into separate test suite
 add_orca_test(CTranslatorDXLToExprTest)
 add_orca_test(CTranslatorExprToDXLTest)
 add_orca_test(CXMLSerializerTest)
