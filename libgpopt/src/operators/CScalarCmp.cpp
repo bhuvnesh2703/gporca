@@ -237,7 +237,7 @@ CScalarCmp::PopCommutedOp
 	IMDId *pmdid = PmdidCommuteOp(pmda, pop);
 	if (NULL != pmdid && pmdid->FValid())
 	{
-		return GPOS_NEW(pmp) CScalarCmp(pmp, pmdid, Pstr(pmp, pmda, pmdid), CUtils::Ecmpt(pmdid), OidInvalidCollation, OidInvalidCollation /* FIXME COLLATION */ /* Add default */);
+		return GPOS_NEW(pmp) CScalarCmp(pmp, pmdid, Pstr(pmp, pmda, pmdid), CUtils::Ecmpt(pmdid), OidInvalidCollation, CScalarCmp::PopConvert(pop)->OidInputCollation() /* FIXME COLLATION */ /* Add default */);
 	}
 	return NULL;
 }
