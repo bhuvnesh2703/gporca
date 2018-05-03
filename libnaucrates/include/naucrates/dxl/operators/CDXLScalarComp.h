@@ -47,6 +47,8 @@ namespace gpdxl
 					
 			// comparison operator name
 			const CWStringConst *m_pstrCompOpName;
+		
+			OID m_inputOidCollation;
 
 		private:
 
@@ -59,7 +61,8 @@ namespace gpdxl
 				(
 				IMemoryPool *pmp,
 				IMDId *pmdidOp,
-				const CWStringConst *pstrCompOpName
+				const CWStringConst *pstrCompOpName,
+				OID inputOidCollation
 				);
 			
 			virtual
@@ -109,6 +112,9 @@ namespace gpdxl
 			{
 				return true;
 			}
+		
+			virtual
+			OID OidInputCollation() const;
 
 #ifdef GPOS_DEBUG
 			// checks whether the operator has valid structure, i.e. number and

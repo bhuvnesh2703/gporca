@@ -30,10 +30,11 @@ CDXLScalarArrayComp::CDXLScalarArrayComp
 	IMemoryPool *pmp,
 	IMDId *pmdidOp,
 	const CWStringConst *pstrOpName,
-	EdxlArrayCompType edxlcomptype
+	EdxlArrayCompType edxlcomptype,
+	OID inputOidCollation
 	)
 	:
-	CDXLScalarComp(pmp, pmdidOp, pstrOpName),
+	CDXLScalarComp(pmp, pmdidOp, pstrOpName, inputOidCollation),
 	m_edxlcomptype(edxlcomptype)
 {
 }

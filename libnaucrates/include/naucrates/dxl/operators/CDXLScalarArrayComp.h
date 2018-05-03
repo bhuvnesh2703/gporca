@@ -52,7 +52,8 @@ namespace gpdxl
 				IMemoryPool *pmp,
 				IMDId *pmdidOp,
 				const CWStringConst *pstrOpName,
-				EdxlArrayCompType edxlcomptype
+				EdxlArrayCompType edxlcomptype,
+				const OID m_inputOidCollation
 				);
 
 			// ident accessors

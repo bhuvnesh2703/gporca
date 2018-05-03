@@ -627,7 +627,8 @@ CTranslatorExprToDXLUtils::PdxlnPartialScanTestRange
 																pmp,
 																pmdidEq,
 																GPOS_NEW(pmp) CWStringConst(pmp, pmdidEq->Wsz()),
-																Edxlarraycomptypeany
+																Edxlarraycomptypeany,
+																OidInvalidCollation // FIXME
 																),
 													pdxlnScalar,
 													pdxlnPartList
@@ -753,7 +754,7 @@ CTranslatorExprToDXLUtils::PdxlnRangePointPredicate
 	pmdidCmpExl->AddRef();
 	
 	CWStringConst *pstrCmpExcl = GPOS_NEW(pmp) CWStringConst(pmp, pmda->Pmdscop(pmdidCmpExl)->Mdname().Pstr()->Wsz());
-	CDXLNode *pdxlnPredicateExclusive = GPOS_NEW(pmp) CDXLNode(pmp, GPOS_NEW(pmp) CDXLScalarComp(pmp, pmdidCmpExl, pstrCmpExcl), pdxlnPoint, pdxlnPartBound);
+	CDXLNode *pdxlnPredicateExclusive = GPOS_NEW(pmp) CDXLNode(pmp, GPOS_NEW(pmp) CDXLScalarComp(pmp, pmdidCmpExl, pstrCmpExcl, OidInvalidCollation), pdxlnPoint, pdxlnPartBound); // FIXME
 	
 	// generate a predicate of the form "point <= col and colIncluded" / "point >= col and colIncluded"
 	pmdidCmpIncl->AddRef();
@@ -761,7 +762,7 @@ CTranslatorExprToDXLUtils::PdxlnRangePointPredicate
 	CWStringConst *pstrCmpIncl = GPOS_NEW(pmp) CWStringConst(pmp, pmda->Pmdscop(pmdidCmpIncl)->Mdname().Pstr()->Wsz());
 	pdxlnPartBound->AddRef();
 	pdxlnPoint->AddRef();
-	CDXLNode *pdxlnCmpIncl = GPOS_NEW(pmp) CDXLNode(pmp, GPOS_NEW(pmp) CDXLScalarComp(pmp, pmdidCmpIncl, pstrCmpIncl), pdxlnPoint, pdxlnPartBound);
+	CDXLNode *pdxlnCmpIncl = GPOS_NEW(pmp) CDXLNode(pmp, GPOS_NEW(pmp) CDXLScalarComp(pmp, pmdidCmpIncl, pstrCmpIncl, OidInvalidCollation), pdxlnPoint, pdxlnPartBound); // FIXME
 
 	CDXLNode *pdxlnPartBoundInclusion = GPOS_NEW(pmp) CDXLNode
 										(
@@ -925,7 +926,8 @@ CTranslatorExprToDXLUtils::PdxlnListFilterScCmp
 															pmp,
 															pmdidScCmp,
 															GPOS_NEW(pmp) CWStringConst(pmp, pstrScCmp->Wsz()),
-															Edxlarraycomptypeany
+															Edxlarraycomptypeany,
+															OidInvalidCollation //FIXME
 															),
 												pdxlnOther,
 												pdxlnPartKey
@@ -1227,7 +1229,7 @@ CTranslatorExprToDXLUtils::PdxlnCmp
 	
 	pmdidScCmp->AddRef();
 	
-	CDXLScalarComp *pdxlopCmp = GPOS_NEW(pmp) CDXLScalarComp(pmp, pmdidScCmp, GPOS_NEW(pmp) CWStringConst(pmp, pstrScCmp->Wsz()));
+	CDXLScalarComp *pdxlopCmp = GPOS_NEW(pmp) CDXLScalarComp(pmp, pmdidScCmp, GPOS_NEW(pmp) CWStringConst(pmp, pstrScCmp->Wsz()), OidInvalidCollation); // FIXME
 	CDXLNode *pdxlnScCmp = GPOS_NEW(pmp) CDXLNode(pmp, pdxlopCmp);
 	
 	pmdidTypePartKey->AddRef();

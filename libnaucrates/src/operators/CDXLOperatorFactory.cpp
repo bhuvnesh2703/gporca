@@ -674,11 +674,13 @@ CDXLOperatorFactory::PdxlopScalarCmp
 	
 	// copy dynamic string into const string
 	CWStringConst *pstrCompOpNameCopy = GPOS_NEW(pmp) CWStringConst(pmp, pstrCompOpName->Wsz());
+	
+	OID oidInputCollation = OidValueFromAttrs(pmm, attrs, EdxltokenInputCollation, EdxltokenScalarComp, true, OidInvalidCollation);
 
 	// cleanup
 	GPOS_DELETE(pstrCompOpName);
 	
-	return GPOS_NEW(pmp) CDXLScalarComp(pmp, pmdidOpNo, pstrCompOpNameCopy);
+	return GPOS_NEW(pmp) CDXLScalarComp(pmp, pmdidOpNo, pstrCompOpNameCopy, oidInputCollation);
 }
 
 //---------------------------------------------------------------------------
@@ -819,9 +821,18 @@ CDXLOperatorFactory::PdxlopArrayComp
 
 	CWStringDynamic *pstrOpName = CDXLUtils::PstrFromXMLCh(pmm, xmlszOpName);
 	CWStringConst *pstrOpNameCopy = GPOS_NEW(pmp) CWStringConst(pmp, pstrOpName->Wsz());
+	OID oidInputCollation = OidValueFromAttrs
+							(
+							 pmm,
+							 attrs,
+							 EdxltokenInputCollation,
+							 EdxltokenScalarArrayComp,
+							 true,
+							 OidInvalidCollation
+							 );
 	GPOS_DELETE(pstrOpName);
 
-	return GPOS_NEW(pmp) CDXLScalarArrayComp(pmp, pmdidOpNo, pstrOpNameCopy, edxlarraycomptype);
+	return GPOS_NEW(pmp) CDXLScalarArrayComp(pmp, pmdidOpNo, pstrOpNameCopy, edxlarraycomptype, oidInputCollation);
 }
 
 //---------------------------------------------------------------------------

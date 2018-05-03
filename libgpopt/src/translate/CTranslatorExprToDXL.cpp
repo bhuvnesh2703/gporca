@@ -5815,7 +5815,7 @@ CTranslatorExprToDXL::PdxlnScCmp
 
 	CWStringConst *pstrName = GPOS_NEW(m_pmp) CWStringConst(m_pmp, popScCmp->Pstr()->Wsz());
 
-	CDXLNode *pdxlnCmp = GPOS_NEW(m_pmp) CDXLNode(m_pmp, GPOS_NEW(m_pmp) CDXLScalarComp(m_pmp, pmdid, pstrName));
+	CDXLNode *pdxlnCmp = GPOS_NEW(m_pmp) CDXLNode(m_pmp, GPOS_NEW(m_pmp) CDXLScalarComp(m_pmp, pmdid, pstrName, OidInvalidCollation)); // FIXME
 
 	// add children
 	pdxlnCmp->AddChild(pdxlnLeft);
@@ -7083,7 +7083,8 @@ CTranslatorExprToDXL::PdxlnArrayCmp
 									m_pmp,
 									pmdidOp,
 									GPOS_NEW(m_pmp) CWStringConst(m_pmp, pstrOpName->Wsz()),
-									edxlarrcmpt
+									edxlarrcmpt,
+									OidInvalidCollation // FIXME
 									)
 						);
 
