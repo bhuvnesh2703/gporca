@@ -916,6 +916,7 @@ CTranslatorExprToDXLUtils::PdxlnListFilterScCmp
 	IMDId *pmdidTypePartKey,
 	IMDId *pmdidTypeOther,
 	IMDType::ECmpType ecmpt,
+	OID oidScCmpInputCollation,
 	ULONG ulPartLevel,
 	BOOL fHasDefaultPart
 	)
@@ -937,7 +938,7 @@ CTranslatorExprToDXLUtils::PdxlnListFilterScCmp
 															pmdidScCmp,
 															GPOS_NEW(pmp) CWStringConst(pmp, pstrScCmp->Wsz()),
 															Edxlarraycomptypeany,
-															OidInvalidCollation /* FIXME COLLATION */
+															oidScCmpInputCollation /* FIXME COLLATION */
 															),
 												pdxlnOther,
 												pdxlnPartKey

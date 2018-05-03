@@ -557,7 +557,7 @@ CRange::PexprScalarCompEnd
 
 	/* FIXME COLLATION */
 	OID oidResultCollation = OidInvalidCollation;
-	OID oidInputCollation = OidInvalidCollation;
+	OID oidInputCollation = pdatum->OidCollation();
 
 	return CUtils::PexprScalarCmp(pmp, pcr, pexprVal, oidResultCollation, oidInputCollation, ecmpt);
 }

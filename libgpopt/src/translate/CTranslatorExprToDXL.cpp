@@ -4837,6 +4837,7 @@ CTranslatorExprToDXL::ConstructLevelFilters4PartitionSelector
 								pmdidTypePartKey,
 								pmdidTypeOther,
 								IMDType::EcmptEq,
+								oidScCmpInputCollation,
 								ulLevel,
 								fDefaultPartition
 								);
@@ -5167,6 +5168,7 @@ CTranslatorExprToDXL::PdxlnScCmpPartKey
 								pmdidTypePartKeyExpr,
 								pmdidTypeOther,
 								ecmpt,
+								oidScCmpInputCollation,
 								ulPartLevel,
 								true
 								);

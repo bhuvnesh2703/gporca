@@ -301,6 +301,7 @@ namespace gpopt
 				IMDId *pmdidTypePartKey,
 				IMDId *pmdidTypeOther,
 				IMDType::ECmpType ecmpt,
+				OID oidScCmpInputCollation,
 				ULONG ulPartLevel,
 				BOOL fHasDefaultPart
 				);
