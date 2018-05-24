@@ -43,21 +43,21 @@ using namespace gpos;
 void
 gpos::ioutils::Stat
 	(
-	const CHAR *szPath,
-	SFileStat *pfs
+	const CHAR *file_path,
+	SFileStat *file_state
 	)
 {
 	GPOS_ASSERT_NO_SPINLOCK;
-	GPOS_ASSERT(NULL != szPath);
-	GPOS_ASSERT(NULL != pfs);
+	GPOS_ASSERT(NULL != file_path);
+	GPOS_ASSERT(NULL != file_state);
 
 	// reset file state
-	(void) clib::MemSet(pfs, 0, sizeof(*pfs));
+	(void) clib::MemSet(file_state, 0, sizeof(*file_state));
 
 	INT res = -1;
 
 	// check to simulate I/O error
-	GPOS_CHECK_SIM_IO_ERR(&res, stat(szPath, pfs));
+	GPOS_CHECK_SIM_IO_ERR(&res, stat(file_path, file_state));
 
 	if (0 != res)
 	{
@@ -78,19 +78,19 @@ void
 gpos::ioutils::Fstat
 	(
 	const INT iFd,
-	SFileStat *pfs
+	SFileStat *file_state
 	)
 {
 	GPOS_ASSERT_NO_SPINLOCK;
-	GPOS_ASSERT(NULL != pfs);
+	GPOS_ASSERT(NULL != file_state);
 
 	// reset file state
-	(void) clib::MemSet(pfs, 0, sizeof(*pfs));
+	(void) clib::MemSet(file_state, 0, sizeof(*file_state));
 
 	INT res = -1;
 
 	// check to simulate I/O error
-	GPOS_CHECK_SIM_IO_ERR(&res, fstat(iFd, pfs));
+	GPOS_CHECK_SIM_IO_ERR(&res, fstat(iFd, file_state));
 
 	if (0 != res)
 	{
@@ -110,15 +110,15 @@ gpos::ioutils::Fstat
 BOOL
 gpos::ioutils::FPathExist
 	(
-	const CHAR *szPath
+	const CHAR *file_path
 	)
 {
 	GPOS_ASSERT_NO_SPINLOCK;
-	GPOS_ASSERT(NULL != szPath);
+	GPOS_ASSERT(NULL != file_path);
 
 	SFileStat fs;
 
-	INT res = stat(szPath, &fs);
+	INT res = stat(file_path, &fs);
 
 	return (0 == res);
 }
@@ -135,14 +135,14 @@ gpos::ioutils::FPathExist
 BOOL
 gpos::ioutils::FDir
 	(
-	const CHAR *szPath
+	const CHAR *file_path
 	)
 {
 	GPOS_ASSERT_NO_SPINLOCK;
-	GPOS_ASSERT(NULL != szPath);
+	GPOS_ASSERT(NULL != file_path);
 
 	SFileStat fs;
-	Stat(szPath, &fs);
+	Stat(file_path, &fs);
 
 	return S_ISDIR(fs.st_mode);
 }
@@ -159,14 +159,14 @@ gpos::ioutils::FDir
 BOOL
 gpos::ioutils::FFile
 	(
-	const CHAR *szPath
+	const CHAR *file_path
 	)
 {
 	GPOS_ASSERT_NO_SPINLOCK;
-	GPOS_ASSERT(NULL != szPath);
+	GPOS_ASSERT(NULL != file_path);
 
 	SFileStat fs;
-	Stat(szPath, &fs);
+	Stat(file_path, &fs);
 
 	return S_ISREG(fs.st_mode);
 }
@@ -183,15 +183,15 @@ gpos::ioutils::FFile
 ULLONG
 gpos::ioutils::UllFileSize
 	(
-	const CHAR *szPath
+	const CHAR *file_path
 	)
 {
 	GPOS_ASSERT_NO_SPINLOCK;
-	GPOS_ASSERT(NULL != szPath);
-	GPOS_ASSERT(FFile(szPath));
+	GPOS_ASSERT(NULL != file_path);
+	GPOS_ASSERT(FFile(file_path));
 
 	SFileStat fs;
-	Stat(szPath, &fs);
+	Stat(file_path, &fs);
 
 	return fs.st_size;
 }
@@ -231,17 +231,17 @@ gpos::ioutils::UllFileSize
 BOOL
 gpos::ioutils::FPerms
 	(
-	const CHAR *szPath,
-	ULONG ulPerms
+	const CHAR *file_path,
+	ULONG permission_bits
 	)
 {
 	GPOS_ASSERT_NO_SPINLOCK;
-	GPOS_ASSERT(NULL != szPath);
+	GPOS_ASSERT(NULL != file_path);
 
 	SFileStat fs;
-	Stat(szPath, &fs);
+	Stat(file_path, &fs);
 
-	return (ulPerms == (fs.st_mode & ulPerms));
+	return (permission_bits == (fs.st_mode & permission_bits));
 }
 
 
@@ -256,17 +256,17 @@ gpos::ioutils::FPerms
 void
 gpos::ioutils::MkDir
 	(
-	const CHAR *szPath,
-	ULONG ulPerms
+	const CHAR *file_path,
+	ULONG permission_bits
 	)
 {
 	GPOS_ASSERT_NO_SPINLOCK;
-	GPOS_ASSERT(NULL != szPath);
+	GPOS_ASSERT(NULL != file_path);
 
 	INT res = -1;
 
 	// check to simulate I/O error
-	GPOS_CHECK_SIM_IO_ERR(&res, mkdir(szPath, (MODE_T) ulPerms));
+	GPOS_CHECK_SIM_IO_ERR(&res, mkdir(file_path, (MODE_T) permission_bits));
 
 	if (0 != res)
 	{
@@ -286,17 +286,17 @@ gpos::ioutils::MkDir
 void
 gpos::ioutils::RmDir
 	(
-	const CHAR *szPath
+	const CHAR *file_path
 	)
 {
 	GPOS_ASSERT_NO_SPINLOCK;
-	GPOS_ASSERT(NULL != szPath);
-	GPOS_ASSERT(FDir(szPath));
+	GPOS_ASSERT(NULL != file_path);
+	GPOS_ASSERT(FDir(file_path));
 
 	INT res = -1;
 
 	// delete existing directory and check to simulate I/O error
-	GPOS_CHECK_SIM_IO_ERR(&res, rmdir(szPath));
+	GPOS_CHECK_SIM_IO_ERR(&res, rmdir(file_path));
 
 	if (0 != res)
 	{
@@ -317,14 +317,14 @@ gpos::ioutils::RmDir
 void
 gpos::ioutils::Move
 	(
-	const CHAR *szOld,
+	const CHAR *old_path,
 	const CHAR *szNew
 	)
 {
 	GPOS_ASSERT_NO_SPINLOCK;
-	GPOS_ASSERT(NULL != szOld);
+	GPOS_ASSERT(NULL != old_path);
 	GPOS_ASSERT(NULL != szNew);
-	GPOS_ASSERT(FFile(szOld));
+	GPOS_ASSERT(FFile(old_path));
 
 	// delete any existing file with the new path
 	if (FPathExist(szNew))
@@ -335,7 +335,7 @@ gpos::ioutils::Move
 	INT res = -1;
 
 	// rename file and check to simulate I/O error
-	GPOS_CHECK_SIM_IO_ERR(&res, rename(szOld, szNew));
+	GPOS_CHECK_SIM_IO_ERR(&res, rename(old_path, szNew));
 
 	if (0 != res)
 	{
@@ -355,14 +355,14 @@ gpos::ioutils::Move
 void
 gpos::ioutils::Unlink
 	(
-	const CHAR *szPath
+	const CHAR *file_path
 	)
 {
 	GPOS_ASSERT_NO_SPINLOCK;
-	GPOS_ASSERT(NULL != szPath);
+	GPOS_ASSERT(NULL != file_path);
 
 	// delete existing file
-	(void) unlink(szPath);
+	(void) unlink(file_path);
 }
 
 
@@ -379,15 +379,15 @@ gpos::ioutils::Unlink
 INT
 gpos::ioutils::IOpen
 	(
-	const CHAR *szPath,
+	const CHAR *file_path,
 	INT mode,
-	INT iPerms
+	INT permission_bits
 	)
 {
 	GPOS_ASSERT_NO_SPINLOCK;
-	GPOS_ASSERT(NULL != szPath);
+	GPOS_ASSERT(NULL != file_path);
 
-	INT res = open(szPath, mode, iPerms);
+	INT res = open(file_path, mode, permission_bits);
 
 	GPOS_ASSERT((0 <= res) || (EINVAL != errno));
 
@@ -406,12 +406,12 @@ gpos::ioutils::IOpen
 INT
 gpos::ioutils::IClose
 	(
-	INT iFildes
+	INT file_descriptor
 	)
 {
 	GPOS_ASSERT_NO_SPINLOCK;
 
-	INT res = close(iFildes);
+	INT res = close(file_descriptor);
 
 	GPOS_ASSERT(0 == res || EBADF != errno);
 
@@ -431,13 +431,13 @@ INT
 gpos::ioutils::IFStat
 	(
 	INT iFiledes,
-	SFileStat *pstBuf
+	SFileStat *file_state
 	)
 {
 	GPOS_ASSERT_NO_SPINLOCK;
-	GPOS_ASSERT(NULL != pstBuf);
+	GPOS_ASSERT(NULL != file_state);
 
-	INT res = fstat(iFiledes, pstBuf);
+	INT res = fstat(iFiledes, file_state);
 
 	GPOS_ASSERT(0 == res || EBADF != errno);
 

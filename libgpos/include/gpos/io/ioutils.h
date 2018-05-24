@@ -53,49 +53,49 @@ namespace gpos
 	{
 
 		// check state of file or directory
-		void Stat(const CHAR *szPath, SFileStat *pfs);
+		void Stat(const CHAR *file_path, SFileStat *file_state);
 
 		// check state of file or directory by file descriptor
-		void Fstat(const INT iFd, SFileStat *pfs);
+		void Fstat(const INT iFd, SFileStat *file_state);
 
 		// check if path is mapped to an accessible file or directory
-		BOOL FPathExist(const CHAR *szPath);
+		BOOL FPathExist(const CHAR *file_path);
 
 		// get file size by file path
-		ULLONG UllFileSize(const CHAR *szPath);
+		ULLONG UllFileSize(const CHAR *file_path);
 
 		// get file size by file descriptor
 		ULLONG UllFileSize(const INT iFd);
 
 		// check if path is directory
-		BOOL FDir(const CHAR *szPath);
+		BOOL FDir(const CHAR *file_path);
 
 		// check if path is file
-		BOOL FFile(const CHAR *szPath);
+		BOOL FFile(const CHAR *file_path);
 
 		// check permissions
-		BOOL FPerms(const CHAR *szPath, ULONG ulPerms);
+		BOOL FPerms(const CHAR *file_path, ULONG permission_bits);
 
 		// create directory with specific permissions
-		void MkDir(const CHAR *szPath, ULONG ulPerms);
+		void MkDir(const CHAR *file_path, ULONG permission_bits);
 
 		// delete file
-		void RmDir(const CHAR *szPath);
+		void RmDir(const CHAR *file_path);
 
 		// move file
-		void Move(const CHAR *szOld, const CHAR *szNew);
+		void Move(const CHAR *old_path, const CHAR *szNew);
 
 		// delete file
-		void Unlink(const CHAR *szPath);
+		void Unlink(const CHAR *file_path);
 
 		// open a file
-		INT IOpen(const CHAR *szPath, INT mode, INT iPerms);
+		INT IOpen(const CHAR *file_path, INT mode, INT permission_bits);
 
 		// close a file descriptor
-		INT IClose(INT iFildes);
+		INT IClose(INT file_descriptor);
 
 		// get file status
-		INT IFStat(INT iFiledes, SFileStat *pstBuf);
+		INT IFStat(INT iFiledes, SFileStat *file_state);
 
 		// write to a file descriptor
 		INT_PTR IWrite(INT iFd, const void *pvBuf, const ULONG_PTR ulpCount);
