@@ -311,7 +311,7 @@ CParseHandlerFactory::Pph
 	CDXLMemoryManager mm(pmp);
 
 	// did not find the physical operator in the table
-	CWStringDynamic *pstr = CDXLUtils::PstrFromXMLCh(&mm, xmlszName);;
+	CWStringDynamic *pstr = CDXLUtils::CreateDynamicStringFromXMLChArray(&mm, xmlszName);;
 
 	GPOS_RAISE
 	(

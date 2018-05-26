@@ -73,7 +73,7 @@ CMinidumperUtils::PdxlmdLoad
 		at.Os() << "parsing DXL File " << szFileName;
 	}
 	
-	CParseHandlerDXL *pphdxl = CDXLUtils::PphdxlParseDXLFile(pmp, szFileName, NULL /*szXSDPath*/);
+	CParseHandlerDXL *pphdxl = CDXLUtils::GetParseHandlerForDXLFile(pmp, szFileName, NULL /*xsd_file_path*/);
 
 	CBitSet *pbs = pphdxl->Pbs();
 	COptimizerConfig *poconf = pphdxl->Poconf();
@@ -83,8 +83,8 @@ CMinidumperUtils::PdxlmdLoad
 	DrgPimdobj *pdrgpmdobj = pphdxl->Pdrgpmdobj();
 	DrgPsysid *pdrgpsysid = pphdxl->Pdrgpsysid();
 	CDXLNode *pdxlnPlan = pphdxl->PdxlnPlan();
-	ULLONG ullPlanId = pphdxl->UllPlanId();
-	ULLONG ullPlanSpaceSize = pphdxl->UllPlanSpaceSize();
+	ULLONG plan_id = pphdxl->UllPlanId();
+	ULLONG plan_space_size = pphdxl->UllPlanSpaceSize();
 
 	if (NULL != pbs)
 	{
@@ -144,8 +144,8 @@ CMinidumperUtils::PdxlmdLoad
 				pdxlnPlan,
 				pdrgpmdobj,
 				pdrgpsysid,
-				ullPlanId,
-				ullPlanSpaceSize
+				plan_id,
+				plan_space_size
 				);
 }
 

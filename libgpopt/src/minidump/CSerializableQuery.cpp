@@ -82,7 +82,7 @@ CSerializableQuery::Serialize
 			m_pdrgpdxlnQueryOutput,
 			m_pdrgpdxlnCTE,
 			false /*fSerializeHeaders*/,
-			false /*fIndent*/
+			false /*indentation*/
 			);
 }
 

@@ -70,7 +70,7 @@ CParseHandlerScalarBooleanTest::StartElement
 				(
 				gpdxl::ExmaDXL,
 				gpdxl::ExmiDXLUnexpectedTag,
-				CDXLUtils::PstrFromXMLCh(m_pphm->Pmm(), xmlszLocalname)->Wsz()
+				CDXLUtils::CreateDynamicStringFromXMLChArray(m_pphm->Pmm(), xmlszLocalname)->Wsz()
 				);
 		}
 		else
@@ -123,7 +123,7 @@ CParseHandlerScalarBooleanTest::EndElement
 			(
 			gpdxl::ExmaDXL,
 			gpdxl::ExmiDXLUnexpectedTag,
-			CDXLUtils::PstrFromXMLCh(m_pphm->Pmm(), xmlszLocalname)->Wsz()
+			CDXLUtils::CreateDynamicStringFromXMLChArray(m_pphm->Pmm(), xmlszLocalname)->Wsz()
 			);
 	}
 	

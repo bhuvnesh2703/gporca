@@ -62,7 +62,7 @@ CParseHandlerRelStats::StartElement
 {
 	if(0 != XMLString::compareString(CDXLTokens::XmlstrToken(EdxltokenRelationStats), xmlszLocalname))
 	{
-		CWStringDynamic *pstr = CDXLUtils::PstrFromXMLCh(m_pphm->Pmm(), xmlszLocalname);
+		CWStringDynamic *pstr = CDXLUtils::CreateDynamicStringFromXMLChArray(m_pphm->Pmm(), xmlszLocalname);
 		GPOS_RAISE(gpdxl::ExmaDXL, gpdxl::ExmiDXLUnexpectedTag, pstr->Wsz());
 	}
 	
@@ -74,7 +74,7 @@ CParseHandlerRelStats::StartElement
 															EdxltokenRelationStats
 															);
 
-	CWStringDynamic *pstrTableName = CDXLUtils::PstrFromXMLCh(m_pphm->Pmm(), xmlszTableName);
+	CWStringDynamic *pstrTableName = CDXLUtils::CreateDynamicStringFromXMLChArray(m_pphm->Pmm(), xmlszTableName);
 	
 	// create a copy of the string in the CMDName constructor
 	CMDName *pmdname = GPOS_NEW(m_pmp) CMDName(m_pmp, pstrTableName);
@@ -129,7 +129,7 @@ CParseHandlerRelStats::EndElement
 {
 	if (0 != XMLString::compareString(CDXLTokens::XmlstrToken(EdxltokenRelationStats), xmlszLocalname))
 	{
-		CWStringDynamic *pstr = CDXLUtils::PstrFromXMLCh(m_pphm->Pmm(), xmlszLocalname);
+		CWStringDynamic *pstr = CDXLUtils::CreateDynamicStringFromXMLChArray(m_pphm->Pmm(), xmlszLocalname);
 		GPOS_RAISE(gpdxl::ExmaDXL, gpdxl::ExmiDXLUnexpectedTag, pstr->Wsz());
 	}
 

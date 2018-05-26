@@ -3531,7 +3531,7 @@ CUtils::FLogicalDML
 
 // return regular string from wide-character string
 CHAR *
-CUtils::SzFromWsz
+CUtils::CreateMultiByteCharStringFromWCString
 	(
 	IMemoryPool *pmp,
 	WCHAR *wsz

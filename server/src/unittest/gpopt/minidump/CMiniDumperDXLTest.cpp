@@ -90,11 +90,11 @@ CMiniDumperDXLTest::EresUnittest_Basic()
 		CSerializableStackTrace serStackTrace;
 		
 		// read the dxl document
-		CHAR *szQueryDXL = CDXLUtils::SzRead(pmp, szQueryFile);
+		CHAR *szQueryDXL = CDXLUtils::Read(pmp, szQueryFile);
 
 		// parse the DXL query tree from the given DXL document
 		CQueryToDXLResult *ptroutput = 
-				CDXLUtils::PdxlnParseDXLQuery(pmp, szQueryDXL, NULL);
+				CDXLUtils::ParseQueryToQueryDXLTree(pmp, szQueryDXL, NULL);
 		GPOS_CHECK_ABORT;
 
 		CSerializableQuery serQuery(pmp, ptroutput->Pdxln(), ptroutput->PdrgpdxlnOutputCols(), ptroutput->PdrgpdxlnCTE());
@@ -126,7 +126,7 @@ CMiniDumperDXLTest::EresUnittest_Basic()
 
 		COptimizerConfig *poconf = GPOS_NEW(pmp) COptimizerConfig
 												(
-												CEnumeratorConfig::Pec(pmp, 0 /*ullPlanId*/),
+												CEnumeratorConfig::Pec(pmp, 0 /*plan_id*/),
 												CStatisticsConfig::PstatsconfDefault(pmp),
 												CCTEConfig::PcteconfDefault(pmp),
 												ICostModel::PcmDefault(pmp),

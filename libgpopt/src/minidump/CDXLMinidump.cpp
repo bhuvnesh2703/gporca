@@ -39,8 +39,8 @@ CDXLMinidump::CDXLMinidump
 	CDXLNode *pdxlnPlan, 
 	DrgPimdobj *pdrgpmdobj,
 	DrgPsysid *pdrgpsysid,
-	ULLONG ullPlanId,
-	ULLONG ullPlanSpaceSize
+	ULLONG plan_id,
+	ULLONG plan_space_size
 	)
 	:
 	m_pbs(pbs),
@@ -51,8 +51,8 @@ CDXLMinidump::CDXLMinidump
 	m_pdxlnPlan(pdxlnPlan),
 	m_pdrgpmdobj(pdrgpmdobj),
 	m_pdrgpsysid(pdrgpsysid),
-	m_ullPlanId(ullPlanId),
-	m_ullPlanSpaceSize(ullPlanSpaceSize)
+	m_plan_id(plan_id),
+	m_plan_space_size(plan_space_size)
 {}
 
 
@@ -187,7 +187,7 @@ CDXLMinidump::Pdrgpsysid() const
 ULLONG
 CDXLMinidump::UllPlanId() const
 {
-	return m_ullPlanId;
+	return m_plan_id;
 }
 
 
@@ -202,7 +202,7 @@ CDXLMinidump::UllPlanId() const
 ULLONG
 CDXLMinidump::UllPlanSpaceSize() const
 {
-	return m_ullPlanSpaceSize;
+	return m_plan_space_size;
 }
 
 

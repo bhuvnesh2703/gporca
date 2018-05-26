@@ -98,7 +98,7 @@ CParseHandlerScalarBoolExpr::StartElement
 	{
 		if(NULL == m_pdxln)
 		{
-			GPOS_RAISE(gpdxl::ExmaDXL, gpdxl::ExmiDXLUnexpectedTag, CDXLUtils::PstrFromXMLCh(m_pphm->Pmm(), xmlszLocalname)->Wsz());
+			GPOS_RAISE(gpdxl::ExmaDXL, gpdxl::ExmiDXLUnexpectedTag, CDXLUtils::CreateDynamicStringFromXMLChArray(m_pphm->Pmm(), xmlszLocalname)->Wsz());
 		}
 
 		CParseHandlerBase *pphOp = CParseHandlerFactory::Pph(m_pmp, CDXLTokens::XmlstrToken(EdxltokenScalar), m_pphm, this);
@@ -132,7 +132,7 @@ CParseHandlerScalarBoolExpr::EndElement
 
 	if(EdxlBoolExprTypeSentinel == edxlBoolType || m_edxlBoolType != edxlBoolType)
 	{
-		GPOS_RAISE(gpdxl::ExmaDXL, gpdxl::ExmiDXLUnexpectedTag, CDXLUtils::PstrFromXMLCh(m_pphm->Pmm(), xmlszLocalname)->Wsz());
+		GPOS_RAISE(gpdxl::ExmaDXL, gpdxl::ExmiDXLUnexpectedTag, CDXLUtils::CreateDynamicStringFromXMLChArray(m_pphm->Pmm(), xmlszLocalname)->Wsz());
 	}
 
 	const ULONG ulSize = this->UlLength();
@@ -145,7 +145,7 @@ CParseHandlerScalarBoolExpr::EndElement
 		&& (2 > ulSize))
 	  )
 	{
-		GPOS_RAISE(gpdxl::ExmaDXL, gpdxl::ExmiDXLIncorrectNumberOfChildren, CDXLUtils::PstrFromXMLCh(m_pphm->Pmm(), xmlszLocalname)->Wsz());
+		GPOS_RAISE(gpdxl::ExmaDXL, gpdxl::ExmiDXLIncorrectNumberOfChildren, CDXLUtils::CreateDynamicStringFromXMLChArray(m_pphm->Pmm(), xmlszLocalname)->Wsz());
 	}
 
 	// add constructed children from child parse handlers

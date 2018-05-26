@@ -278,7 +278,7 @@ CICGTest::EresUnittest_NegativeIndexApplyTests()
 
 			COptimizerConfig *poconf = GPOS_NEW(pmp) COptimizerConfig
 						(
-						CEnumeratorConfig::Pec(pmp, 0 /*ullPlanId*/),
+						CEnumeratorConfig::Pec(pmp, 0 /*plan_id*/),
 						CStatisticsConfig::PstatsconfDefault(pmp),
 						CCTEConfig::PcteconfDefault(pmp),
 						pcm,

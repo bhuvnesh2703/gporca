@@ -436,7 +436,7 @@ CEngine::DeriveStats
 	CWStringDynamic str(m_pmp);
 	COstreamString oss (&str);
 	oss << "\n[OPT]: Statistics Derivation Time (stage " << m_ulCurrSearchStage <<") ";
-	CHAR *sz = CUtils::SzFromWsz(m_pmp, const_cast<WCHAR *>(str.Wsz()));
+	CHAR *sz = CUtils::CreateMultiByteCharStringFromWCString(m_pmp, const_cast<WCHAR *>(str.Wsz()));
 
 	{
 		CAutoTimer at(sz, GPOS_FTRACE(EopttracePrintOptimizationStatistics));
@@ -1880,13 +1880,13 @@ CEngine::MultiThreadedOptimize
 CExpression *
 CEngine::PexprUnrank
 	(
-	ULLONG ullPlanId
+	ULLONG plan_id
 	)
 {
 	// The CTE map will be updated by the Producer instead of the Sequence operator
 	// because we are doing a DFS traversal of the TreeMap.
 	CDrvdPropCtxtPlan *pdpctxtplan = GPOS_NEW(m_pmp) CDrvdPropCtxtPlan(m_pmp, false /*fUpdateCTEMap*/);
-	CExpression *pexpr = Pmemotmap()->PrUnrank(m_pmp, pdpctxtplan, ullPlanId);
+	CExpression *pexpr = Pmemotmap()->PrUnrank(m_pmp, pdpctxtplan, plan_id);
 	pdpctxtplan->Release();
 
 #ifdef GPOS_DEBUG
@@ -1985,14 +1985,14 @@ CEngine::UllRandomPlanId
 	)
 {
 	ULLONG ullCount = Pmemotmap()->UllCount();
-	ULLONG ullPlanId = 0;
+	ULLONG plan_id = 0;
 	do
 	{
-		ullPlanId = clib::Rand(pulSeed);
+		plan_id = clib::Rand(pulSeed);
 	}
-	while (ullPlanId >= ullCount);
+	while (plan_id >= ullCount);
 
-	return ullPlanId;
+	return plan_id;
 }
 
 //---------------------------------------------------------------------------
@@ -2008,7 +2008,7 @@ BOOL
 CEngine::FValidPlanSample
 	(
 	CEnumeratorConfig *pec,
-	ULLONG ullPlanId,
+	ULLONG plan_id,
 	CExpression **ppexpr // output: extracted plan
 	)
 {
@@ -2022,7 +2022,7 @@ CEngine::FValidPlanSample
 		// we extract plan and catch invalid plan exception here
 		GPOS_TRY
 		{
-			*ppexpr = PexprUnrank(ullPlanId);
+			*ppexpr = PexprUnrank(plan_id);
 		}
 		GPOS_CATCH_EX(ex)
 		{
@@ -2042,7 +2042,7 @@ CEngine::FValidPlanSample
 	else
 	{
 		// otherwise, we extract plan and leave exception handling to the caller
-		*ppexpr = PexprUnrank(ullPlanId);
+		*ppexpr = PexprUnrank(plan_id);
 	}
 
 	return fValidPlan;
@@ -2113,19 +2113,19 @@ CEngine::SamplePlans()
 	while (ullIters < ullMaxIters && ull < ullTargetSamples)
 	{
 		// generate id of plan to be extracted
-		ULLONG ullPlanId = ull;
+		ULLONG plan_id = ull;
 		if (!fGenerateAll)
 		{
-			ullPlanId = UllRandomPlanId(&ulSeed);
+			plan_id = UllRandomPlanId(&ulSeed);
 		}
 
 		pexpr = NULL;
 		BOOL fAccept = false;
-		if (FValidPlanSample(pec, ullPlanId, &pexpr))
+		if (FValidPlanSample(pec, plan_id, &pexpr))
 		{
 			// add plan to the sample if it is below cost threshold
 			CCost cost = pexpr->Cost();
-			fAccept = pec->FAddSample(ullPlanId, cost);
+			fAccept = pec->FAddSample(plan_id, cost);
 			pexpr->Release();
 		}
 

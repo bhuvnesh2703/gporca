@@ -141,7 +141,7 @@ CParseHandlerScalarOpList::EndElement
 	CDXLScalarOpList::EdxlOpListType edxloplisttype = Edxloplisttype(xmlszLocalname);
 	if (m_edxloplisttype != edxloplisttype)
 	{
-		CWStringDynamic *pstr = CDXLUtils::PstrFromXMLCh(m_pphm->Pmm(), xmlszLocalname);
+		CWStringDynamic *pstr = CDXLUtils::CreateDynamicStringFromXMLChArray(m_pphm->Pmm(), xmlszLocalname);
 		GPOS_RAISE(gpdxl::ExmaDXL, gpdxl::ExmiDXLUnexpectedTag, pstr->Wsz());
 	}
 

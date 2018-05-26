@@ -122,13 +122,13 @@ COptimizer::DumpSamples
 {
 	GPOS_ASSERT(NULL != pec);
 
-	CWStringDynamic *pstr = CDXLUtils::PstrSerializeSamplePlans(pmp, pec, true /*fIndent*/);
+	CWStringDynamic *pstr = CDXLUtils::SerializeSamplePlans(pmp, pec, true /*indentation*/);
 	pec->DumpSamples(pstr, ulSessionId, ulCmdId);
 	GPOS_DELETE(pstr);
 	GPOS_CHECK_ABORT;
 
 	pec->FitCostDistribution();
-	pstr = CDXLUtils::PstrSerializeCostDistr(pmp, pec, true /*fIndent*/);
+	pstr = CDXLUtils::SerializeCostDistr(pmp, pec, true /*indentation*/);
 	pec->DumpCostDistr(pstr, ulSessionId, ulCmdId);
 	GPOS_DELETE(pstr);
 }
