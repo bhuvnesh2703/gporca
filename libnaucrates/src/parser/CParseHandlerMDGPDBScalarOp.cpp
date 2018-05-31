@@ -238,16 +238,16 @@ CParseHandlerMDGPDBScalarOp::EndElement
 		
 		GPOS_ASSERT(0 == this->Length() || 1 == this->Length());
 		
-		DrgPmdid *pdrgpmdidOpClasses = NULL;
+		DrgPmdid *mdid_arrayOpClasses = NULL;
 		if (0 < this->Length())
 		{
 			CParseHandlerMetadataIdList *pphMdidOpClasses = dynamic_cast<CParseHandlerMetadataIdList*>((*this)[0]);
-			pdrgpmdidOpClasses = pphMdidOpClasses->GetMdIdArray();
-			pdrgpmdidOpClasses->AddRef();
+			mdid_arrayOpClasses = pphMdidOpClasses->GetMdIdArray();
+			mdid_arrayOpClasses->AddRef();
 		}
 		else 
 		{
-			pdrgpmdidOpClasses = GPOS_NEW(m_memory_pool) DrgPmdid(m_memory_pool);
+			mdid_arrayOpClasses = GPOS_NEW(m_memory_pool) DrgPmdid(m_memory_pool);
 		}
 		m_imd_obj = GPOS_NEW(m_memory_pool) CMDScalarOpGPDB
 				(
@@ -262,7 +262,7 @@ CParseHandlerMDGPDBScalarOp::EndElement
 				m_pmdidOpInverse,
 				m_ecmpt,
 				m_fReturnsNullOnNullInput,
-				pdrgpmdidOpClasses
+				mdid_arrayOpClasses
 				)
 				;
 		

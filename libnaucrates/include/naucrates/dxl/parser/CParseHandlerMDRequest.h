@@ -38,7 +38,7 @@ namespace gpdxl
 		private:
 		
 			// array of metadata ids
-			DrgPmdid *m_pdrgpmdid;
+			DrgPmdid *m_mdid_array;
 			
 			// array of type requests
 			CMDRequest::DrgPtr *m_pdrgptr;

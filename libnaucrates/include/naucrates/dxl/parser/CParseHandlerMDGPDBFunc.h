@@ -47,7 +47,7 @@ namespace gpdxl
 			IMDId *m_pmdidTypeResult;
 			
 			// output argument types
-			DrgPmdid *m_pdrgpmdidTypes;
+			DrgPmdid *m_mdid_arrayTypes;
 
 			// whether function returns a set of values
 			BOOL m_fReturnsSet;

@@ -34,7 +34,7 @@ CMDFunctionGPDB::CMDFunctionGPDB
 	IMDId *pmdid,
 	CMDName *mdname,
 	IMDId *pmdidTypeResult,
-	DrgPmdid *pdrgpmdidTypes,
+	DrgPmdid *mdid_arrayTypes,
 	BOOL fReturnsSet,
 	EFuncStbl efsStability,
 	EFuncDataAcc efdaDataAccess,
@@ -45,7 +45,7 @@ CMDFunctionGPDB::CMDFunctionGPDB
 	m_mdid(pmdid),
 	m_mdname(mdname),
 	m_pmdidTypeResult(pmdidTypeResult),
-	m_pdrgpmdidTypes(pdrgpmdidTypes),
+	m_mdid_arrayTypes(mdid_arrayTypes),
 	m_fReturnsSet(fReturnsSet),
 	m_efsStability(efsStability),
 	m_efdaDataAccess(efdaDataAccess),
@@ -71,7 +71,7 @@ CMDFunctionGPDB::~CMDFunctionGPDB()
 {
 	m_mdid->Release();
 	m_pmdidTypeResult->Release();
-	CRefCount::SafeRelease(m_pdrgpmdidTypes);
+	CRefCount::SafeRelease(m_mdid_arrayTypes);
 	GPOS_DELETE(m_mdname);
 	GPOS_DELETE(m_pstr);
 }
@@ -153,7 +153,7 @@ CMDFunctionGPDB::PmdidTypeResult() const
 DrgPmdid *
 CMDFunctionGPDB::PdrgpmdidOutputArgTypes() const
 {
-	return m_pdrgpmdidTypes;
+	return m_mdid_arrayTypes;
 }
 
 //---------------------------------------------------------------------------
@@ -181,13 +181,13 @@ CMDFunctionGPDB::FReturnsSet() const
 CWStringDynamic *
 CMDFunctionGPDB::PstrOutArgTypes() const
 {
-	GPOS_ASSERT(NULL != m_pdrgpmdidTypes);
+	GPOS_ASSERT(NULL != m_mdid_arrayTypes);
 	CWStringDynamic *pstr = GPOS_NEW(m_memory_pool) CWStringDynamic(m_memory_pool);
 
-	const ULONG ulLen = m_pdrgpmdidTypes->Size();
+	const ULONG ulLen = m_mdid_arrayTypes->Size();
 	for (ULONG ul = 0; ul < ulLen; ul++)
 	{
-		IMDId *pmdid = (*m_pdrgpmdidTypes)[ul];
+		IMDId *pmdid = (*m_mdid_arrayTypes)[ul];
 		if (ul == ulLen - 1)
 		{
 			// last element: do not print a comma
@@ -231,7 +231,7 @@ CMDFunctionGPDB::Serialize
 
 	SerializeMDIdAsElem(xml_serializer, CDXLTokens::PstrToken(EdxltokenGPDBFuncResultTypeId), m_pmdidTypeResult);
 
-	if (NULL != m_pdrgpmdidTypes)
+	if (NULL != m_mdid_arrayTypes)
 	{
 		xml_serializer->OpenElement(CDXLTokens::PstrToken(EdxltokenNamespacePrefix),
 							CDXLTokens::PstrToken(EdxltokenOutputCols));

@@ -44,7 +44,7 @@ namespace gpdxl
 			DrgPimdobj *m_mdobject_array;
 			
 			// list of parsed mdids
-			DrgPmdid *m_pdrgpmdid;
+			DrgPmdid *m_mdid_array;
 
 			// list of parsed metatadata source system ids
 			DrgPsysid *m_system_id_array;

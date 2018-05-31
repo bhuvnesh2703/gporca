@@ -76,10 +76,10 @@ namespace gpmd
 			DrgPmdIndexInfo *m_pdrgpmdIndexInfo;
 
 			// array of trigger ids
-			DrgPmdid *m_pdrgpmdidTriggers;
+			DrgPmdid *m_mdid_arrayTriggers;
 
 			// array of check constraint mdids
-			DrgPmdid *m_pdrgpmdidCheckConstraint;
+			DrgPmdid *m_mdid_arrayCheckConstraint;
 
 			// reject limit
 			INT m_iRejectLimit;
@@ -126,8 +126,8 @@ namespace gpmd
 				BOOL fConvertHashToRandom,
 				ULongPtrArray2D *ulong_ptr_array_2D,
 				DrgPmdIndexInfo *pdrgpmdIndexInfo,
-				DrgPmdid *pdrgpmdidTriggers,
-				DrgPmdid *pdrgpmdidCheckConstraint,
+				DrgPmdid *mdid_arrayTriggers,
+				DrgPmdid *mdid_arrayCheckConstraint,
 				INT iRejectLimit,
 				BOOL fRejLimitInRows,
 				IMDId *pmdidFmtErrRel

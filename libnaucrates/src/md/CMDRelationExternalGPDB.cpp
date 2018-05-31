@@ -35,8 +35,8 @@ CMDRelationExternalGPDB::CMDRelationExternalGPDB
 	BOOL fConvertHashToRandom,
 	ULongPtrArray2D *pdrgpdrgpulKeys,
 	DrgPmdIndexInfo *pdrgpmdIndexInfo,
-	DrgPmdid *pdrgpmdidTriggers,
- 	DrgPmdid *pdrgpmdidCheckConstraint,
+	DrgPmdid *mdid_arrayTriggers,
+ 	DrgPmdid *mdid_arrayCheckConstraint,
 	INT iRejectLimit,
 	BOOL fRejLimitInRows,
 	IMDId *pmdidFmtErrRel
@@ -52,8 +52,8 @@ CMDRelationExternalGPDB::CMDRelationExternalGPDB
 	m_fConvertHashToRandom(fConvertHashToRandom),
 	m_pdrgpdrgpulKeys(pdrgpdrgpulKeys),
 	m_pdrgpmdIndexInfo(pdrgpmdIndexInfo),
-	m_pdrgpmdidTriggers(pdrgpmdidTriggers),
-	m_pdrgpmdidCheckConstraint(pdrgpmdidCheckConstraint),
+	m_mdid_arrayTriggers(mdid_arrayTriggers),
+	m_mdid_arrayCheckConstraint(mdid_arrayCheckConstraint),
 	m_iRejectLimit(iRejectLimit),
 	m_fRejLimitInRows(fRejLimitInRows),
 	m_pmdidFmtErrRel(pmdidFmtErrRel),
@@ -65,8 +65,8 @@ CMDRelationExternalGPDB::CMDRelationExternalGPDB
 	GPOS_ASSERT(pmdid->IsValid());
 	GPOS_ASSERT(NULL != pdrgpmdcol);
 	GPOS_ASSERT(NULL != pdrgpmdIndexInfo);
-	GPOS_ASSERT(NULL != pdrgpmdidTriggers);
-	GPOS_ASSERT(NULL != pdrgpmdidCheckConstraint);
+	GPOS_ASSERT(NULL != mdid_arrayTriggers);
+	GPOS_ASSERT(NULL != mdid_arrayCheckConstraint);
 	GPOS_ASSERT_IMP(fConvertHashToRandom,
 				IMDRelation::EreldistrHash == ereldistrpolicy &&
 				"Converting hash distributed table to random only possible for hash distributed tables");
@@ -130,9 +130,9 @@ CMDRelationExternalGPDB::~CMDRelationExternalGPDB()
 	CRefCount::SafeRelease(m_pdrgpulDistrColumns);
 	CRefCount::SafeRelease(m_pdrgpdrgpulKeys);
 	m_pdrgpmdIndexInfo->Release();
-	m_pdrgpmdidTriggers->Release();
+	m_mdid_arrayTriggers->Release();
 	m_pdrgpdoubleColWidths->Release();
-	m_pdrgpmdidCheckConstraint->Release();
+	m_mdid_arrayCheckConstraint->Release();
 	CRefCount::SafeRelease(m_pmdidFmtErrRel);
 
 	CRefCount::SafeRelease(m_phmululNonDroppedCols);
@@ -443,7 +443,7 @@ CMDRelationExternalGPDB::UlIndices() const
 ULONG
 CMDRelationExternalGPDB::UlTriggers() const
 {
-	return m_pdrgpmdidTriggers->Size();
+	return m_mdid_arrayTriggers->Size();
 }
 
 //---------------------------------------------------------------------------
@@ -521,7 +521,7 @@ CMDRelationExternalGPDB::PmdidTrigger
 	)
 	const
 {
-	return (*m_pdrgpmdidTriggers)[ulPos];
+	return (*m_mdid_arrayTriggers)[ulPos];
 }
 
 //---------------------------------------------------------------------------
@@ -535,7 +535,7 @@ CMDRelationExternalGPDB::PmdidTrigger
 ULONG
 CMDRelationExternalGPDB::UlCheckConstraints() const
 {
-	return m_pdrgpmdidCheckConstraint->Size();
+	return m_mdid_arrayCheckConstraint->Size();
 }
 
 //---------------------------------------------------------------------------
@@ -554,7 +554,7 @@ CMDRelationExternalGPDB::PmdidCheckConstraint
 	)
 	const
 {
-	return (*m_pdrgpmdidCheckConstraint)[ulPos];
+	return (*m_mdid_arrayCheckConstraint)[ulPos];
 }
 
 //---------------------------------------------------------------------------
@@ -641,12 +641,12 @@ CMDRelationExternalGPDB::Serialize
 						CDXLTokens::PstrToken(EdxltokenIndexInfoList));
 
 	// serialize trigger information
-	SerializeMDIdList(xml_serializer, m_pdrgpmdidTriggers,
+	SerializeMDIdList(xml_serializer, m_mdid_arrayTriggers,
 						CDXLTokens::PstrToken(EdxltokenTriggers),
 						CDXLTokens::PstrToken(EdxltokenTrigger));
 
 	// serialize check constraint information
-	SerializeMDIdList(xml_serializer, m_pdrgpmdidCheckConstraint,
+	SerializeMDIdList(xml_serializer, m_mdid_arrayCheckConstraint,
 						CDXLTokens::PstrToken(EdxltokenCheckConstraints),
 						CDXLTokens::PstrToken(EdxltokenCheckConstraint));
 
@@ -711,10 +711,10 @@ CMDRelationExternalGPDB::DebugPrint
 	}
 
 	os << "Triggers: ";
-	CDXLUtils::DebugPrintMDIdArray(os, m_pdrgpmdidTriggers);
+	CDXLUtils::DebugPrintMDIdArray(os, m_mdid_arrayTriggers);
 
 	os << "Check Constraint: ";
-	CDXLUtils::DebugPrintMDIdArray(os, m_pdrgpmdidCheckConstraint);
+	CDXLUtils::DebugPrintMDIdArray(os, m_mdid_arrayCheckConstraint);
 
 	os << "Reject limit: " << m_iRejectLimit;
 	if (m_fRejLimitInRows)

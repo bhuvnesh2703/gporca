@@ -27,7 +27,7 @@ namespace gpdxl
 	XERCES_CPP_NAMESPACE_USE
 
 	// shorthand for functions creating operator parse handlers 
-	typedef CParseHandlerBase* (PfParseHandlerOpCreator) (IMemoryPool *memory_pool, CParseHandlerManager *, CParseHandlerBase *);
+	typedef CParseHandlerBase* (ParseHandlerHandlerOpCreator) (IMemoryPool *memory_pool, CParseHandlerManager *, CParseHandlerBase *);
 	
 	// fwd decl
 	class CDXLTokens;
@@ -60,7 +60,7 @@ namespace gpdxl
 	class CParseHandlerFactory
 	{
 		
-		typedef CHashMap<const XMLCh, PfParseHandlerOpCreator, UlHashXMLStr, FEqualXMLStr,
+		typedef CHashMap<const XMLCh, ParseHandlerHandlerOpCreator, UlHashXMLStr, FEqualXMLStr,
 			CleanupNULL, CleanupNULL > HMXMLStrPfPHCreator;
 
 		// pair of DXL token type and the corresponding parse handler
@@ -70,7 +70,7 @@ namespace gpdxl
 			Edxltoken edxltoken;
 
 			// translator function pointer
-			PfParseHandlerOpCreator *pfphopc;
+			ParseHandlerHandlerOpCreator *pfphopc;
 		};
 		
 		private:
@@ -79,7 +79,7 @@ namespace gpdxl
 			HMXMLStrPfPHCreator *m_phmPHCreators;
 
 			static 
-			void AddMapping(Edxltoken edxltok, PfParseHandlerOpCreator *pfphopc);
+			void AddMapping(Edxltoken edxltok, ParseHandlerHandlerOpCreator *pfphopc);
 						
 			// construct a physical op parse handlers
 			static

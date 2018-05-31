@@ -75,7 +75,7 @@ CMinidumperUtils::PdxlmdLoad
 	
 	CParseHandlerDXL *parse_handler_dxl = CDXLUtils::GetParseHandlerForDXLFile(memory_pool, szFileName, NULL /*xsd_file_path*/);
 
-	CBitSet *pbs = parse_handler_dxl->Pbs();
+	CBitSet *pbs = parse_handler_dxl->GetTraceFlags();
 	COptimizerConfig *optimizer_config = parse_handler_dxl->GetOptimizerConfig();
 	CDXLNode *pdxlnQuery = parse_handler_dxl->GetQueryDXLRoot();
 	DrgPdxln *query_output_dxlnode_array = parse_handler_dxl->GetOutputColumnsDXLArray();

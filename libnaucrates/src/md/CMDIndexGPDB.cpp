@@ -41,7 +41,7 @@ CMDIndexGPDB::CMDIndexGPDB
 	IMDId *pmdidItemType,
 	ULongPtrArray *pdrgpulKeyCols,
 	ULongPtrArray *pdrgpulIncludedCols,
-	DrgPmdid *pdrgpmdidOpClasses,
+	DrgPmdid *mdid_arrayOpClasses,
 	IMDPartConstraint *pmdpartcnstr
 	)
 	:
@@ -53,7 +53,7 @@ CMDIndexGPDB::CMDIndexGPDB
 	m_pmdidItemType(pmdidItemType),
 	m_pdrgpulKeyCols(pdrgpulKeyCols),
 	m_pdrgpulIncludedCols(pdrgpulIncludedCols),
-	m_pdrgpmdidOpClasses(pdrgpmdidOpClasses),
+	m_mdid_arrayOpClasses(mdid_arrayOpClasses),
 	m_pmdpartcnstr(pmdpartcnstr)
 {
 	GPOS_ASSERT(pmdid->IsValid());
@@ -63,7 +63,7 @@ CMDIndexGPDB::CMDIndexGPDB
 	GPOS_ASSERT(NULL != pdrgpulIncludedCols);
 	GPOS_ASSERT_IMP(NULL != pmdidItemType, IMDIndex::EmdindBitmap == emdindt);
 	GPOS_ASSERT_IMP(IMDIndex::EmdindBitmap == emdindt, NULL != pmdidItemType && pmdidItemType->IsValid());
-	GPOS_ASSERT(NULL != pdrgpmdidOpClasses);
+	GPOS_ASSERT(NULL != mdid_arrayOpClasses);
 	
 	m_pstr = CDXLUtils::SerializeMDObj(m_memory_pool, this, false /*fSerializeHeader*/, false /*indentation*/);
 }
@@ -84,7 +84,7 @@ CMDIndexGPDB::~CMDIndexGPDB()
 	CRefCount::SafeRelease(m_pmdidItemType);
 	m_pdrgpulKeyCols->Release();
 	m_pdrgpulIncludedCols->Release();
-	m_pdrgpmdidOpClasses->Release();
+	m_mdid_arrayOpClasses->Release();
 	CRefCount::SafeRelease(m_pmdpartcnstr);
 }
 
@@ -317,7 +317,7 @@ CMDIndexGPDB::Serialize
 	GPOS_DELETE(pstrAvailCols);
 		
 	// serialize operator class information
-	SerializeMDIdList(xml_serializer, m_pdrgpmdidOpClasses, 
+	SerializeMDIdList(xml_serializer, m_mdid_arrayOpClasses, 
 						CDXLTokens::PstrToken(EdxltokenOpClasses), 
 						CDXLTokens::PstrToken(EdxltokenOpClass));
 	
@@ -412,11 +412,11 @@ CMDIndexGPDB::FCompatible
 	const
 {
 	GPOS_ASSERT(NULL != pmdscop);
-	GPOS_ASSERT(ulKeyPos < m_pdrgpmdidOpClasses->Size());
+	GPOS_ASSERT(ulKeyPos < m_mdid_arrayOpClasses->Size());
 	
 	// check if the index opclass for the key at the given position is one of 
 	// the classes the scalar comparison belongs to
-	const IMDId *pmdidOpClass = (*m_pdrgpmdidOpClasses)[ulKeyPos];
+	const IMDId *pmdidOpClass = (*m_mdid_arrayOpClasses)[ulKeyPos];
 	
 	const ULONG ulScOpClasses = pmdscop->UlOpCLasses();
 	

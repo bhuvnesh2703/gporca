@@ -41,7 +41,7 @@ CParseHandlerMetadata::CParseHandlerMetadata
 	:
 	CParseHandlerBase(memory_pool, parse_handler_mgr, parse_handler_root),
 	m_mdobject_array(NULL),
-	m_pdrgpmdid(NULL),
+	m_mdid_array(NULL),
 	m_system_id_array(NULL)
 {
 }
@@ -58,7 +58,7 @@ CParseHandlerMetadata::CParseHandlerMetadata
 CParseHandlerMetadata::~CParseHandlerMetadata()
 {
 	CRefCount::SafeRelease(m_mdobject_array);
-	CRefCount::SafeRelease(m_pdrgpmdid);
+	CRefCount::SafeRelease(m_mdid_array);
 	CRefCount::SafeRelease(m_system_id_array);
 }
 
@@ -102,7 +102,7 @@ CParseHandlerMetadata::Pdrgpmdobj()
 DrgPmdid *
 CParseHandlerMetadata::GetMdIdArray()
 {
-	return m_pdrgpmdid;
+	return m_mdid_array;
 }
 
 //---------------------------------------------------------------------------
@@ -142,7 +142,7 @@ CParseHandlerMetadata::StartElement
 		GPOS_ASSERT(NULL == m_mdobject_array);
 		
 		m_mdobject_array = GPOS_NEW(m_memory_pool) DrgPimdobj(m_memory_pool);
-		m_pdrgpmdid = GPOS_NEW(m_memory_pool) DrgPmdid(m_memory_pool);
+		m_mdid_array = GPOS_NEW(m_memory_pool) DrgPmdid(m_memory_pool);
 		
 		m_system_id_array = PdrgpsysidParse
 						(
@@ -154,9 +154,9 @@ CParseHandlerMetadata::StartElement
 	else if (0 == XMLString::compareString(element_local_name, CDXLTokens::XmlstrToken(EdxltokenMdid)))
 	{
 		// start of the metadata section in the DXL document
-		GPOS_ASSERT(NULL != m_pdrgpmdid);
+		GPOS_ASSERT(NULL != m_mdid_array);
 		IMDId *pmdid = CDXLOperatorFactory::PmdidFromAttrs(m_parse_handler_mgr->Pmm(), attrs, EdxltokenValue, EdxltokenMdid);
-		m_pdrgpmdid->Append(pmdid);
+		m_mdid_array->Append(pmdid);
 	}
 	else
 	{

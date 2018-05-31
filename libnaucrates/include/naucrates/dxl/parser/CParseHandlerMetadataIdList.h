@@ -36,7 +36,7 @@ namespace gpdxl
 	{
 		private:
 			// list of metadata identifiers
-			DrgPmdid *m_pdrgpmdid;
+			DrgPmdid *m_mdid_array;
 
 			
 			// private copy ctor

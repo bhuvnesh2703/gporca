@@ -62,7 +62,7 @@ namespace gpmd
 			ULongPtrArray *m_pdrgpulIncludedCols;
 
 			// operator classes for each index key
-			DrgPmdid *m_pdrgpmdidOpClasses;
+			DrgPmdid *m_mdid_arrayOpClasses;
 			
 			// partition constraint
 			IMDPartConstraint *m_pmdpartcnstr;
@@ -86,7 +86,7 @@ namespace gpmd
 				IMDId *pmdidItemType,
 				ULongPtrArray *pdrgpulKeyCols,
 				ULongPtrArray *pdrgpulIncludedCols,
-				DrgPmdid *pdrgpmdidOpClasses,
+				DrgPmdid *mdid_arrayOpClasses,
 				IMDPartConstraint *pmdpartcnstr
 				);
 			

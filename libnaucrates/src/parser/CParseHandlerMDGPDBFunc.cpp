@@ -41,7 +41,7 @@ CParseHandlerMDGPDBFunc::CParseHandlerMDGPDBFunc
 	m_mdid(NULL),
 	m_mdname(NULL),
 	m_pmdidTypeResult(NULL),
-	m_pdrgpmdidTypes(NULL),
+	m_mdid_arrayTypes(NULL),
 	m_efuncstbl(CMDFunctionGPDB::EfsSentinel)
 {}
 
@@ -142,7 +142,7 @@ CParseHandlerMDGPDBFunc::StartElement
 	{
 		// parse output column type
 		GPOS_ASSERT(NULL != m_mdname);
-		GPOS_ASSERT(NULL == m_pdrgpmdidTypes);
+		GPOS_ASSERT(NULL == m_mdid_arrayTypes);
 
 		const XMLCh *xmlszTypes = CDXLOperatorFactory::XmlstrFromAttrs
 															(
@@ -151,7 +151,7 @@ CParseHandlerMDGPDBFunc::StartElement
 															EdxltokenOutputCols
 															);
 
-		m_pdrgpmdidTypes = CDXLOperatorFactory::PdrgpmdidFromXMLCh
+		m_mdid_arrayTypes = CDXLOperatorFactory::PdrgpmdidFromXMLCh
 													(
 													m_parse_handler_mgr->Pmm(),
 													xmlszTypes,
@@ -186,7 +186,7 @@ CParseHandlerMDGPDBFunc::EndElement
 												m_mdid,
 												m_mdname,
 												m_pmdidTypeResult,
-												m_pdrgpmdidTypes,
+												m_mdid_arrayTypes,
 												m_fReturnsSet,
 												m_efuncstbl,
 												m_efuncdataacc,

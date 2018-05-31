@@ -41,7 +41,7 @@ CMDScalarOpGPDB::CMDScalarOpGPDB
 	IMDId *pmdidOpInverse,
 	IMDType::ECmpType ecmpt,
 	BOOL fReturnsNullOnNullInput,
-	DrgPmdid *pdrgpmdidOpClasses
+	DrgPmdid *mdid_arrayOpClasses
 	)
 	:
 	m_memory_pool(memory_pool),
@@ -55,9 +55,9 @@ CMDScalarOpGPDB::CMDScalarOpGPDB
 	m_pmdidOpInverse(pmdidOpInverse),
 	m_ecmpt(ecmpt),
 	m_fReturnsNullOnNullInput(fReturnsNullOnNullInput),
-	m_pdrgpmdidOpClasses(pdrgpmdidOpClasses)
+	m_mdid_arrayOpClasses(mdid_arrayOpClasses)
 {
-	GPOS_ASSERT(NULL != pdrgpmdidOpClasses);
+	GPOS_ASSERT(NULL != mdid_arrayOpClasses);
 	m_pstr = CDXLUtils::SerializeMDObj(m_memory_pool, this, false /*fSerializeHeader*/, false /*indentation*/);
 }
 
@@ -83,7 +83,7 @@ CMDScalarOpGPDB::~CMDScalarOpGPDB()
 	
 	GPOS_DELETE(m_mdname);
 	GPOS_DELETE(m_pstr);
-	m_pdrgpmdidOpClasses->Release();
+	m_mdid_arrayOpClasses->Release();
 }
 
 //---------------------------------------------------------------------------
@@ -284,9 +284,9 @@ CMDScalarOpGPDB::Serialize
 	}	
 	
 	// serialize operator class information
-	if (0 < m_pdrgpmdidOpClasses->Size())
+	if (0 < m_mdid_arrayOpClasses->Size())
 	{
-		SerializeMDIdList(xml_serializer, m_pdrgpmdidOpClasses, 
+		SerializeMDIdList(xml_serializer, m_mdid_arrayOpClasses, 
 						CDXLTokens::PstrToken(EdxltokenOpClasses), 
 						CDXLTokens::PstrToken(EdxltokenOpClass));
 	}
@@ -306,7 +306,7 @@ CMDScalarOpGPDB::Serialize
 ULONG
 CMDScalarOpGPDB::UlOpCLasses() const
 {
-	return m_pdrgpmdidOpClasses->Size();
+	return m_mdid_arrayOpClasses->Size();
 }
 
 //---------------------------------------------------------------------------
@@ -324,9 +324,9 @@ CMDScalarOpGPDB::PmdidOpClass
 	) 
 	const
 {
-	GPOS_ASSERT(ulPos < m_pdrgpmdidOpClasses->Size());
+	GPOS_ASSERT(ulPos < m_mdid_arrayOpClasses->Size());
 	
-	return (*m_pdrgpmdidOpClasses)[ulPos];
+	return (*m_mdid_arrayOpClasses)[ulPos];
 }
 
 

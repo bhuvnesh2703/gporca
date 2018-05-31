@@ -31,7 +31,7 @@ void
 CParseHandlerFactory::AddMapping
 	(
 	Edxltoken edxltok,
-	PfParseHandlerOpCreator *pfphopc
+	ParseHandlerHandlerOpCreator *pfphopc
 	)
 {
 	GPOS_ASSERT(NULL != m_phmPHCreators);
@@ -301,7 +301,7 @@ CParseHandlerFactory::Pph
 {
 	GPOS_ASSERT(NULL != m_phmPHCreators);
 
-	PfParseHandlerOpCreator *phoc = m_phmPHCreators->Find(xmlszName);
+	ParseHandlerHandlerOpCreator *phoc = m_phmPHCreators->Find(xmlszName);
 
 	if (phoc != NULL)
 	{

@@ -73,7 +73,7 @@ namespace gpmd
 			BOOL m_fReturnsNullOnNullInput;
 			
 			// operator classes this operator belongs to
-			DrgPmdid *m_pdrgpmdidOpClasses;
+			DrgPmdid *m_mdid_arrayOpClasses;
 
 			CMDScalarOpGPDB(const CMDScalarOpGPDB &);
 			
@@ -93,7 +93,7 @@ namespace gpmd
 				IMDId *pmdidOpInverse,
 				IMDType::ECmpType ecmpt,
 				BOOL fReturnsNullOnNullInput,
-				DrgPmdid *pdrgpmdidOpClasses
+				DrgPmdid *mdid_arrayOpClasses
 				);
 			
 			~CMDScalarOpGPDB();

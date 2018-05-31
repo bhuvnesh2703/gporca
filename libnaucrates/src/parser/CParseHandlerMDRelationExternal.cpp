@@ -144,13 +144,13 @@ CParseHandlerMDRelationExternal::EndElement
 	// refcount child objects
 	DrgPmdcol *pdrgpmdcol = pphMdCol->Pdrgpmdcol();
 	DrgPmdIndexInfo *pdrgpmdIndexInfo = pphMdlIndexInfo->PdrgpmdIndexInfo();
-	DrgPmdid *pdrgpmdidTriggers = pphMdidlTriggers->GetMdIdArray();
-	DrgPmdid *pdrgpmdidCheckConstraint = pphMdidlCheckConstraints->GetMdIdArray();
+	DrgPmdid *mdid_arrayTriggers = pphMdidlTriggers->GetMdIdArray();
+	DrgPmdid *mdid_arrayCheckConstraint = pphMdidlCheckConstraints->GetMdIdArray();
 
 	pdrgpmdcol->AddRef();
 	pdrgpmdIndexInfo->AddRef();
- 	pdrgpmdidTriggers->AddRef();
- 	pdrgpmdidCheckConstraint->AddRef();
+ 	mdid_arrayTriggers->AddRef();
+ 	mdid_arrayCheckConstraint->AddRef();
 
 	m_imd_obj = GPOS_NEW(m_memory_pool) CMDRelationExternalGPDB
 								(
@@ -163,8 +163,8 @@ CParseHandlerMDRelationExternal::EndElement
 									m_fConvertHashToRandom,
 									m_pdrgpdrgpulKeys,
 									pdrgpmdIndexInfo,
-									pdrgpmdidTriggers,
-									pdrgpmdidCheckConstraint,
+									mdid_arrayTriggers,
+									mdid_arrayCheckConstraint,
 									m_iRejectLimit,
 									m_fRejLimitInRows,
 									m_pmdidFmtErrRel

@@ -30,7 +30,7 @@ namespace gpdxl
 	XERCES_CPP_NAMESPACE_USE
 	
 	// shorthand for functions for translating GPDB expressions into DXL nodes
-	typedef void (CParseHandlerDXL::*Pfparse)(CParseHandlerBase *parse_handler_base);
+	typedef void (CParseHandlerDXL::*ParseHandler)(CParseHandlerBase *parse_handler_base);
 
 	
 	//---------------------------------------------------------------------------
@@ -49,12 +49,12 @@ namespace gpdxl
 			// pair of parse handler type and parse handler function
 			struct SParseElem
 			{
-				EDxlParseHandlerType edxlphtype; // parse handler type
-				Pfparse pf; // pointer to corresponding function
+				EDxlParseHandlerType parse_handler_type; // parse handler type
+				ParseHandler parse_handler_func; // pointer to corresponding function
 			};
 
 			// traceflags
-			CBitSet *m_pbs;
+			CBitSet *m_trace_flags;
 			
 			// optimizer config
 			COptimizerConfig *m_optimizer_config;
@@ -78,7 +78,7 @@ namespace gpdxl
 			DrgPimdobj *m_mdobject_array;
 			
 			// list of parsed metadata ids
-			DrgPmdid *m_pdrgpmdid;
+			DrgPmdid *m_mdid_array;
 
 			// the root of the parsed scalar expression
 			CDXLNode *m_scalar_expr_dxl;
@@ -122,41 +122,41 @@ namespace gpdxl
 				);
 			
 			// find the parse handler function for the given type
-			Pfparse FindParseHandler(EDxlParseHandlerType edxlphtype);
+			ParseHandler FindParseHandler(EDxlParseHandlerType edxlphtype);
 
 			// extract traceflags
-			void ExtractTraceFlags(CParseHandlerBase *pph);
+			void ExtractTraceFlags(CParseHandlerBase *parse_handler_base);
 			
 			// extract optimizer config
-			void ExtractOptimizerConfig(CParseHandlerBase *pph);
+			void ExtractOptimizerConfig(CParseHandlerBase *parse_handler_base);
 
 			// extract a physical plan
-			void ExtractDXLPlan(CParseHandlerBase *pph);
+			void ExtractDXLPlan(CParseHandlerBase *parse_handler_base);
 
 			// extract metadata objects
-			void ExtractMetadataObjects(CParseHandlerBase *pph);
+			void ExtractMetadataObjects(CParseHandlerBase *parse_handler_base);
 
 			// extract statistics
-			void ExtractStats(CParseHandlerBase *pph);
+			void ExtractStats(CParseHandlerBase *parse_handler_base);
 
 			// extract DXL query
-			void ExtractDXLQuery(CParseHandlerBase *pph);
+			void ExtractDXLQuery(CParseHandlerBase *parse_handler_base);
 
 			// extract mdids of requested objects
-			void ExtractMDRequest(CParseHandlerBase *pph);
+			void ExtractMDRequest(CParseHandlerBase *parse_handler_base);
 			
 			// extract search strategy
-			void ExtractSearchStrategy(CParseHandlerBase *pph);
+			void ExtractSearchStrategy(CParseHandlerBase *parse_handler_base);
 
 			// extract cost params
-			void ExtractCostParams(CParseHandlerBase *pph);
+			void ExtractCostParams(CParseHandlerBase *parse_handler_base);
 
             // extract a top level scalar expression
-			void ExtractScalarExpr(CParseHandlerBase *pph);
+			void ExtractScalarExpr(CParseHandlerBase *parse_handler_base);
 
 			// check if given element name is valid for starting DXL document
 			static
-			BOOL IsValidStartElement(const XMLCh* const xmlszName);
+			BOOL IsValidStartElement(const XMLCh* const element_name);
 
 		public:
 			// ctor
@@ -167,7 +167,7 @@ namespace gpdxl
 			~CParseHandlerDXL();
 			
 			// traceflag bitset
-			CBitSet *Pbs() const;
+			CBitSet *GetTraceFlags() const;
 			
 			// optimizer config
 			COptimizerConfig *GetOptimizerConfig() const;
