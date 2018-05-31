@@ -109,7 +109,7 @@ namespace gpmd
 			// accessors
 			
 			// array of mdids
-			DrgPmdid *Pdrgpmdid() const
+			DrgPmdid *GetMdIdArray() const
 			{
 				return m_pdrgpmdid;
 			}

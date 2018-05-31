@@ -76,7 +76,7 @@ namespace gpdxl
 			EDxlParseHandlerType GetParseHandlerType() const;
 
 			// parsed mdids
-			DrgPmdid *Pdrgpmdid() const;	
+			DrgPmdid *GetMdIdArray() const;	
 			
 			// parsed type requests
 			CMDRequest::DrgPtr *Pdrgptr() const;	

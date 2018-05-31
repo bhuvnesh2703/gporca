@@ -205,14 +205,14 @@ CParseHandlerMetadataIdList::FSupportedListType
 
 //---------------------------------------------------------------------------
 //	@function:
-//		CParseHandlerMetadataIdList::Pdrgpmdid
+//		CParseHandlerMetadataIdList::GetMdIdArray
 //
 //	@doc:
 //		Return the constructed list of metadata ids
 //
 //---------------------------------------------------------------------------
 DrgPmdid *
-CParseHandlerMetadataIdList::Pdrgpmdid()
+CParseHandlerMetadataIdList::GetMdIdArray()
 {
 	return m_pdrgpmdid;
 }

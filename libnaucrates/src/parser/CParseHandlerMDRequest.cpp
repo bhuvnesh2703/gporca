@@ -143,14 +143,14 @@ CParseHandlerMDRequest::GetParseHandlerType() const
 
 //---------------------------------------------------------------------------
 //	@function:
-//		CParseHandlerMDRequest::Pdrgpmdid
+//		CParseHandlerMDRequest::GetMdIdArray
 //
 //	@doc:
 //		Parsed array of mdids
 //
 //---------------------------------------------------------------------------
 DrgPmdid *
-CParseHandlerMDRequest::Pdrgpmdid() const
+CParseHandlerMDRequest::GetMdIdArray() const
 {
 	return m_pdrgpmdid;
 }

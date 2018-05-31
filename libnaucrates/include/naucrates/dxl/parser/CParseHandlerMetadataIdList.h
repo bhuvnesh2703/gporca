@@ -78,7 +78,7 @@ namespace gpdxl
 			~CParseHandlerMetadataIdList();
 			
 			// return the constructed list of metadata identifiers
-			DrgPmdid *Pdrgpmdid();
+			DrgPmdid *GetMdIdArray();
 			
 	};
 }

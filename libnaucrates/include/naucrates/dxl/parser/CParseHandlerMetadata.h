@@ -41,13 +41,13 @@ namespace gpdxl
 		private:
 			
 			// list of parsed metadata objects
-			DrgPimdobj *m_pdrgpmdobj;
+			DrgPimdobj *m_mdobject_array;
 			
 			// list of parsed mdids
 			DrgPmdid *m_pdrgpmdid;
 
 			// list of parsed metatadata source system ids
-			DrgPsysid *m_pdrgpsysid;
+			DrgPsysid *m_system_id_array;
 
 			// private copy ctor
 			CParseHandlerMetadata(const CParseHandlerMetadata&);
@@ -94,10 +94,10 @@ namespace gpdxl
 			DrgPimdobj *Pdrgpmdobj();
 			
 			// return the list of parsed mdids
-			DrgPmdid *Pdrgpmdid();
+			DrgPmdid *GetMdIdArray();
 			
 			// return the list of parsed system ids
-			DrgPsysid *Pdrgpsysid();
+			DrgPsysid *GetSystemIdArray();
 
 	};
 }
