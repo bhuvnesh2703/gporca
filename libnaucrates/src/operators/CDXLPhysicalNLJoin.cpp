@@ -94,11 +94,12 @@ CDXLPhysicalNLJoin::SerializeToDXL
 	// serialize properties
 	pdxln->SerializePropertiesToDXL(pxmlser);
 	
-	SerializeNestLoopParamsToDXL(pxmlser);
-	
 	// serialize children
 	pdxln->SerializeChildrenToDXL(pxmlser);
-	
+
+	// serialize nestloop params
+	SerializeNestLoopParamsToDXL(pxmlser);
+
 	pxmlser->CloseElement(CDXLTokens::PstrToken(EdxltokenNamespacePrefix), pstrElemName);		
 }
 

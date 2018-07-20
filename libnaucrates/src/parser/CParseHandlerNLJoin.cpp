@@ -74,6 +74,10 @@ CParseHandlerNLJoin::StartElement
 	// create and activate the parse handler for the children nodes in reverse
 	// order of their expected appearance
 	
+	//parse handler for the grouping columns list
+	CParseHandlerBase *pphNLParams = CParseHandlerFactory::Pph(m_pmp, CDXLTokens::XmlstrToken(EdxltokenNLJIndexParamList), m_pphm, this);
+	m_pphm->ActivateParseHandler(pphNLParams);
+	
 	// parse handler for right child
 	CParseHandlerBase *pphRight = CParseHandlerFactory::Pph(m_pmp, CDXLTokens::XmlstrToken(EdxltokenPhysical), m_pphm, this);
 	m_pphm->ActivateParseHandler(pphRight);
@@ -93,10 +97,6 @@ CParseHandlerNLJoin::StartElement
 	// parse handler for the proj list
 	CParseHandlerBase *pphPrL = CParseHandlerFactory::Pph(m_pmp, CDXLTokens::XmlstrToken(EdxltokenScalarProjList), m_pphm, this);
 	m_pphm->ActivateParseHandler(pphPrL);
-
-	//parse handler for the grouping columns list
-	CParseHandlerBase *pphNLParams = CParseHandlerFactory::Pph(m_pmp, CDXLTokens::XmlstrToken(EdxltokenNLJIndexParamList), m_pphm, this);
-	m_pphm->ActivateParseHandler(pphNLParams);
 	
 	//parse handler for the properties of the operator
 	CParseHandlerBase *pphProp = CParseHandlerFactory::Pph(m_pmp, CDXLTokens::XmlstrToken(EdxltokenProperties), m_pphm, this);
@@ -104,12 +104,12 @@ CParseHandlerNLJoin::StartElement
 	
 	// store parse handlers
 	this->Append(pphProp);
-	this->Append(pphNLParams);
 	this->Append(pphPrL);
 	this->Append(pphFilter);
 	this->Append(pphJoinFilter);
 	this->Append(pphLeft);
 	this->Append(pphRight);
+	this->Append(pphNLParams);
 }
 
 //---------------------------------------------------------------------------
@@ -140,13 +140,13 @@ CParseHandlerNLJoin::EndElement
 	}
 	
 	// construct node from the created child nodes
-	CParseHandlerProperties *pphProp = dynamic_cast<CParseHandlerProperties *>((*this)[0]);
-	CParseHandlerNLJIndexParamList *pphNLParams = dynamic_cast<CParseHandlerNLJIndexParamList*>((*this)[1]);
-	CParseHandlerProjList *pphPrL = dynamic_cast<CParseHandlerProjList*>((*this)[2]);
-	CParseHandlerFilter *pphFilter = dynamic_cast<CParseHandlerFilter *>((*this)[3]);
-	CParseHandlerFilter *pphJoinFilter = dynamic_cast<CParseHandlerFilter *>((*this)[4]);
-	CParseHandlerPhysicalOp *pphLeft = dynamic_cast<CParseHandlerPhysicalOp *>((*this)[5]);
-	CParseHandlerPhysicalOp *pphRight = dynamic_cast<CParseHandlerPhysicalOp *>((*this)[6]);
+	CParseHandlerProperties *pphProp = dynamic_cast<CParseHandlerProperties *>((*this)[EdxlParseHandlerNLJIndexProp]);
+	CParseHandlerProjList *pphPrL = dynamic_cast<CParseHandlerProjList*>((*this)[EdxlParseHandlerNLJIndexProjList]);
+	CParseHandlerFilter *pphFilter = dynamic_cast<CParseHandlerFilter *>((*this)[EdxlParseHandlerNLJIndexFilter]);
+	CParseHandlerFilter *pphJoinFilter = dynamic_cast<CParseHandlerFilter *>((*this)[EdxlParseHandlerNLJIndexJoinFilter]);
+	CParseHandlerPhysicalOp *pphLeft = dynamic_cast<CParseHandlerPhysicalOp *>((*this)[EdxlParseHandlerNLJIndexLeftChild]);
+	CParseHandlerPhysicalOp *pphRight = dynamic_cast<CParseHandlerPhysicalOp *>((*this)[EdxlParseHandlerNLJIndexRightChild]);
+	CParseHandlerNLJIndexParamList *pphNLParams = dynamic_cast<CParseHandlerNLJIndexParamList*>((*this)[EdxlParseHandlerNLJIndexNestLoopParams]);
 
 	DrgPdxlcr *nl_col_ref = pphNLParams->GetNLParamsColRefs();
 	m_pdxlop->SetNestLoopParams(nl_col_ref);
