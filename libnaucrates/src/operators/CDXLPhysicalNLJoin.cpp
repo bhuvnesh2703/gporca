@@ -15,6 +15,8 @@
 
 #include "naucrates/dxl/xml/CXMLSerializer.h"
 
+#include "naucrates/traceflags/traceflags.h"
+
 using namespace gpos;
 using namespace gpdxl;
 
@@ -36,6 +38,12 @@ CDXLPhysicalNLJoin::CDXLPhysicalNLJoin
 	CDXLPhysicalJoin(pmp, edxljt),
 	m_fIndexNLJ(fIndexNLJ)
 {
+	m_nl_params = NULL;
+}
+
+CDXLPhysicalNLJoin::~CDXLPhysicalNLJoin()
+{
+	CRefCount::SafeRelease(m_nl_params);
 }
 
 //---------------------------------------------------------------------------
@@ -98,7 +106,10 @@ CDXLPhysicalNLJoin::SerializeToDXL
 	pdxln->SerializeChildrenToDXL(pxmlser);
 
 	// serialize nestloop params
-	SerializeNestLoopParamsToDXL(pxmlser);
+	if (GPOS_FTRACE(EopttraceEnableNestLoopParams))
+	{
+		SerializeNestLoopParamsToDXL(pxmlser);
+	}
 
 	pxmlser->CloseElement(CDXLTokens::PstrToken(EdxltokenNamespacePrefix), pstrElemName);		
 }
@@ -191,6 +202,6 @@ CDXLPhysicalNLJoin::AssertValid
 void
 CDXLPhysicalNLJoin::SetNestLoopParams(DrgPdxlcr *nl_params)
 {
-	       m_nl_params = nl_params;
-	}
+	m_nl_params = nl_params;
+}
 // EOF

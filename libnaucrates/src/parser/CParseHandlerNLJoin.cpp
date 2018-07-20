@@ -19,6 +19,7 @@
 #include "naucrates/dxl/parser/CParseHandlerNLJIndexParamList.h"
 
 #include "naucrates/dxl/operators/CDXLOperatorFactory.h"
+#include "naucrates/traceflags/traceflags.h"
 
 using namespace gpdxl;
 
@@ -74,9 +75,13 @@ CParseHandlerNLJoin::StartElement
 	// create and activate the parse handler for the children nodes in reverse
 	// order of their expected appearance
 	
-	//parse handler for the grouping columns list
-	CParseHandlerBase *pphNLParams = CParseHandlerFactory::Pph(m_pmp, CDXLTokens::XmlstrToken(EdxltokenNLJIndexParamList), m_pphm, this);
-	m_pphm->ActivateParseHandler(pphNLParams);
+	//parse handler for the nest loop params list
+	CParseHandlerBase *pphNLParams = NULL;
+	if (GPOS_FTRACE(EopttraceEnableNestLoopParams))
+	{
+		pphNLParams = CParseHandlerFactory::Pph(m_pmp, CDXLTokens::XmlstrToken(EdxltokenNLJIndexParamList), m_pphm, this);
+		m_pphm->ActivateParseHandler(pphNLParams);
+	}
 	
 	// parse handler for right child
 	CParseHandlerBase *pphRight = CParseHandlerFactory::Pph(m_pmp, CDXLTokens::XmlstrToken(EdxltokenPhysical), m_pphm, this);
@@ -109,7 +114,10 @@ CParseHandlerNLJoin::StartElement
 	this->Append(pphJoinFilter);
 	this->Append(pphLeft);
 	this->Append(pphRight);
-	this->Append(pphNLParams);
+	if (NULL != pphNLParams)
+	{
+		this->Append(pphNLParams);
+	}
 }
 
 //---------------------------------------------------------------------------
@@ -146,10 +154,15 @@ CParseHandlerNLJoin::EndElement
 	CParseHandlerFilter *pphJoinFilter = dynamic_cast<CParseHandlerFilter *>((*this)[EdxlParseHandlerNLJIndexJoinFilter]);
 	CParseHandlerPhysicalOp *pphLeft = dynamic_cast<CParseHandlerPhysicalOp *>((*this)[EdxlParseHandlerNLJIndexLeftChild]);
 	CParseHandlerPhysicalOp *pphRight = dynamic_cast<CParseHandlerPhysicalOp *>((*this)[EdxlParseHandlerNLJIndexRightChild]);
-	CParseHandlerNLJIndexParamList *pphNLParams = dynamic_cast<CParseHandlerNLJIndexParamList*>((*this)[EdxlParseHandlerNLJIndexNestLoopParams]);
 
-	DrgPdxlcr *nl_col_ref = pphNLParams->GetNLParamsColRefs();
-	m_pdxlop->SetNestLoopParams(nl_col_ref);
+	if (GPOS_FTRACE(EopttraceEnableNestLoopParams))
+	{
+		CParseHandlerNLJIndexParamList *pphNLParams = dynamic_cast<CParseHandlerNLJIndexParamList*>((*this)[EdxlParseHandlerNLJIndexNestLoopParams]);
+		GPOS_ASSERT(pphNLParams);
+		DrgPdxlcr *nl_col_ref = pphNLParams->GetNLParamsColRefs();
+		nl_col_ref->AddRef();
+		m_pdxlop->SetNestLoopParams(nl_col_ref);
+	}
 
 	m_pdxln = GPOS_NEW(m_pmp) CDXLNode(m_pmp, m_pdxlop);
 	// set statictics and physical properties
