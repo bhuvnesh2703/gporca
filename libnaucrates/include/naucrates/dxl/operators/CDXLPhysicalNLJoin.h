@@ -50,6 +50,8 @@ namespace gpdxl
 
 			DrgPdxlcr *m_nl_params;
 
+			void SerializeNestLoopParamsToDXL(CXMLSerializer *pxmlser) const;
+
 			// private copy ctor
 			CDXLPhysicalNLJoin(const CDXLPhysicalNLJoin&);
 
@@ -72,6 +74,11 @@ namespace gpdxl
 			void SerializeToDXL(CXMLSerializer *pxmlser, const CDXLNode *pdxln) const;
 
 			void SetNestLoopParams(DrgPdxlcr *nl_params);
+
+			DrgPdxlcr *GetNestLoopParams()
+			{
+				return m_nl_params;
+			}
 
 			// conversion function
 			static
