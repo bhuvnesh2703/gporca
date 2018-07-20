@@ -1648,6 +1648,24 @@ namespace gpdxl
 				CParseHandlerBase *pphRoot
 				);
 
+			// construct a nested loop param list parse handler
+			static
+			CParseHandlerBase *PphNLJIndexParamList
+			(
+			 IMemoryPool *pmp,
+			 CParseHandlerManager *pphm,
+			 CParseHandlerBase *pphRoot
+			 );
+
+			// construct a nested loop param parse handler
+			static
+			CParseHandlerBase *PphNLJIndexParam
+			(
+			 IMemoryPool *pmp,
+			 CParseHandlerManager *pphm,
+			 CParseHandlerBase *pphRoot
+			 );
+
 		public:
 			
 			// initialize mappings of tokens to parse handlers

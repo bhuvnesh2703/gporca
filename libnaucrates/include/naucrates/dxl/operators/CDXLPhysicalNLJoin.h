@@ -16,6 +16,7 @@
 
 #include "gpos/base.h"
 #include "naucrates/dxl/operators/CDXLPhysicalJoin.h"
+#include "naucrates/dxl/operators/CDXLColRef.h"
 
 namespace gpdxl
 {
@@ -47,6 +48,8 @@ namespace gpdxl
 			// i.e., inner side is an index scan that uses values from outer side
 			BOOL m_fIndexNLJ;
 
+			DrgPdxlcr *m_nl_params;
+
 			// private copy ctor
 			CDXLPhysicalNLJoin(const CDXLPhysicalNLJoin&);
 
@@ -67,6 +70,8 @@ namespace gpdxl
 			// serialize operator in DXL format
 			virtual
 			void SerializeToDXL(CXMLSerializer *pxmlser, const CDXLNode *pdxln) const;
+
+			void SetNestLoopParams(DrgPdxlcr *nl_params);
 
 			// conversion function
 			static

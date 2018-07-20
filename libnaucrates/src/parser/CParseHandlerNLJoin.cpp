@@ -16,6 +16,7 @@
 #include "naucrates/dxl/parser/CParseHandlerProperties.h"
 #include "naucrates/dxl/parser/CParseHandlerScalarOp.h"
 #include "naucrates/dxl/parser/CParseHandlerUtils.h"
+#include "naucrates/dxl/parser/CParseHandlerNLJIndexParamList.h"
 
 #include "naucrates/dxl/operators/CDXLOperatorFactory.h"
 
@@ -92,6 +93,10 @@ CParseHandlerNLJoin::StartElement
 	// parse handler for the proj list
 	CParseHandlerBase *pphPrL = CParseHandlerFactory::Pph(m_pmp, CDXLTokens::XmlstrToken(EdxltokenScalarProjList), m_pphm, this);
 	m_pphm->ActivateParseHandler(pphPrL);
+
+	//parse handler for the grouping columns list
+	CParseHandlerBase *pphNLParams = CParseHandlerFactory::Pph(m_pmp, CDXLTokens::XmlstrToken(EdxltokenNLJIndexParamList), m_pphm, this);
+	m_pphm->ActivateParseHandler(pphNLParams);
 	
 	//parse handler for the properties of the operator
 	CParseHandlerBase *pphProp = CParseHandlerFactory::Pph(m_pmp, CDXLTokens::XmlstrToken(EdxltokenProperties), m_pphm, this);
@@ -99,6 +104,7 @@ CParseHandlerNLJoin::StartElement
 	
 	// store parse handlers
 	this->Append(pphProp);
+	this->Append(pphNLParams);
 	this->Append(pphPrL);
 	this->Append(pphFilter);
 	this->Append(pphJoinFilter);
@@ -135,11 +141,15 @@ CParseHandlerNLJoin::EndElement
 	
 	// construct node from the created child nodes
 	CParseHandlerProperties *pphProp = dynamic_cast<CParseHandlerProperties *>((*this)[0]);
-	CParseHandlerProjList *pphPrL = dynamic_cast<CParseHandlerProjList*>((*this)[1]);
-	CParseHandlerFilter *pphFilter = dynamic_cast<CParseHandlerFilter *>((*this)[2]);
-	CParseHandlerFilter *pphJoinFilter = dynamic_cast<CParseHandlerFilter *>((*this)[3]);
-	CParseHandlerPhysicalOp *pphLeft = dynamic_cast<CParseHandlerPhysicalOp *>((*this)[4]);
-	CParseHandlerPhysicalOp *pphRight = dynamic_cast<CParseHandlerPhysicalOp *>((*this)[5]);
+	CParseHandlerNLJIndexParamList *pphNLParams = dynamic_cast<CParseHandlerNLJIndexParamList*>((*this)[1]);
+	CParseHandlerProjList *pphPrL = dynamic_cast<CParseHandlerProjList*>((*this)[2]);
+	CParseHandlerFilter *pphFilter = dynamic_cast<CParseHandlerFilter *>((*this)[3]);
+	CParseHandlerFilter *pphJoinFilter = dynamic_cast<CParseHandlerFilter *>((*this)[4]);
+	CParseHandlerPhysicalOp *pphLeft = dynamic_cast<CParseHandlerPhysicalOp *>((*this)[5]);
+	CParseHandlerPhysicalOp *pphRight = dynamic_cast<CParseHandlerPhysicalOp *>((*this)[6]);
+
+	DrgPdxlcr *nl_col_ref = pphNLParams->GetNLParamsColRefs();
+	m_pdxlop->SetNestLoopParams(nl_col_ref);
 
 	m_pdxln = GPOS_NEW(m_pmp) CDXLNode(m_pmp, m_pdxlop);
 	// set statictics and physical properties

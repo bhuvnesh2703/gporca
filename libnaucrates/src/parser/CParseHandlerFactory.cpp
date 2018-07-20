@@ -276,7 +276,9 @@ CParseHandlerFactory::Init
 
 			{EdxltokenScalarExpr, &PphScalarExpr},
 			{EdxltokenScalarValuesList, &PphScalarValuesList},
-			{EdxltokenPhysicalValuesScan, &PphValuesScan}
+			{EdxltokenPhysicalValuesScan, &PphValuesScan},
+			{EdxltokenNLJIndexParamList, &PphNLJIndexParamList},
+			{EdxltokenNLJIndexParam, &PphNLJIndexParam}
 
 	};
 	
@@ -2427,4 +2429,25 @@ CParseHandlerFactory::PphMDArrayCoerceCast
 	return GPOS_NEW(pmp) CParseHandlerMDArrayCoerceCast(pmp, pphm, pphRoot);
 }
 
+CParseHandlerBase *
+CParseHandlerFactory::PphNLJIndexParamList
+(
+ IMemoryPool *pmp,
+ CParseHandlerManager *pphm,
+ CParseHandlerBase *pphRoot
+ )
+{
+	return GPOS_NEW(pmp) CParseHandlerNLJIndexParamList(pmp, pphm, pphRoot);
+}
+
+CParseHandlerBase *
+CParseHandlerFactory::PphNLJIndexParam
+(
+ IMemoryPool *pmp,
+ CParseHandlerManager *pphm,
+ CParseHandlerBase *pphRoot
+ )
+{
+	return GPOS_NEW(pmp) CParseHandlerNLJIndexParam(pmp, pphm, pphRoot);
+}
 // EOF

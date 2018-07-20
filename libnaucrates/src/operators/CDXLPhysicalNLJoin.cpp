@@ -141,5 +141,10 @@ CDXLPhysicalNLJoin::AssertValid
 	}
 }
 #endif // GPOS_DEBUG
+void
+CDXLPhysicalNLJoin::SetNestLoopParams(DrgPdxlcr *nl_params)
+{
+	m_nl_params = nl_params;
+}
 
 // EOF
