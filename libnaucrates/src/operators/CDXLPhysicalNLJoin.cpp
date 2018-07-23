@@ -15,6 +15,8 @@
 
 #include "naucrates/dxl/xml/CXMLSerializer.h"
 
+#include "naucrates/traceflags/traceflags.h"
+
 using namespace gpos;
 using namespace gpdxl;
 
@@ -36,6 +38,12 @@ CDXLPhysicalNLJoin::CDXLPhysicalNLJoin
 	CDXLPhysicalJoin(pmp, edxljt),
 	m_fIndexNLJ(fIndexNLJ)
 {
+	m_nest_params_col_refs = NULL;
+}
+
+CDXLPhysicalNLJoin::~CDXLPhysicalNLJoin()
+{
+	CRefCount::SafeRelease(m_nest_params_col_refs);
 }
 
 //---------------------------------------------------------------------------
@@ -96,10 +104,59 @@ CDXLPhysicalNLJoin::SerializeToDXL
 	
 	// serialize children
 	pdxln->SerializeChildrenToDXL(pxmlser);
-	
+
+	// serialize nestloop params
+	if (GPOS_FTRACE(EopttraceEnableNestLoopParams))
+	{
+		SerializeNestLoopParamsToDXL(pxmlser);
+	}
+
 	pxmlser->CloseElement(CDXLTokens::PstrToken(EdxltokenNamespacePrefix), pstrElemName);		
 }
 
+void
+CDXLPhysicalNLJoin::SerializeNestLoopParamsToDXL
+(
+ CXMLSerializer *xml_serializer
+ )
+const
+{
+	// Serialize NLJ index paramlist
+	xml_serializer->OpenElement
+	(
+	 CDXLTokens::PstrToken(EdxltokenNamespacePrefix),
+	 CDXLTokens::PstrToken(EdxltokenNLJIndexParamList)
+	 );
+	
+	for (ULONG ul = 0; ul < m_nest_params_col_refs->UlLength(); ul++)
+	{
+		xml_serializer->OpenElement
+		(
+		 CDXLTokens::PstrToken(EdxltokenNamespacePrefix),
+		 CDXLTokens::PstrToken(EdxltokenNLJIndexParam)
+		 );
+		
+		ULONG id = (*m_nest_params_col_refs)[ul]->UlID();
+		xml_serializer->AddAttribute(CDXLTokens::PstrToken(EdxltokenColId), id);
+		
+		const CMDName *md_name = (*m_nest_params_col_refs)[ul]->Pmdname();
+		const IMDId *mdid_type = (*m_nest_params_col_refs)[ul]->PmdidType();
+		xml_serializer->AddAttribute(CDXLTokens::PstrToken(EdxltokenColName), md_name->Pstr());
+		mdid_type->Serialize(xml_serializer, CDXLTokens::PstrToken(EdxltokenTypeId));
+		
+		xml_serializer->CloseElement
+		(
+		 CDXLTokens::PstrToken(EdxltokenNamespacePrefix),
+		 CDXLTokens::PstrToken(EdxltokenNLJIndexParam)
+		 );
+	}
+	
+	xml_serializer->CloseElement
+	(
+	 CDXLTokens::PstrToken(EdxltokenNamespacePrefix),
+	 CDXLTokens::PstrToken(EdxltokenNLJIndexParamList)
+	 );
+}
 
 #ifdef GPOS_DEBUG
 //---------------------------------------------------------------------------
@@ -142,4 +199,9 @@ CDXLPhysicalNLJoin::AssertValid
 }
 #endif // GPOS_DEBUG
 
+void
+CDXLPhysicalNLJoin::SetNestLoopParamsColRefs(DrgPdxlcr *nest_params_col_refs)
+{
+	m_nest_params_col_refs = nest_params_col_refs;
+}
 // EOF

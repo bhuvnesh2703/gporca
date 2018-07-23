@@ -3638,6 +3638,7 @@ CTranslatorExprToDXL::PdxlnNLJoin
 
 	EdxlJoinType edxljt = EdxljtSentinel;
 	BOOL fIndexNLJ = false;
+	DrgPcr *outer_refs = NULL;
 	switch (pop->Eopid())
 	{
 		case COperator::EopPhysicalInnerNLJoin:
@@ -3648,12 +3649,14 @@ CTranslatorExprToDXL::PdxlnNLJoin
 			edxljt = EdxljtInner;
 			fIndexNLJ = true;
 			StoreIndexNLJOuterRefs(pop);
+			outer_refs = CPhysicalInnerIndexNLJoin::PopConvert(pop)->PdrgPcrOuterRefs();
 			break;
 
 		case COperator::EopPhysicalLeftOuterIndexNLJoin:
 			edxljt = EdxljtLeft;
 			fIndexNLJ = true;
 			StoreIndexNLJOuterRefs(pop);
+			outer_refs = CPhysicalLeftOuterIndexNLJoin::PopConvert(pop)->PdrgPcrOuterRefs();
 			break;
 
 		case COperator::EopPhysicalLeftOuterNLJoin:
@@ -3689,6 +3692,21 @@ CTranslatorExprToDXL::PdxlnNLJoin
 
 	// construct a join node
 	CDXLPhysicalNLJoin *pdxlopNLJ = GPOS_NEW(m_pmp) CDXLPhysicalNLJoin(m_pmp, edxljt,fIndexNLJ);
+
+	if (fIndexNLJ && GPOS_FTRACE(EopttraceEnableNestLoopParams))
+	{
+		DrgPdxlcr *col_refs = GPOS_NEW(m_pmp) DrgPdxlcr(m_pmp);
+		for (ULONG ul = 0; ul < outer_refs->UlLength(); ul++)
+		{
+			CColRef *col_ref = (*outer_refs)[ul];
+			CMDName *md_name = GPOS_NEW(m_pmp) CMDName(m_pmp, col_ref->Name().Pstr());
+			IMDId *mdid = col_ref->Pmdtype()->Pmdid();
+			mdid->AddRef();
+			CDXLColRef *colref_dxl = GPOS_NEW(m_pmp) CDXLColRef(m_pmp, md_name, col_ref->UlId(), mdid, col_ref->ITypeModifier());
+			col_refs->Append(colref_dxl);
+		}
+		pdxlopNLJ->SetNestLoopParamsColRefs(col_refs);
+	}
 
 	// construct projection list
 	// compute required columns
