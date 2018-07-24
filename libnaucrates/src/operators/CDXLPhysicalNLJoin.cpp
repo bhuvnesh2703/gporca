@@ -15,8 +15,6 @@
 
 #include "naucrates/dxl/xml/CXMLSerializer.h"
 
-#include "naucrates/traceflags/traceflags.h"
-
 using namespace gpos;
 using namespace gpdxl;
 

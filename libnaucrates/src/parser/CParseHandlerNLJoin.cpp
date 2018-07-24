@@ -19,7 +19,6 @@
 #include "naucrates/dxl/parser/CParseHandlerNLJIndexParamList.h"
 
 #include "naucrates/dxl/operators/CDXLOperatorFactory.h"
-#include "naucrates/traceflags/traceflags.h"
 
 using namespace gpdxl;
 
@@ -86,7 +85,7 @@ CParseHandlerNLJoin::StartElement
 	// parse handler for right child
 	CParseHandlerBase *pphRight = CParseHandlerFactory::Pph(m_pmp, CDXLTokens::XmlstrToken(EdxltokenPhysical), m_pphm, this);
 	m_pphm->ActivateParseHandler(pphRight);
-
+	
 	// parse handler for left child
 	CParseHandlerBase *pphLeft = CParseHandlerFactory::Pph(m_pmp, CDXLTokens::XmlstrToken(EdxltokenPhysical), m_pphm, this);
 	m_pphm->ActivateParseHandler(pphLeft);
