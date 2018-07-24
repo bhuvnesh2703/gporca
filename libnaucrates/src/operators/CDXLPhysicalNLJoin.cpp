@@ -227,4 +227,10 @@ CDXLPhysicalNLJoin::NestParamsExists() const
 {
 	return m_nest_params_exists;
 }
+
+DrgPdxlcr *
+CDXLPhysicalNLJoin::GetNestLoopParamsColRefs()
+{
+	return m_nest_params_col_refs;
+}
 // EOF
