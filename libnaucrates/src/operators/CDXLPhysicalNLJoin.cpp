@@ -122,7 +122,7 @@ CDXLPhysicalNLJoin::SerializeToDXL
 	pdxln->SerializeChildrenToDXL(pxmlser);
 
 	// serialize nestloop params
-	if (GPOS_FTRACE(EopttraceEnableNestLoopParams))
+	if (NestParamsExists())
 	{
 		SerializeNestLoopParamsToDXL(pxmlser);
 	}
