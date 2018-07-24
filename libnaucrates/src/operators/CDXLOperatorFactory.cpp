@@ -189,14 +189,14 @@ CDXLOperatorFactory::PdxlopNLJoin
 	}
 
 	// identify if nest params are expected in dxl
-	BOOL fIndexNLJParamsRequired = false;
-	const XMLCh *xmlszIndexNLJParamsRequired = attrs.getValue(CDXLTokens::XmlstrToken(EdxltokenNLJIndexParamRequired));
-	if (NULL != xmlszIndexNLJParamsRequired)
+	BOOL nest_params_exists = false;
+	const XMLCh *nest_param_exists_xml = attrs.getValue(CDXLTokens::XmlstrToken(EdxltokenNLJIndexParamRequired));
+	if (NULL != nest_param_exists_xml)
 	{
-		fIndexNLJParamsRequired = FValueFromXmlstr
+		nest_params_exists = FValueFromXmlstr
 						(
 						pmm,
-						xmlszIndexNLJParamsRequired,
+						nest_param_exists_xml,
 						EdxltokenNLJIndexParamRequired,
 						EdxltokenPhysicalNLJoin
 						);
@@ -204,7 +204,7 @@ CDXLOperatorFactory::PdxlopNLJoin
 
 	EdxlJoinType edxljt = EdxljtParseJoinType(xmlszJoinType, CDXLTokens::PstrToken(EdxltokenPhysicalNLJoin));
 	
-	return GPOS_NEW(pmp) CDXLPhysicalNLJoin(pmp, edxljt, fIndexNLJ, fIndexNLJParamsRequired);
+	return GPOS_NEW(pmp) CDXLPhysicalNLJoin(pmp, edxljt, fIndexNLJ, nest_params_exists);
 }
 
 //---------------------------------------------------------------------------

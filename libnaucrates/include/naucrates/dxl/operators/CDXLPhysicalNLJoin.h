@@ -62,10 +62,7 @@ namespace gpdxl
 
 		public:
 			// ctor
-			CDXLPhysicalNLJoin(IMemoryPool *pmp, EdxlJoinType edxljt, BOOL fIndexNLJ);
-
-			// ctor when nest params needs to be parsed
-			CDXLPhysicalNLJoin(IMemoryPool *pmp, EdxlJoinType edxljt, BOOL fIndexNLJ, BOOL fIndexNLJParamsRequired);
+			CDXLPhysicalNLJoin(IMemoryPool *pmp, EdxlJoinType edxljt, BOOL fIndexNLJ, BOOL nest_params_exists);
 		
 			~CDXLPhysicalNLJoin();
 			
