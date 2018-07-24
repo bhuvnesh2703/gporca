@@ -111,6 +111,7 @@ CDXLPhysicalNLJoin::SerializeToDXL
 	
 	pxmlser->AddAttribute(CDXLTokens::PstrToken(EdxltokenJoinType), PstrJoinTypeName());
 	pxmlser->AddAttribute(CDXLTokens::PstrToken(EdxltokenPhysicalNLJoinIndex), m_fIndexNLJ);
+	pxmlser->AddAttribute(CDXLTokens::PstrToken(EdxltokenNLJIndexParamRequired), m_nest_params_exists);
 
 
 	// serialize properties
@@ -120,10 +121,7 @@ CDXLPhysicalNLJoin::SerializeToDXL
 	pdxln->SerializeChildrenToDXL(pxmlser);
 
 	// serialize nestloop params
-	if (NestParamsExists())
-	{
-		SerializeNestLoopParamsToDXL(pxmlser);
-	}
+	SerializeNestLoopParamsToDXL(pxmlser);
 
 	pxmlser->CloseElement(CDXLTokens::PstrToken(EdxltokenNamespacePrefix), pstrElemName);		
 }
@@ -135,6 +133,11 @@ CDXLPhysicalNLJoin::SerializeNestLoopParamsToDXL
  )
 const
 {
+	if (!m_nest_params_exists)
+	{
+		return;
+	}
+
 	// Serialize NLJ index paramlist
 	xml_serializer->OpenElement
 	(
@@ -146,9 +149,9 @@ const
 	{
 		xml_serializer->OpenElement
 		(
-		 CDXLTokens::PstrToken(EdxltokenNamespacePrefix),
-		 CDXLTokens::PstrToken(EdxltokenNLJIndexParam)
-		 );
+		CDXLTokens::PstrToken(EdxltokenNamespacePrefix),
+		CDXLTokens::PstrToken(EdxltokenNLJIndexParam)
+		);
 		
 		ULONG id = (*m_nest_params_col_refs)[ul]->UlID();
 		xml_serializer->AddAttribute(CDXLTokens::PstrToken(EdxltokenColId), id);
@@ -160,16 +163,16 @@ const
 		
 		xml_serializer->CloseElement
 		(
-		 CDXLTokens::PstrToken(EdxltokenNamespacePrefix),
-		 CDXLTokens::PstrToken(EdxltokenNLJIndexParam)
-		 );
+		CDXLTokens::PstrToken(EdxltokenNamespacePrefix),
+		CDXLTokens::PstrToken(EdxltokenNLJIndexParam)
+		);
 	}
 	
 	xml_serializer->CloseElement
 	(
-	 CDXLTokens::PstrToken(EdxltokenNamespacePrefix),
-	 CDXLTokens::PstrToken(EdxltokenNLJIndexParamList)
-	 );
+	CDXLTokens::PstrToken(EdxltokenNamespacePrefix),
+	CDXLTokens::PstrToken(EdxltokenNLJIndexParamList)
+	);
 }
 
 #ifdef GPOS_DEBUG
@@ -218,7 +221,6 @@ CDXLPhysicalNLJoin::SetNestLoopParamsColRefs(DrgPdxlcr *nest_params_col_refs)
 {
 	m_nest_params_col_refs = nest_params_col_refs;
 }
-
 
 BOOL
 CDXLPhysicalNLJoin::NestParamsExists() const

@@ -3690,12 +3690,12 @@ CTranslatorExprToDXL::PdxlnNLJoin
 		pdxlnJoinFilter->AddChild(pdxlnCond);
 	}
 
-	// construct a join node
-	CDXLPhysicalNLJoin *pdxlopNLJ = GPOS_NEW(m_pmp) CDXLPhysicalNLJoin(m_pmp, edxljt,fIndexNLJ);
-
-	if (fIndexNLJ && pdxlopNLJ->NestParamsExists())
+	BOOL nest_params_exists = false;
+	DrgPdxlcr *col_refs = NULL;
+	if (fIndexNLJ && GPOS_FTRACE(EopttraceEnableNestLoopParams))
 	{
-		DrgPdxlcr *col_refs = GPOS_NEW(m_pmp) DrgPdxlcr(m_pmp);
+		nest_params_exists = true;
+		col_refs = GPOS_NEW(m_pmp) DrgPdxlcr(m_pmp);
 		for (ULONG ul = 0; ul < outer_refs->UlLength(); ul++)
 		{
 			CColRef *col_ref = (*outer_refs)[ul];
@@ -3705,8 +3705,11 @@ CTranslatorExprToDXL::PdxlnNLJoin
 			CDXLColRef *colref_dxl = GPOS_NEW(m_pmp) CDXLColRef(m_pmp, md_name, col_ref->UlId(), mdid, col_ref->ITypeModifier());
 			col_refs->Append(colref_dxl);
 		}
-		pdxlopNLJ->SetNestLoopParamsColRefs(col_refs);
 	}
+
+	// construct a join node
+	CDXLPhysicalNLJoin *pdxlopNLJ = GPOS_NEW(m_pmp) CDXLPhysicalNLJoin(m_pmp, edxljt, fIndexNLJ, nest_params_exists);
+	pdxlopNLJ->SetNestLoopParamsColRefs(col_refs);
 
 	// construct projection list
 	// compute required columns

@@ -62,7 +62,6 @@ CParseHandlerNLJoin::StartElement
 	const Attributes& attrs
 	)
 {
-	CParseHandlerBase *nest_params_parse_handler = NULL;
 	if(0 != XMLString::compareString(CDXLTokens::XmlstrToken(EdxltokenPhysicalNLJoin), xmlszLocalname))
 	{
 		CWStringDynamic *pstr = CDXLUtils::PstrFromXMLCh(m_pphm->Pmm(), xmlszLocalname);
@@ -76,6 +75,7 @@ CParseHandlerNLJoin::StartElement
 	// order of their expected appearance
 
 	// parse handler for the nest loop params list
+	CParseHandlerBase *nest_params_parse_handler = NULL;
 	if (m_pdxlop->NestParamsExists())
 	{
 		nest_params_parse_handler = CParseHandlerFactory::Pph(m_pmp, CDXLTokens::XmlstrToken(EdxltokenNLJIndexParamList), m_pphm, this);
