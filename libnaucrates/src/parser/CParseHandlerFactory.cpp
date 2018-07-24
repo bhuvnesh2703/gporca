@@ -2431,22 +2431,22 @@ CParseHandlerFactory::PphMDArrayCoerceCast
 
 CParseHandlerBase *
 CParseHandlerFactory::CreateNLJIndexParamListParseHandler
-(
- IMemoryPool *mp,
- CParseHandlerManager *parse_handler_manager,
- CParseHandlerBase *parse_handler_root
- )
+	(
+	IMemoryPool *mp,
+	CParseHandlerManager *parse_handler_manager,
+	CParseHandlerBase *parse_handler_root
+	)
 {
 	return GPOS_NEW(mp) CParseHandlerNLJIndexParamList(mp, parse_handler_manager, parse_handler_root);
 }
 
 CParseHandlerBase *
 CParseHandlerFactory::CreateNLJIndexParamParseHandler
-(
- IMemoryPool *mp,
- CParseHandlerManager *parse_handler_manager,
- CParseHandlerBase *parse_handler_root
- )
+	(
+	IMemoryPool *mp,
+	CParseHandlerManager *parse_handler_manager,
+	CParseHandlerBase *parse_handler_root
+	)
 {
 	return GPOS_NEW(mp) CParseHandlerNLJIndexParam(mp, parse_handler_manager, parse_handler_root);
 }

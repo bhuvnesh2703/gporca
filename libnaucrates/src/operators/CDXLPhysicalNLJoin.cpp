@@ -32,6 +32,21 @@ CDXLPhysicalNLJoin::CDXLPhysicalNLJoin
 	(
 	IMemoryPool *pmp,
 	EdxlJoinType edxljt,
+	BOOL fIndexNLJ,
+	BOOL fIndexNLJParamsRequired
+	)
+	:
+	CDXLPhysicalJoin(pmp, edxljt),
+	m_fIndexNLJ(fIndexNLJ),
+	m_fIndexNLJParamsRequired(fIndexNLJParamsRequired)
+{
+	m_nest_params_col_refs = NULL;
+}
+
+CDXLPhysicalNLJoin::CDXLPhysicalNLJoin
+	(
+	IMemoryPool *pmp,
+	EdxlJoinType edxljt,
 	BOOL fIndexNLJ
 	)
 	:
@@ -39,6 +54,7 @@ CDXLPhysicalNLJoin::CDXLPhysicalNLJoin
 	m_fIndexNLJ(fIndexNLJ)
 {
 	m_nest_params_col_refs = NULL;
+	m_fIndexNLJParamsRequired = false;
 }
 
 CDXLPhysicalNLJoin::~CDXLPhysicalNLJoin()

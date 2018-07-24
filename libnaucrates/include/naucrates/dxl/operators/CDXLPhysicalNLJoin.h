@@ -50,14 +50,19 @@ namespace gpdxl
 
 			DrgPdxlcr *m_nest_params_col_refs;
 
+			BOOL m_fIndexNLJParamsRequired;
+
 			void SerializeNestLoopParamsToDXL(CXMLSerializer *pxmlser) const;
 
 			// private copy ctor
 			CDXLPhysicalNLJoin(const CDXLPhysicalNLJoin&);
 
 		public:
-			// ctor/dtor
+			// ctor
 			CDXLPhysicalNLJoin(IMemoryPool *pmp, EdxlJoinType edxljt, BOOL fIndexNLJ);
+
+			// ctor when nest params needs to be parsed
+			CDXLPhysicalNLJoin(IMemoryPool *pmp, EdxlJoinType edxljt, BOOL fIndexNLJ, BOOL fIndexNLJParamsRequired);
 		
 			~CDXLPhysicalNLJoin();
 			
@@ -69,6 +74,11 @@ namespace gpdxl
 			BOOL FIndexNLJ() const
 			{
 				return m_fIndexNLJ;
+			}
+
+			BOOL FIndexNLJParamsRequired() const
+			{
+				return m_fIndexNLJParamsRequired;
 			}
 
 			// serialize operator in DXL format

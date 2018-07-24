@@ -42,7 +42,8 @@ CParseHandlerNLJoin::CParseHandlerNLJoin
 	)
 	:
 	CParseHandlerPhysicalOp(pmp, pphm, pphRoot),
-	m_pdxlop(NULL)
+	m_pdxlop(NULL),
+	m_nest_params_exists(false)
 {
 }
 
@@ -63,30 +64,30 @@ CParseHandlerNLJoin::StartElement
 	const Attributes& attrs
 	)
 {
+	CParseHandlerBase *nest_params_parse_handler = NULL;
 	if(0 != XMLString::compareString(CDXLTokens::XmlstrToken(EdxltokenPhysicalNLJoin), xmlszLocalname))
 	{
 		CWStringDynamic *pstr = CDXLUtils::PstrFromXMLCh(m_pphm->Pmm(), xmlszLocalname);
 		GPOS_RAISE(gpdxl::ExmaDXL, gpdxl::ExmiDXLUnexpectedTag, pstr->Wsz());
 	}
 	
-	// parse and create Hash join operator
+	// parse and create nest loop join operator
 	m_pdxlop = (CDXLPhysicalNLJoin *) CDXLOperatorFactory::PdxlopNLJoin(m_pphm->Pmm(), attrs);
 	
 	// create and activate the parse handler for the children nodes in reverse
 	// order of their expected appearance
-	
-	//parse handler for the nest loop params list
-	CParseHandlerBase *nest_params_parse_handler = NULL;
-	if (GPOS_FTRACE(EopttraceEnableNestLoopParams))
+
+	// parse handler for the nest loop params list
+	if (m_pdxlop->FIndexNLJParamsRequired())
 	{
 		nest_params_parse_handler = CParseHandlerFactory::Pph(m_pmp, CDXLTokens::XmlstrToken(EdxltokenNLJIndexParamList), m_pphm, this);
 		m_pphm->ActivateParseHandler(nest_params_parse_handler);
 	}
-	
+
 	// parse handler for right child
 	CParseHandlerBase *pphRight = CParseHandlerFactory::Pph(m_pmp, CDXLTokens::XmlstrToken(EdxltokenPhysical), m_pphm, this);
 	m_pphm->ActivateParseHandler(pphRight);
-	
+
 	// parse handler for left child
 	CParseHandlerBase *pphLeft = CParseHandlerFactory::Pph(m_pmp, CDXLTokens::XmlstrToken(EdxltokenPhysical), m_pphm, this);
 	m_pphm->ActivateParseHandler(pphLeft);
@@ -155,7 +156,7 @@ CParseHandlerNLJoin::EndElement
 	CParseHandlerPhysicalOp *left_child_parse_handler = dynamic_cast<CParseHandlerPhysicalOp *>((*this)[EdxlParseHandlerNLJIndexLeftChild]);
 	CParseHandlerPhysicalOp *right_child_parse_handler = dynamic_cast<CParseHandlerPhysicalOp *>((*this)[EdxlParseHandlerNLJIndexRightChild]);
 
-	if (GPOS_FTRACE(EopttraceEnableNestLoopParams))
+	if (m_pdxlop->FIndexNLJParamsRequired())
 	{
 		CParseHandlerNLJIndexParamList *nest_params_parse_handler = dynamic_cast<CParseHandlerNLJIndexParamList*>((*this)[EdxlParseHandlerNLJIndexNestLoopParams]);
 		GPOS_ASSERT(nest_params_parse_handler);

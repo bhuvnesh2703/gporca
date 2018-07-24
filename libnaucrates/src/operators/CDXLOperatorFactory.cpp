@@ -188,9 +188,23 @@ CDXLOperatorFactory::PdxlopNLJoin
 						);
 	}
 
+	// identify if nest params are expected in dxl
+	BOOL fIndexNLJParamsRequired = false;
+	const XMLCh *xmlszIndexNLJParamsRequired = attrs.getValue(CDXLTokens::XmlstrToken(EdxltokenNLJIndexParamRequired));
+	if (NULL != xmlszIndexNLJParamsRequired)
+	{
+		fIndexNLJParamsRequired = FValueFromXmlstr
+						(
+						pmm,
+						xmlszIndexNLJParamsRequired,
+						EdxltokenNLJIndexParamRequired,
+						EdxltokenPhysicalNLJoin
+						);
+	}
+
 	EdxlJoinType edxljt = EdxljtParseJoinType(xmlszJoinType, CDXLTokens::PstrToken(EdxltokenPhysicalNLJoin));
 	
-	return GPOS_NEW(pmp) CDXLPhysicalNLJoin(pmp, edxljt, fIndexNLJ);
+	return GPOS_NEW(pmp) CDXLPhysicalNLJoin(pmp, edxljt, fIndexNLJ, fIndexNLJParamsRequired);
 }
 
 //---------------------------------------------------------------------------

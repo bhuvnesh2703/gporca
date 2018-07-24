@@ -51,6 +51,8 @@ namespace gpdxl
 
 			// the nested loop join operator
 			CDXLPhysicalNLJoin *m_pdxlop;
+
+			BOOL m_nest_params_exists;
 			
 			// private copy ctor
 			CParseHandlerNLJoin(const CParseHandlerNLJoin &);

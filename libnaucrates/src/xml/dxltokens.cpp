@@ -723,6 +723,7 @@ CDXLTokens::Init
 			{EdxltokenVarTypeModList, GPOS_WSZ_LIT("VarTypeModList")},
 			{EdxltokenNLJIndexParamList, GPOS_WSZ_LIT("NLJIndexParamList")},
 			{EdxltokenNLJIndexParam, GPOS_WSZ_LIT("NLJIndexParam")},
+			{EdxltokenNLJIndexParamRequired, GPOS_WSZ_LIT("NestParamsRequired")},
 	};
 	
 	m_pstrmap = GPOS_NEW_ARRAY(m_pmp, SStrMapElem, EdxltokenSentinel);

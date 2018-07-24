@@ -425,6 +425,7 @@ namespace gpdxl
 		
 		EdxltokenNLJIndexParamList,
 		EdxltokenNLJIndexParam,
+		EdxltokenNLJIndexParamRequired,
 		
 		// metadata-related constants
 		EdxltokenRelation,
