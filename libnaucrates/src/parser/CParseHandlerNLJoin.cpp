@@ -77,7 +77,7 @@ CParseHandlerNLJoin::StartElement
 	// order of their expected appearance
 
 	// parse handler for the nest loop params list
-	if (m_pdxlop->FIndexNLJParamsRequired())
+	if (m_pdxlop->NestParamsExists())
 	{
 		nest_params_parse_handler = CParseHandlerFactory::Pph(m_pmp, CDXLTokens::XmlstrToken(EdxltokenNLJIndexParamList), m_pphm, this);
 		m_pphm->ActivateParseHandler(nest_params_parse_handler);
@@ -155,7 +155,7 @@ CParseHandlerNLJoin::EndElement
 	CParseHandlerPhysicalOp *left_child_parse_handler = dynamic_cast<CParseHandlerPhysicalOp *>((*this)[EdxlParseHandlerNLJIndexLeftChild]);
 	CParseHandlerPhysicalOp *right_child_parse_handler = dynamic_cast<CParseHandlerPhysicalOp *>((*this)[EdxlParseHandlerNLJIndexRightChild]);
 
-	if (m_pdxlop->FIndexNLJParamsRequired())
+	if (m_pdxlop->NestParamsExists())
 	{
 		CParseHandlerNLJIndexParamList *nest_params_parse_handler = dynamic_cast<CParseHandlerNLJIndexParamList*>((*this)[EdxlParseHandlerNLJIndexNestLoopParams]);
 		GPOS_ASSERT(nest_params_parse_handler);

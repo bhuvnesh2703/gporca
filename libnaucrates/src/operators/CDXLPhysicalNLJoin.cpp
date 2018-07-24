@@ -38,7 +38,7 @@ CDXLPhysicalNLJoin::CDXLPhysicalNLJoin
 	:
 	CDXLPhysicalJoin(pmp, edxljt),
 	m_fIndexNLJ(fIndexNLJ),
-	m_fIndexNLJParamsRequired(fIndexNLJParamsRequired)
+	m_nest_params_exists(fIndexNLJParamsRequired)
 {
 	m_nest_params_col_refs = NULL;
 }
@@ -54,7 +54,7 @@ CDXLPhysicalNLJoin::CDXLPhysicalNLJoin
 	m_fIndexNLJ(fIndexNLJ)
 {
 	m_nest_params_col_refs = NULL;
-	m_fIndexNLJParamsRequired = false;
+	m_nest_params_exists = false;
 }
 
 CDXLPhysicalNLJoin::~CDXLPhysicalNLJoin()
@@ -219,5 +219,12 @@ void
 CDXLPhysicalNLJoin::SetNestLoopParamsColRefs(DrgPdxlcr *nest_params_col_refs)
 {
 	m_nest_params_col_refs = nest_params_col_refs;
+}
+
+
+BOOL
+CDXLPhysicalNLJoin::NestParamsExists() const
+{
+	return m_nest_params_exists;
 }
 // EOF

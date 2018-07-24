@@ -3693,7 +3693,7 @@ CTranslatorExprToDXL::PdxlnNLJoin
 	// construct a join node
 	CDXLPhysicalNLJoin *pdxlopNLJ = GPOS_NEW(m_pmp) CDXLPhysicalNLJoin(m_pmp, edxljt,fIndexNLJ);
 
-	if (fIndexNLJ && GPOS_FTRACE(EopttraceEnableNestLoopParams))
+	if (fIndexNLJ && pdxlopNLJ->NestParamsExists())
 	{
 		DrgPdxlcr *col_refs = GPOS_NEW(m_pmp) DrgPdxlcr(m_pmp);
 		for (ULONG ul = 0; ul < outer_refs->UlLength(); ul++)

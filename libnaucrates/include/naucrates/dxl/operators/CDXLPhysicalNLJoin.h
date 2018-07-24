@@ -53,7 +53,7 @@ namespace gpdxl
 			DrgPdxlcr *m_nest_params_col_refs;
 
 			// if nest params are required to be parsed
-			BOOL m_fIndexNLJParamsRequired;
+			BOOL m_nest_params_exists;
 
 			void SerializeNestLoopParamsToDXL(CXMLSerializer *pxmlser) const;
 
@@ -79,10 +79,8 @@ namespace gpdxl
 				return m_fIndexNLJ;
 			}
 
-			BOOL FIndexNLJParamsRequired() const
-			{
-				return m_fIndexNLJParamsRequired;
-			}
+			// nest params exists for parsing
+			BOOL NestParamsExists() const;
 
 			// serialize operator in DXL format
 			virtual
