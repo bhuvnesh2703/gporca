@@ -88,7 +88,7 @@ namespace gpdxl
 
 			void SetNestLoopParamsColRefs(DrgPdxlcr *nest_params_col_refs);
 
-			DrgPdxlcr *GetNestLoopParamsColRefs();
+			DrgPdxlcr *GetNestLoopParamsColRefs() const;
 
 			// conversion function
 			static
