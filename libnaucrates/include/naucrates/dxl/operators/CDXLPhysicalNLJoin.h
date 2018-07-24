@@ -48,8 +48,11 @@ namespace gpdxl
 			// i.e., inner side is an index scan that uses values from outer side
 			BOOL m_fIndexNLJ;
 
+			// array holding nest params col references used for creating nestparam
+			// node during translation
 			DrgPdxlcr *m_nest_params_col_refs;
 
+			// if nest params are required to be parsed
 			BOOL m_fIndexNLJParamsRequired;
 
 			void SerializeNestLoopParamsToDXL(CXMLSerializer *pxmlser) const;

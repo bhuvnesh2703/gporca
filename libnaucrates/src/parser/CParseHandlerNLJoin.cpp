@@ -42,8 +42,7 @@ CParseHandlerNLJoin::CParseHandlerNLJoin
 	)
 	:
 	CParseHandlerPhysicalOp(pmp, pphm, pphRoot),
-	m_pdxlop(NULL),
-	m_nest_params_exists(false)
+	m_pdxlop(NULL)
 {
 }
 
