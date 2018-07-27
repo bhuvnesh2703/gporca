@@ -5310,7 +5310,39 @@ CTranslatorExprToDXL::PdxlnDML
 	}
 
 	CDXLNode *pdxlnChild = Pdxln(pexprChild, pdrgpcrSource, pdrgpdsBaseTables, pulNonGatherMotions, pfDML, false /*fRemap*/, false /*fRoot*/);
+	BOOL addMotion = true;
+	CDXLNode *random_motion_dxlnode = NULL;
+	if (addMotion)
+	{
+		CDXLPhysicalRandomMotion *random_motion_dxl_op = GPOS_NEW(m_pmp) CDXLPhysicalRandomMotion(m_pmp, false);
+		CDXLNode *child_proj_list_dxlnode = (*pdxlnChild)[0];
+		CDXLNode *random_motion_proj_list_dxlnode = CTranslatorExprToDXLUtils::PdxlnProjListFromChildProjList(m_pmp, m_pcf, m_phmcrdxln, child_proj_list_dxlnode);
+		
+		random_motion_dxlnode = GPOS_NEW(m_pmp) CDXLNode(m_pmp, random_motion_dxl_op);
+		CDXLProperties *pdxlprop = pdxlnChild->Pdxlprop();
+		random_motion_dxlnode->SetProperties(pdxlprop);
 
+		// construct an empty filter node
+		CDXLNode *pdxlnFilter = PdxlnFilter(NULL /*pdxlnCond*/);
+		
+		// construct sort column list
+		CDXLNode *pdxlnSortColList = GPOS_NEW(m_pmp) CDXLNode(m_pmp, GPOS_NEW(m_pmp) CDXLScalarSortColList(m_pmp));
+		
+		DrgPi *pdrgpo = GPOS_NEW(m_pmp) DrgPi(m_pmp);
+		for (INT i = 0; i < 3; i++)
+		{
+			pdrgpo->Append(GPOS_NEW(m_pmp) INT(i));
+		}
+//		pdrgpo->AddRef();
+	
+		random_motion_dxl_op->SetSegmentInfo(pdrgpo, pdrgpo);
+
+		// add children
+		random_motion_dxlnode->AddChild(random_motion_proj_list_dxlnode);
+		random_motion_dxlnode->AddChild(pdxlnFilter);
+		random_motion_dxlnode->AddChild(pdxlnSortColList);
+		random_motion_dxlnode->AddChild(pdxlnChild);
+	}
 	CDXLTableDescr *pdxltabdesc = Pdxltabdesc(ptabdesc, NULL /*pdrgpcrOutput*/);
 	DrgPul *pdrgpul = CUtils::Pdrgpul(m_pmp, pdrgpcrSource);
 
