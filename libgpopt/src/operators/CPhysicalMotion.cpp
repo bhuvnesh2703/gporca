@@ -76,7 +76,7 @@ CDistributionSpec *
 CPhysicalMotion::PdsRequired
 	(
 	IMemoryPool *pmp,
-	CExpressionHandle &, // exprhdl
+	CExpressionHandle &exprhdl,
 	CDistributionSpec * pdsRequired,
 	ULONG
 #ifdef GPOS_DEBUG
@@ -90,12 +90,13 @@ CPhysicalMotion::PdsRequired
 {
 	GPOS_ASSERT(0 == ulChildIndex);
 	GPOS_ASSERT(pdsRequired);
+	GPOS_ASSERT(&exprhdl != NULL);
 
 	// any motion operator is distribution-establishing and does not require
 	// child to deliver any specific distribution
 	if (pdsRequired->Edt() == CDistributionSpec::EdtForced)
 	{
-		return GPOS_NEW(pmp) CDistributionSpecForced();
+		return GPOS_NEW(pmp) CDistributionSpecRandom();
 	}
 	return GPOS_NEW(pmp) CDistributionSpecAny(this->Eopid());
 }

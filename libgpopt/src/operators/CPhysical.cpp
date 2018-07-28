@@ -1166,6 +1166,15 @@ const
 		// required distribution is already provided
 		return CEnfdProp::EpetUnnecessary;
 	}
+	
+	if (pds->Edt() == CDistributionSpec::EdtRandom)
+	{
+		CDistributionSpecRandom *pdsRandom = CDistributionSpecRandom::PdsConvert(pds);
+		if (pdsRandom->FDuplicateSensitive())
+		{
+			return CEnfdProp::EpetUnnecessary;
+		}
+	}
 
 	// required distribution will be enforced on Assert's output
 	return CEnfdProp::EpetRequired;

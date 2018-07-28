@@ -360,10 +360,6 @@ CPhysicalDML::PdsDerive
 	)
 	const
 {
-//	if (CDistributionSpec::EdtRandom == m_pds->Edt() && CLogicalDML::EdmlInsert == m_edmlop)
-//	{
-//		return GPOS_NEW(pmp) CDistributionSpecForced();
-//	}
 	return PdsDerivePassThruOuter(exprhdl);
 }
 

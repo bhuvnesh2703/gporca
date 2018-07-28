@@ -13,6 +13,12 @@ CDistributionSpecForced::CDistributionSpecForced()
 
 BOOL CDistributionSpecForced::FMatch(const CDistributionSpec *pds) const
 {
+	if (pds->Edt() == EdtRandom)
+	{
+		const CDistributionSpecRandom *pdsRandom = CDistributionSpecRandom::PdsConvert(pds);
+		if (!pdsRandom-FDuplicateSensitive())
+			return true;
+	}
     return pds->Edt() == Edt() || EdtAny == pds->Edt();
 }
 
@@ -25,7 +31,7 @@ void
 CDistributionSpecForced::AppendEnforcers
 	(
 	IMemoryPool *pmp,
-	CExpressionHandle &, // exprhdl
+	CExpressionHandle &exprhdl,
 	CReqdPropPlan *
 #ifdef GPOS_DEBUG
 	prpp
@@ -35,6 +41,8 @@ CDistributionSpecForced::AppendEnforcers
 	CExpression *pexpr
 	)
 {
+	GPOS_ASSERT(&exprhdl !=NULL);
+//	CDrvdPropPlan *pdpplan = CDrvdPropPlan::Pdpplan((&exprhdl).Pdp());
 	GPOS_ASSERT(NULL != pmp);
 	GPOS_ASSERT(NULL != prpp);
 	GPOS_ASSERT(NULL != pdrgpexpr);
@@ -49,6 +57,9 @@ CDistributionSpecForced::AppendEnforcers
 		// random Motion is disabled
 		return;
 	}
+	
+//	CDrvdPropPlan *pdrvdPropPlan = CDrvdPropPlan::Pdpplan(pexpr->PdpDerive());
+//	GPOS_ASSERT(pdpplan != NULL);
 
 	// add a hashed distribution enforcer
 	AddRef();

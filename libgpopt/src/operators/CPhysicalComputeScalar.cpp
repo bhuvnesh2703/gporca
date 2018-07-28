@@ -181,11 +181,6 @@ CPhysicalComputeScalar::PdsRequired
 {
 	GPOS_ASSERT(0 == ulChildIndex);
 	GPOS_ASSERT(2 > ulOptReq);
-
-	if (pdsRequired->Edt() == CDistributionSpec::EdtForced)
-	{
-		return GPOS_NEW(pmp) CDistributionSpecRandom();
-	}
 	
 	// check if master-only/replicated distribution needs to be requested
 	CDistributionSpec *pds = PdsMasterOnlyOrReplicated(pmp, exprhdl, pdsRequired, ulChildIndex, ulOptReq);
@@ -233,7 +228,11 @@ CPhysicalComputeScalar::PdsRequired
 			return GPOS_NEW(pmp) CDistributionSpecAny(this->Eopid());
 		}
 	}
-
+	if (pdsRequired->Edt() == CDistributionSpec::EdtForced)
+	{
+		return GPOS_NEW(pmp) CDistributionSpecRandom();
+	}
+	
 	if (0 == ulOptReq)
 	{
 		// Req0: required distribution will be enforced on top of ComputeScalar
