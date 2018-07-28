@@ -522,6 +522,13 @@ CDistributionSpecHashed::OsPrint
 	{
 		os <<  ", duplicate sensitive";
 	}
+	else
+	{
+		if (m_fDuplicateSensitive)
+		{
+			os <<  ", not duplicate sensitive";
+		}
+	}
 	
 	if (!m_fSatisfiedBySingleton)
 	{

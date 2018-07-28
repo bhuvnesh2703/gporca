@@ -179,7 +179,32 @@ CDistributionSpecRandom::OsPrint
 	)
 	const
 {
-	return os << this->SzId();
+	
+	os << this->SzId() << ": [ ";
+	
+	if (m_fDuplicateSensitive)
+	{
+		os <<  ", duplicate sensitive";
+	}
+	
+	if (really_duplicate_sensitive)
+	{
+		os <<  ", really duplicate sensitive";
+	}
+	else
+	{
+		os <<  ", not really duplicate sensitive";
+	}
+	
+	
+	if (!m_fSatisfiedBySingleton)
+	{
+		os << ", across-segments";
+	}
+	
+	os <<  " ]";
+	
+	return os;
 }
 
 // EOF
