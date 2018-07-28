@@ -41,6 +41,8 @@ namespace gpopt
 			// this flag adds the ability to mark a distribution request as non-satisfiable by Singleton
 			// in case we need to enforce across segments distribution
 			BOOL m_fSatisfiedBySingleton;
+		
+		BOOL really_duplicate_sensitive;
 
 			// private copy ctor
 			CDistributionSpecRandom(const CDistributionSpecRandom &);
@@ -67,6 +69,15 @@ namespace gpopt
 			BOOL FDuplicateSensitive() const
 			{
 				return m_fDuplicateSensitive;
+			}
+			BOOL FReallyDuplicateSensitive() const
+			{
+				return really_duplicate_sensitive;
+			}
+			void MarkReallyDuplicateSensitive()
+			{
+				
+				really_duplicate_sensitive = true;
 			}
 			
 			// mark distribution as unsatisfiable by Singleton

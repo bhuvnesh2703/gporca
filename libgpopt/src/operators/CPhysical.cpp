@@ -19,6 +19,7 @@
 #include "gpopt/base/CCTEMap.h"
 #include "gpopt/base/CCTEReq.h"
 #include "gpopt/base/CDistributionSpecHashed.h"
+#include "gpopt/base/CDistributionSpecForced.h"
 #include "gpopt/base/CDistributionSpecRandom.h"
 #include "gpopt/base/CDistributionSpecSingleton.h"
 #include "gpopt/base/CDistributionSpecReplicated.h"
@@ -1165,6 +1166,14 @@ const
 	{
 		// required distribution is already provided
 		return CEnfdProp::EpetUnnecessary;
+	}
+	
+	if (pds->Edt() == CDistributionSpecRandom::EdtRandom)
+	{
+		CDistributionSpecForced *pSpecForce = dynamic_cast<CDistributionSpecForced *> (ped->Pps());
+		CDistributionSpecRandom *pdsRandom = CDistributionSpecRandom::PdsConvert(pds);
+		if (!pdsRandom->FReallyDuplicateSensitive() && pSpecForce)
+			return CEnfdProp::EpetUnnecessary;
 	}
 
 	// required distribution will be enforced on Assert's output

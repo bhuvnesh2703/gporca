@@ -2286,7 +2286,11 @@ CEngine::FCheckEnfdProps
 		binding.PexprExtract(m_pmp, exprhdl.Pgexpr(), m_pexprEnforcerPattern, NULL /* pexprLast */);
 	GPOS_ASSERT(NULL != pexpr);
 	GPOS_ASSERT(pexpr->Pgexpr()->Pgroup() == pgexpr->Pgroup());
-		
+//	CDrvdPropRelational *pdrvdplan = exprhdl.Pdprel();
+//	GPOS_ASSERT(pdrvdplan);
+//	if (pexpr->Pop()->Eopid() == COperator::EopPhysicalComputeScalar && !pdrvdplan->HasConstTable())
+//		return false;
+	
 	prpp->Peo()->AppendEnforcers(pmp, prpp, pdrgpexprEnforcers, pexpr, epetOrder, exprhdl);
 	prpp->Ped()->AppendEnforcers(pmp, prpp, pdrgpexprEnforcers, pexpr, epetDistribution, exprhdl);
 	prpp->Per()->AppendEnforcers(pmp, prpp, pdrgpexprEnforcers, pexpr, epetRewindability, exprhdl);

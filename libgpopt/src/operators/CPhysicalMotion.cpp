@@ -17,6 +17,7 @@
 #include "gpopt/operators/CExpressionHandle.h"
 #include "gpopt/operators/CPhysicalMotion.h"
 #include "gpopt/search/CMemo.h"
+#include "gpopt/base/CDistributionSpecForced.h"
 
 using namespace gpopt;
 
@@ -76,7 +77,7 @@ CPhysicalMotion::PdsRequired
 	(
 	IMemoryPool *pmp,
 	CExpressionHandle &, // exprhdl
-	CDistributionSpec *, // pdsRequired
+	CDistributionSpec *pdsRequired,
 	ULONG
 #ifdef GPOS_DEBUG
 	ulChildIndex
@@ -88,6 +89,10 @@ CPhysicalMotion::PdsRequired
 	const
 {
 	GPOS_ASSERT(0 == ulChildIndex);
+	if (pdsRequired->Edt() == CDistributionSpec::EdtForced)
+	{
+		return GPOS_NEW(pmp) CDistributionSpecRandom();
+	}
 
 	// any motion operator is distribution-establishing and does not require
 	// child to deliver any specific distribution

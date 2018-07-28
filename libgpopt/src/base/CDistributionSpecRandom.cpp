@@ -16,6 +16,7 @@
 #include "gpopt/base/CDistributionSpecRandom.h"
 #include "gpopt/base/COptCtxt.h"
 #include "gpopt/operators/CPhysicalMotionRandom.h"
+#include "gpopt/operators/CExpressionHandle.h"
 
 using namespace gpopt;
 
@@ -31,7 +32,8 @@ using namespace gpopt;
 CDistributionSpecRandom::CDistributionSpecRandom()
 	:
 	m_fDuplicateSensitive(false),
-	m_fSatisfiedBySingleton(true)
+	m_fSatisfiedBySingleton(true),
+	really_duplicate_sensitive(false)
 {
 	if (COptCtxt::PoctxtFromTLS()->FDMLQuery())
 	{
@@ -87,8 +89,14 @@ CDistributionSpecRandom::FSatisfies
 		return true;
 	}
 	
+	
 	if (EdtRandom == pds->Edt() && 
 			(FDuplicateSensitive() || !CDistributionSpecRandom::PdsConvert(pds)->FDuplicateSensitive()))
+	{
+		return true;
+	}
+	
+	if (EdtForced == pds->Edt() && !FReallyDuplicateSensitive())
 	{
 		return true;
 	}
@@ -108,7 +116,7 @@ void
 CDistributionSpecRandom::AppendEnforcers
 	(
 	IMemoryPool *pmp,
-	CExpressionHandle &, // exprhdl
+	CExpressionHandle &exprhdl,
 	CReqdPropPlan *
 #ifdef GPOS_DEBUG
 	prpp
@@ -118,6 +126,8 @@ CDistributionSpecRandom::AppendEnforcers
 	CExpression *pexpr
 	)
 {
+//	if (&exprhdl)
+	GPOS_ASSERT(NULL != &exprhdl);
 	GPOS_ASSERT(NULL != pmp);
 	GPOS_ASSERT(NULL != prpp);
 	GPOS_ASSERT(NULL != pdrgpexpr);
@@ -136,10 +146,19 @@ CDistributionSpecRandom::AppendEnforcers
 	// add a hashed distribution enforcer
 	AddRef();
 	pexpr->AddRef();
+	if (exprhdl.Pdp())
+		GPOS_ASSERT(&exprhdl);
+	CDrvdPropPlan *pdpplan = CDrvdPropPlan::Pdpplan(exprhdl.Pdp());
+	const CDistributionSpec *pspec = pdpplan->Pds();
+	if (pspec->Edt() == CDistributionSpec::EdtUniversal)
+		this->MarkReallyDuplicateSensitive();
+	CPhysicalMotionRandom *pRandom = GPOS_NEW(pmp) CPhysicalMotionRandom(pmp, this);
+
+	
 	CExpression *pexprMotion = GPOS_NEW(pmp) CExpression
 										(
 										pmp,
-										GPOS_NEW(pmp) CPhysicalMotionRandom(pmp, this),
+										pRandom,
 										pexpr
 										);
 	pdrgpexpr->Append(pexprMotion);		

@@ -231,8 +231,12 @@ CPhysicalDML::PdsRequired
 {
 	GPOS_ASSERT(0 == ulChildIndex);
 	
-	if (CDistributionSpec::EdtRandom == m_pds->Edt() && CLogicalDML::EdmlInsert != m_edmlop)
+	if (CDistributionSpec::EdtRandom == m_pds->Edt())
 	{
+		if (CLogicalDML::EdmlInsert == m_edmlop)
+		{
+			return GPOS_NEW(pmp) CDistributionSpecForced();
+		}
 		return GPOS_NEW(pmp) CDistributionSpecRouted(m_pcrSegmentId);
 	}
 	

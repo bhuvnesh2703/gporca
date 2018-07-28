@@ -179,8 +179,11 @@ CPhysicalComputeScalar::PdsRequired
 	)
 	const
 {
+	
 	GPOS_ASSERT(0 == ulChildIndex);
 	GPOS_ASSERT(2 > ulOptReq);
+	
+
 
 	// check if master-only/replicated distribution needs to be requested
 	CDistributionSpec *pds = PdsMasterOnlyOrReplicated(pmp, exprhdl, pdsRequired, ulChildIndex, ulOptReq);
@@ -191,9 +194,14 @@ CPhysicalComputeScalar::PdsRequired
 
 	CDrvdPropScalar *pdpscalar = exprhdl.Pdpscalar(1 /*ulChildIndex*/);
 	
-	//	CDrvdPropRelational *prelational = exprhdl.Pdprel();
-	//	if prelational->HasConstTable()
-	//	GPOS_ASSERT(prelational);
+//	CDrvdPropRelational *prelational = exprhdl.Pdprel();
+//	if (prelational->HasConstTable())
+//		GPOS_ASSERT(prelational);
+	
+	if (pdsRequired->Edt() == CDistributionSpec::EdtForced)
+	{
+		return GPOS_NEW(pmp) CDistributionSpecRandom();
+	}
 
 	// if a Project operator has a call to a set function, passing a Random distribution through this
 	// Project may have the effect of not distributing the results of the set function to all nodes,
