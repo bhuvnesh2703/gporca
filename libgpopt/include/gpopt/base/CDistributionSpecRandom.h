@@ -76,6 +76,14 @@ namespace gpopt
 
 				m_fDuplicateSensitive = true;
 			}
+		
+						// mark distribution as unsatisfiable by Singleton
+			void MarkNotDuplicateSensitive()
+			{
+//				GPOS_ASSERT(!m_fDuplicateSensitive);
+
+				m_fDuplicateSensitive = false;
+			}
 
 			// does Singleton spec satisfy current distribution?
 			BOOL FSatisfiedBySingleton() const
