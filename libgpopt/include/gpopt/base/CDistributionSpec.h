@@ -50,6 +50,7 @@ namespace gpopt
 				EdtUniversal,		// data is available everywhere (derived only)
 				EdtNonSingleton,	// data can have any distribution except singleton (required only)
 				EdtExternal,		// data is stored on external storage (derived only)
+				EdtForced,
 
 				EdtSentinel
 			};

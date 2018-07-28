@@ -46,7 +46,8 @@ CDrvdPropRelational::CDrvdPropRelational
 	m_ppartinfo(NULL),
 	m_ppc(NULL),
 	m_pfp(NULL),
-	m_fHasPartialIndexes(false)
+	m_fHasPartialIndexes(false),
+	m_hasConstTable(false)
 {}
 
 
@@ -147,6 +148,14 @@ CDrvdPropRelational::Derive
 	GPOS_ASSERT(NULL != m_ppartinfo);
 
 	COperator::EOperatorId eopid = popLogical->Eopid();
+	
+	CExpression *pexpr = exprhdl.Pexpr();
+	if (pexpr->Pop()->Eopid() == COperator::EopLogicalProject)
+	{
+		CExpression *pexprChild = (*pexpr)[0];
+		if (pexprChild->Pop()->Eopid() == COperator::EopLogicalConstTableGet)
+			m_hasConstTable = true;
+	}
 
 	// determine if it is a dynamic get (with or without a select above it) with partial indexes
 	if (COperator::EopLogicalDynamicGet == eopid)

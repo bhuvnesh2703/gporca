@@ -88,6 +88,8 @@ namespace gpopt
 			// true if all logical operators in the group are of type CLogicalDynamicGet,
 			// and the dynamic get has partial indexes
 			BOOL m_fHasPartialIndexes;
+		
+			BOOL m_hasConstTable;
 
 			// private copy ctor
 			CDrvdPropRelational(const CDrvdPropRelational &);
@@ -120,6 +122,10 @@ namespace gpopt
 				return EptRelational;
 			}
 
+			BOOL HasConstTable()
+		{
+			return m_hasConstTable;
+		}
 			// derivation function
 			void Derive(IMemoryPool *pmp, CExpressionHandle &exprhdl, CDrvdPropCtxt *pdpctxt);
 

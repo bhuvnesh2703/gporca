@@ -190,6 +190,10 @@ CPhysicalComputeScalar::PdsRequired
 	}
 
 	CDrvdPropScalar *pdpscalar = exprhdl.Pdpscalar(1 /*ulChildIndex*/);
+	
+	//	CDrvdPropRelational *prelational = exprhdl.Pdprel();
+	//	if prelational->HasConstTable()
+	//	GPOS_ASSERT(prelational);
 
 	// if a Project operator has a call to a set function, passing a Random distribution through this
 	// Project may have the effect of not distributing the results of the set function to all nodes,

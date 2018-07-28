@@ -21,6 +21,7 @@
 #include "gpopt/operators/CPredicateUtils.h"
 #include "gpopt/operators/CPhysicalDML.h"
 #include "gpopt/optimizer/COptimizerConfig.h"
+#include "gpopt/base/CDistributionSpecForced.h"
 
 using namespace gpopt;
 
