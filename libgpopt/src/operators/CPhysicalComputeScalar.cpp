@@ -229,6 +229,11 @@ CPhysicalComputeScalar::PdsRequired
 		}
 	}
 
+	if (CDistributionSpec::EdtStrictRandom == edtRequired && GPOS_FTRACE(EopttraceForceRedistributeOnInsertOnRandomDistrTables))
+	{
+		return GPOS_NEW(pmp) CDistributionSpecRandom();
+	}
+
 	if (0 == ulOptReq)
 	{
 		// Req0: required distribution will be enforced on top of ComputeScalar

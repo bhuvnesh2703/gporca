@@ -14,6 +14,7 @@
 #include "gpopt/base/CColRefSetIter.h"
 #include "gpopt/base/COptCtxt.h"
 #include "gpopt/base/CUtils.h"
+#include "gpopt/base/CDistributionSpecStrictRandom.h"
 #include "gpopt/base/CDistributionSpecAny.h"
 #include "gpopt/base/CDistributionSpecHashed.h"
 #include "gpopt/base/CDistributionSpecRouted.h"
@@ -230,9 +231,16 @@ CPhysicalDML::PdsRequired
 {
 	GPOS_ASSERT(0 == ulChildIndex);
 	
-	if (CDistributionSpec::EdtRandom == m_pds->Edt() && CLogicalDML::EdmlInsert != m_edmlop)
+	if (CDistributionSpec::EdtRandom == m_pds->Edt())
 	{
-		return GPOS_NEW(pmp) CDistributionSpecRouted(m_pcrSegmentId);
+		if (CLogicalDML::EdmlInsert == m_edmlop && GPOS_FTRACE(EopttraceForceRedistributeOnInsertOnRandomDistrTables))
+		{
+			return GPOS_NEW(pmp) CDistributionSpecStrictRandom();
+		}
+		else if (CLogicalDML::EdmlInsert != m_edmlop)
+		{
+			return GPOS_NEW(pmp) CDistributionSpecRouted(m_pcrSegmentId);
+		}
 	}
 	
 	m_pds->AddRef();
