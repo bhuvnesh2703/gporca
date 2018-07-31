@@ -12,10 +12,15 @@ CDistributionSpecStrictRandom::CDistributionSpecStrictRandom()
 
 BOOL CDistributionSpecStrictRandom::FMatch(const CDistributionSpec *pds) const
 {
-    return pds->Edt() == Edt() || (pds->Edt() == EdtAny && GPOS_FTRACE(EopttraceForceRedistributeOnInsertOnRandomDistrTables));
+	return pds->Edt() == Edt();
 }
 
 BOOL CDistributionSpecStrictRandom::FSatisfies(const CDistributionSpec *pds) const
 {
-    return FMatch(pds);
+    if (FMatch(pds))
+	{
+		return true;
+	}
+
+	return (pds->Edt() == EdtAny && GPOS_FTRACE(EopttraceForceRedistributeOnInsertOnRandomDistrTables));
 }
