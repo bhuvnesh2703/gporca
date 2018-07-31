@@ -43,6 +43,8 @@ namespace gpopt
 			BOOL m_fSatisfiedBySingleton;
 		
 		BOOL really_duplicate_sensitive;
+		
+		BOOL m_randomly_distributed;
 
 			// private copy ctor
 			CDistributionSpecRandom(const CDistributionSpecRandom &);
@@ -92,6 +94,16 @@ namespace gpopt
 			BOOL FSatisfiedBySingleton() const
 			{
 				return m_fSatisfiedBySingleton;
+			}
+		
+			BOOL IsTableRandomlyDistributed() const
+			{
+				return m_randomly_distributed;
+			}
+		
+			void SetTableRandomlyDistributed()
+			{
+				m_randomly_distributed = true;
 			}
 
 			// mark distribution as unsatisfiable by Singleton

@@ -292,9 +292,12 @@ CPhysical::PdsCompute
 			break;
 			
 		case IMDRelation::EreldistrRandom:
-			pds = GPOS_NEW(pmp) CDistributionSpecRandom();
+		{
+			CDistributionSpecRandom *pdsRandom = GPOS_NEW(pmp) CDistributionSpecRandom();
+			pdsRandom->SetTableRandomlyDistributed();
+			pds = pdsRandom;
 			break;
-			
+		}
 		case IMDRelation::EreldistrHash:
 		{
 			const DrgPcoldesc *pdrgpcoldesc = ptabdesc->PdrgpcoldescDist();
@@ -1172,6 +1175,8 @@ const
 	{
 		CDistributionSpecForced *pSpecForce = dynamic_cast<CDistributionSpecForced *> (ped->Pps());
 		CDistributionSpecRandom *pdsRandom = CDistributionSpecRandom::PdsConvert(pds);
+		if (pdsRandom->IsTableRandomlyDistributed())
+			return CEnfdProp::EpetRequired;
 		if (!pdsRandom->FReallyDuplicateSensitive() && pSpecForce)
 			return CEnfdProp::EpetUnnecessary;
 	}

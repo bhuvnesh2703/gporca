@@ -33,7 +33,8 @@ CDistributionSpecRandom::CDistributionSpecRandom()
 	:
 	m_fDuplicateSensitive(false),
 	m_fSatisfiedBySingleton(true),
-	really_duplicate_sensitive(false)
+	really_duplicate_sensitive(false),
+	m_randomly_distributed(false)
 {
 	if (COptCtxt::PoctxtFromTLS()->FDMLQuery())
 	{
