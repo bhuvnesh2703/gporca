@@ -923,16 +923,16 @@ namespace gpopt
 				IMemoryPool *mp,
 				CMDAccessor *md_accessor,
 				CExpression *pexprOriginalPred,
-				DrgPexpr *pdrgpexprPreds,
+				CExpressionArray *pdrgpexprPreds,
 				CTableDescriptor *ptabdesc,
 				const IMDRelation *pmdrel,
 				CColRefArray *pdrgpcrOutput,
 				CColRefSet *outer_refs,
 				CColRefSet *pcrsReqd,
 				BOOL fConjunction,
-				DrgPexpr *pdrgpexprBitmap,
-				DrgPexpr *pdrgpexprRecheck,
-				DrgPexpr *pdrgpexprResidual
+				CExpressionArray *pdrgpexprBitmap,
+				CExpressionArray *pdrgpexprRecheck,
+				CExpressionArray *pdrgpexprResidual
 				);
 
 			static
@@ -1112,8 +1112,8 @@ namespace gpopt
 			void JoinBitmapIndexProbes
 					(
 					 IMemoryPool *pmp,
-					 DrgPexpr *pdrgpexprBitmapOld,
-					 DrgPexpr *pdrgpexprRecheckOld,
+					 CExpressionArray *pdrgpexprBitmapOld,
+					 CExpressionArray *pdrgpexprRecheckOld,
 					 BOOL fConjunction,
 					 CExpression **ppexprBitmap,
 					 CExpression **ppexprRecheck

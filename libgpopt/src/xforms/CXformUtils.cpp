@@ -3594,11 +3594,11 @@ CXformUtils::CreateBitmapIndexProbes
 	CColRefSet *pcrsOuterRefs,
 	CColRefSet *pcrsReqd,
 	BOOL fConjunction,
-	DrgPexpr *pdrgpexprBitmap,
-	DrgPexpr *pdrgpexprRecheck,
-	DrgPexpr *pdrgpexprBitmapResult,
-	DrgPexpr *pdrgpexprRecheckResult,
-	DrgPexpr *pdrgpexprResidualResult
+	CExpressionArray *pdrgpexprBitmap,
+	CExpressionArray *pdrgpexprRecheck,
+	CExpressionArray *pdrgpexprBitmapResult,
+	CExpressionArray *pdrgpexprRecheckResult,
+	CExpressionArray *pdrgpexprResidualResult
 	)
 {
 	CExpression *pexprRecheck, *pexprResidual, *pexprBitmap;
@@ -3716,8 +3716,8 @@ CXformUtils::CreateBitmapIndexProbes
 			CXformUtils::JoinBitmapIndexProbes
 			(
 			IMemoryPool *pmp,
-				DrgPexpr *pdrgpexprBitmap,
-		DrgPexpr *pdrgpexprRecheck,
+				CExpressionArray *pdrgpexprBitmap,
+		CExpressionArray *pdrgpexprRecheck,
 				BOOL fConjunction,
 		CExpression **ppexprBitmap,
 		CExpression **ppexprRecheck

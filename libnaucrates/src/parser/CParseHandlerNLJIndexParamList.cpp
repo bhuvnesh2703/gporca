@@ -97,7 +97,7 @@ CParseHandlerNLJIndexParamList::EndElement
 		GPOS_RAISE(gpdxl::ExmaDXL, gpdxl::ExmiDXLUnexpectedTag, str->GetBuffer());
 	}
 
-	const ULONG size = this->Size();
+	const ULONG size = this->Length();
 	// add constructed children from child parse handlers
 	for (ULONG idx = 0; idx < size; idx++)
 	{

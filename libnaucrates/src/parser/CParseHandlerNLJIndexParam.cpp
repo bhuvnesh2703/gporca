@@ -61,7 +61,7 @@ CParseHandlerNLJIndexParam::StartElement
 		GPOS_RAISE(gpdxl::ExmaDXL, gpdxl::ExmiDXLUnexpectedTag, str->GetBuffer());
 	}
 
-	m_nest_param_colref_dxl = CDXLOperatorFactory::Pdxlcr(m_parse_handler_mgr->GetDXLMemoryManager(), attrs, EdxltokenNLJIndexParam);
+	m_nest_param_colref_dxl = CDXLOperatorFactory::MakeDXLColRef(m_parse_handler_mgr->GetDXLMemoryManager(), attrs, EdxltokenNLJIndexParam);
 }
 
 

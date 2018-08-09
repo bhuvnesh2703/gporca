@@ -169,7 +169,7 @@ CDXLOperatorFactory::MakeDXLNLJoin(CDXLMemoryManager *dxl_memory_manager, const 
 	EdxlJoinType join_type =
 		ParseJoinType(join_type_xml, CDXLTokens::GetDXLTokenStr(EdxltokenPhysicalNLJoin));
 
-	return GPOS_NEW(mp) CDXLPhysicalNLJoin(mp, join_type, is_index_nlj);
+	return GPOS_NEW(mp) CDXLPhysicalNLJoin(mp, join_type, is_index_nlj, nest_params_exists);
 }
 
 //---------------------------------------------------------------------------
