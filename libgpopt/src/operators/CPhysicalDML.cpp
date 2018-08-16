@@ -17,6 +17,7 @@
 #include "gpopt/base/CDistributionSpecAny.h"
 #include "gpopt/base/CDistributionSpecHashed.h"
 #include "gpopt/base/CDistributionSpecRouted.h"
+#include "gpopt/base/CDistributionSpecExplicitRandom.h"
 #include "gpopt/operators/CExpressionHandle.h"
 #include "gpopt/operators/CPredicateUtils.h"
 #include "gpopt/operators/CPhysicalDML.h"
@@ -229,12 +230,19 @@ CPhysicalDML::PdsRequired
 	const
 {
 	GPOS_ASSERT(0 == child_index);
-	
-	if (CDistributionSpec::EdtRandom == m_pds->Edt() && CLogicalDML::EdmlInsert != m_edmlop)
+
+	if (CDistributionSpec::EdtRandom == m_pds->Edt())
 	{
-		return GPOS_NEW(mp) CDistributionSpecRouted(m_pcrSegmentId);
+		if (CLogicalDML::EdmlInsert == m_edmlop)
+		{
+			return GPOS_NEW(mp) CDistributionSpecExplicitRandom();
+		}
+		else
+		{
+			return GPOS_NEW(mp) CDistributionSpecRouted(m_pcrSegmentId);
+		}
 	}
-	
+
 	m_pds->AddRef();
 	return m_pds;
 }
@@ -348,12 +356,18 @@ CPhysicalDML::FProvidesReqdCols
 CDistributionSpec *
 CPhysicalDML::PdsDerive
 	(
-	IMemoryPool *, // mp
+	IMemoryPool *mp,
 	CExpressionHandle &exprhdl
 	)
 	const
 {
-	return PdsDerivePassThruOuter(exprhdl);
+	CDistributionSpec *derived_distr_spec = PdsDerivePassThruOuter(exprhdl);
+	if (derived_distr_spec->Edt() == CDistributionSpecRandom::EdtExplicitRandom)
+	{
+		derived_distr_spec->Release();
+		return GPOS_NEW(mp) CDistributionSpecRandom(CDistributionSpecRandom::EsoDerived);
+	}
+	return derived_distr_spec;
 }
 
 //---------------------------------------------------------------------------

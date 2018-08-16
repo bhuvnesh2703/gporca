@@ -119,10 +119,10 @@ CDistributionSpecTest::EresUnittest_Random()
 
 	// basic tests with random distribution
 	poptctxt->MarkDMLQuery(true /*fDMLQuery*/);
-	CDistributionSpecRandom *pdsRandomDuplicateSensitive = GPOS_NEW(mp) CDistributionSpecRandom();
+	CDistributionSpecRandom *pdsRandomDuplicateSensitive = GPOS_NEW(mp) CDistributionSpecRandom(CDistributionSpecRandom::EsoSentinel);
 
 	poptctxt->MarkDMLQuery(false /*fDMLQuery*/);
-	CDistributionSpecRandom *pdsRandomNonDuplicateSensitive = GPOS_NEW(mp) CDistributionSpecRandom();
+	CDistributionSpecRandom *pdsRandomNonDuplicateSensitive = GPOS_NEW(mp) CDistributionSpecRandom(CDistributionSpecRandom::EsoSentinel);
 	
 	GPOS_ASSERT(pdsRandomDuplicateSensitive->FSatisfies(pdsRandomDuplicateSensitive));
 	GPOS_ASSERT(pdsRandomDuplicateSensitive->Matches(pdsRandomDuplicateSensitive));
@@ -181,7 +181,7 @@ CDistributionSpecTest::EresUnittest_Replicated()
 	GPOS_ASSERT(pdsreplicated->Matches(pdsreplicated));
 	
 	// replicated and random
-	CDistributionSpecRandom *pdsrandom = GPOS_NEW(mp) CDistributionSpecRandom();
+	CDistributionSpecRandom *pdsrandom = GPOS_NEW(mp) CDistributionSpecRandom(CDistributionSpecRandom::EsoSentinel);
 	
 	GPOS_ASSERT(!pdsrandom->FSatisfies(pdsreplicated));
 	GPOS_ASSERT(pdsreplicated->FSatisfies(pdsrandom));
@@ -249,7 +249,7 @@ CDistributionSpecTest::EresUnittest_Singleton()
 	GPOS_ASSERT(!pdssSegment->FSatisfies(pdsreplicated));
 	
 	// singleton and random
-	CDistributionSpecRandom *pdsrandom = GPOS_NEW(mp) CDistributionSpecRandom();
+	CDistributionSpecRandom *pdsrandom = GPOS_NEW(mp) CDistributionSpecRandom(CDistributionSpecRandom::EsoSentinel);
 	
 	GPOS_ASSERT(!pdsrandom->FSatisfies(pdssSegment));
 	GPOS_ASSERT(!pdsrandom->FSatisfies(pdssMaster));
@@ -316,7 +316,7 @@ CDistributionSpecTest::EresUnittest_Universal()
 	GPOS_ASSERT(pdsuniversal->FSatisfies(pdsreplicated));
 
 	// universal and random
-	CDistributionSpecRandom *pdsrandom = GPOS_NEW(mp) CDistributionSpecRandom();
+	CDistributionSpecRandom *pdsrandom = GPOS_NEW(mp) CDistributionSpecRandom(CDistributionSpecRandom::EsoSentinel);
 
 	GPOS_ASSERT(pdsuniversal->FSatisfies(pdsrandom));
 
@@ -447,7 +447,7 @@ CDistributionSpecTest::EresUnittest_Hashed()
 	GPOS_ASSERT(!pdshashed1->FSatisfies(pdsreplicated));
 		
 	// hashed and random
-	CDistributionSpecRandom *pdsrandom = GPOS_NEW(mp) CDistributionSpecRandom();
+	CDistributionSpecRandom *pdsrandom = GPOS_NEW(mp) CDistributionSpecRandom(CDistributionSpecRandom::EsoSentinel);
 	
 	GPOS_ASSERT(!pdsrandom->FSatisfies(pdshashed1));
 	GPOS_ASSERT(!pdshashed1->FSatisfies(pdsrandom));
@@ -551,7 +551,7 @@ CDistributionSpecTest::EresUnittest_NegativeRandom()
 	CAutoOptCtxt aoc(mp, &mda, NULL /*pceeval*/, CTestUtils::GetCostModel(mp));
 
 	// cannot add enforcers for Random distribution
-	CDistributionSpecRandom *pdsrandom = GPOS_NEW(mp) CDistributionSpecRandom();
+	CDistributionSpecRandom *pdsrandom = GPOS_NEW(mp) CDistributionSpecRandom(CDistributionSpecRandom::EsoSentinel);
 	CExpressionHandle *pexprhdl = GPOS_NEW(mp) CExpressionHandle(mp);
 
 	pdsrandom->AppendEnforcers(NULL /*mp*/, *pexprhdl, NULL /*prpp*/, NULL /*pdrgpexpr*/, NULL /*pexpr*/);

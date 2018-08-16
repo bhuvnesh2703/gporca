@@ -38,6 +38,7 @@ CDistributionSpecHashed::CDistributionSpecHashed
 	BOOL fNullsColocated
 	)
 	:
+	CDistributionSpecRandom(CDistributionSpecRandom::EsoSentinel),
 	m_pdrgpexpr(pdrgpexpr),
 	m_fNullsColocated(fNullsColocated),
 	m_pdshashedEquiv(NULL)
@@ -62,6 +63,7 @@ CDistributionSpecHashed::CDistributionSpecHashed
 	CDistributionSpecHashed *pdshashedEquiv
 	)
 	:
+	CDistributionSpecRandom(CDistributionSpecRandom::EsoSentinel),
 	m_pdrgpexpr(pdrgpexpr),
 	m_fNullsColocated(fNullsColocated),
 	m_pdshashedEquiv(pdshashedEquiv)

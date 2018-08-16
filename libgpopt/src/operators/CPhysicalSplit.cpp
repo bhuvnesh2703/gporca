@@ -376,7 +376,7 @@ CPhysicalSplit::PdsDerive
 	{
 		pcrsModified->Release();
 		pcrsHashed->Release();
-		return GPOS_NEW(mp) CDistributionSpecRandom();
+		return GPOS_NEW(mp) CDistributionSpecRandom(CDistributionSpecRandom::EsoDerived);
 	}
 		
 	if (NULL != pdsHashed->PdshashedEquiv())
@@ -387,7 +387,7 @@ CPhysicalSplit::PdsDerive
 			pcrsHashed->Release();
 			pcrsHashedEquiv->Release();
 			pcrsModified->Release();
-			return GPOS_NEW(mp) CDistributionSpecRandom();
+			return GPOS_NEW(mp) CDistributionSpecRandom(CDistributionSpecRandom::EsoDerived);
 		}
 		pcrsHashedEquiv->Release();
 	}

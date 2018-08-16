@@ -111,7 +111,7 @@ CDistributionSpecNonSingleton::AppendEnforcers
 	}
 
 	// add a random distribution enforcer
-	CDistributionSpecRandom *pdsrandom = GPOS_NEW(mp) CDistributionSpecRandom();
+	CDistributionSpecRandom *pdsrandom = GPOS_NEW(mp) CDistributionSpecRandom(CDistributionSpecRandom::EsoRequired);
 	pexpr->AddRef();
 	CExpression *pexprMotion = GPOS_NEW(mp) CExpression
 										(

@@ -229,6 +229,12 @@ CPhysicalComputeScalar::PdsRequired
 		}
 	}
 
+	// if required distribution spec is ExplicitRandom, enforce it on top of the ComputeScalar
+	if (pdsRequired->Edt() == CDistributionSpec::EdtExplicitRandom)
+	{
+		return GPOS_NEW(mp) CDistributionSpecRandom(CDistributionSpecRandom::EsoRequired);
+	}
+
 	if (0 == ulOptReq)
 	{
 		// Req0: required distribution will be enforced on top of ComputeScalar
@@ -513,5 +519,51 @@ CPhysicalComputeScalar::EpetRewindability
 	return CEnfdProp::EpetRequired;
 }
 
+CEnfdProp::EPropEnforcingType
+CPhysicalComputeScalar::EpetDistribution
+	(
+	CExpressionHandle &exprhdl,
+	const CEnfdDistribution *ped
+	)
+const
+{
+	GPOS_ASSERT(NULL != ped);
+
+	// get distribution delivered by the physical node
+	CDistributionSpec *pds = CDrvdPropPlan::Pdpplan(exprhdl.Pdp())->Pds();
+	if (ped->FCompatible(pds))
+	{
+		// required distribution is already provided
+		return CEnfdProp::EpetUnnecessary;
+	}
+
+	// if the requested spec is explicit random and the derived spec is Random,
+	// check if it is necessary to enforce the explicit random spec
+	if (pds->Edt() == CDistributionSpec::EdtRandom &&
+			ped->PdsRequired()->Edt() == CDistributionSpecRandom::EdtExplicitRandom)
+	{
+		CDistributionSpecRandom *pdsRandom = CDistributionSpecRandom::PdsConvert(pds);
+		// if its a spec of the randomly distributed relation or is marked derived,
+		// the randomness can't be guaranteed, so enforce explicit random
+		if (pdsRandom->GetSpecOrigin() == CDistributionSpecRandom::EsoDerived)
+		{
+			return CEnfdProp::EpetRequired;
+		}
+		// if the underlying motion node was enforced (required by parent node) and the
+		// child of the motion node does not have a universal child, it provides
+		// true random distribution.
+		// if the underlying random motion node with random spec has a universal child it is
+		// converted to a result node with hash filter to avoid duplicates, in
+		// such cases, me must enforce another random motion to gaurantee randomness
+		if (pdsRandom->GetSpecOrigin() == CDistributionSpecRandom::EsoRequired &&
+				!pdsRandom->IsChildUniversal())
+		{
+			return CEnfdProp::EpetUnnecessary;
+		}
+	}
+
+	// required distribution will be enforced on Assert's output
+	return CEnfdProp::EpetRequired;
+}
 // EOF
 

@@ -291,9 +291,9 @@ CPhysical::PdsCompute
 			break;
 			
 		case IMDRelation::EreldistrRandom:
-			pds = GPOS_NEW(mp) CDistributionSpecRandom();
+			pds = GPOS_NEW(mp) CDistributionSpecRandom(CDistributionSpecRandom::EsoDerived);
 			break;
-			
+
 		case IMDRelation::EreldistrHash:
 		{
 			const CColumnDescriptorArray *pdrgpcoldesc = ptabdesc->PdrgpcoldescDist();
@@ -1166,6 +1166,22 @@ const
 		// required distribution is already provided
 		return CEnfdProp::EpetUnnecessary;
 	}
+
+//	// if the requested spec is ExplicitRandom and the derived spec is Random,
+//	// check if it is necessary to enforce the explicit random spec
+//	if (pds->Edt() == CDistributionSpec::EdtRandom &&
+//			ped->PdsRequired()->Edt() == CDistributionSpecRandom::EdtExplicitRandom)
+//	{
+//		CDistributionSpecRandom *pdsRandom = CDistributionSpecRandom::PdsConvert(pds);
+//		if (pdsRandom->IsRelDistribution())
+//		{
+//			return CEnfdProp::EpetRequired;
+//		}
+//		if (!pdsRandom->IsChildUniversal())
+//		{
+//			return CEnfdProp::EpetUnnecessary;
+//		}
+//	}
 
 	// required distribution will be enforced on Assert's output
 	return CEnfdProp::EpetRequired;

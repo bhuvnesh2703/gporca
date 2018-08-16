@@ -30,6 +30,24 @@ namespace gpopt
 	//---------------------------------------------------------------------------
 	class CDistributionSpecRandom : public CDistributionSpec
 	{
+		public:
+		
+			// origin info
+			enum ESpecOrigin
+			{
+				// random spec is derived by the operator (in Derive functions)
+				// for instance:
+				// 1. Spec of Randomly Distributed Table
+				// 2. Spec of Partitioned Table with mismatched distribution
+				// between root (hash distributed) and child (randomly) tables
+				// 3. Derived spec when the child(s) spec cannot be gauranteed as random
+				// i.e spec of union all node can be marked / derived as random based on child specs
+				EsoDerived,
+				// random spec is required by the parent operator (in Required functions)
+				EsoRequired,
+				EsoSentinel
+			};
+
 		protected:
 
 			// is the random distribution sensitive to duplicates
@@ -42,14 +60,20 @@ namespace gpopt
 			// in case we need to enforce across segments distribution
 			BOOL m_fSatisfiedBySingleton;
 
+			// is the node enforcing this spec has a universal child
+			BOOL m_is_child_universal;
+
+			// is the spec derived or required
+			const ESpecOrigin m_spec_origin;
+
 			// private copy ctor
 			CDistributionSpecRandom(const CDistributionSpecRandom &);
 			
 		public:
 
-			//ctor
-			CDistributionSpecRandom();
-			
+			// ctor
+			CDistributionSpecRandom(ESpecOrigin spec_origin);
+		
 			// accessor
 			virtual 
 			EDistributionType Edt() const
@@ -76,6 +100,12 @@ namespace gpopt
 
 				m_is_duplicate_sensitive = true;
 			}
+
+			BOOL IsChildUniversal() const;
+
+			void MarkUniversalChild();
+
+			ESpecOrigin GetSpecOrigin() const;
 
 			// does Singleton spec satisfy current distribution?
 			BOOL FSatisfiedBySingleton() const

@@ -240,7 +240,7 @@ CPhysicalAgg::PdsRequiredAgg
 	}
 
 	// we randomly distribute the input for skew-elimination
-	return GPOS_NEW(mp) CDistributionSpecRandom();
+	return GPOS_NEW(mp) CDistributionSpecRandom(CDistributionSpecRandom::EsoRequired);
 }
 
 //---------------------------------------------------------------------------

@@ -46,6 +46,7 @@ namespace gpopt
 				EdtStrictSingleton,	// data is on a single segment or the master (derived only, only compatible with other singleton distributions)
 				EdtRandom,			// data is randomly distributed across all segments
 				EdtStrictRandom,	// same as random, used to force multiple slices for parallel union all.
+				EdtExplicitRandom,	// same as random, used to force a redistribute motion on the child (required only)
 				EdtRouted,			// data is routed to a segment explicitly specified in the tuple,
 				EdtUniversal,		// data is available everywhere (derived only)
 				EdtNonSingleton,	// data can have any distribution except singleton (required only)

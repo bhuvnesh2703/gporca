@@ -54,7 +54,7 @@ CPhysicalScan::CPhysicalScan
 	if (ptabdesc->ConvertHashToRandom())
 	{
 		// Treating a hash distributed table as random during planning
-		m_pds = GPOS_NEW(m_mp) CDistributionSpecRandom();
+		m_pds = GPOS_NEW(m_mp) CDistributionSpecRandom(CDistributionSpecRandom::EsoDerived);
 	}
 	else
 	{

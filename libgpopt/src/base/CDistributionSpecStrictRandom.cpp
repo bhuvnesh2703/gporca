@@ -6,6 +6,8 @@
 using namespace gpopt;
 
 CDistributionSpecStrictRandom::CDistributionSpecStrictRandom()
+	:
+	CDistributionSpecRandom(CDistributionSpecRandom::EsoSentinel)
 {
 }
 

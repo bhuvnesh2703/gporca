@@ -219,6 +219,14 @@ namespace gpopt
 			{
 				return false;
 			}
+		
+			CEnfdProp::EPropEnforcingType
+			EpetDistribution
+				(
+				CExpressionHandle &exprhdl,
+				const CEnfdDistribution *ped
+				)
+			const;
 
 			//-------------------------------------------------------------------------------------
 			//-------------------------------------------------------------------------------------

@@ -16,22 +16,17 @@
 #include "gpopt/base/CDistributionSpecRandom.h"
 #include "gpopt/base/COptCtxt.h"
 #include "gpopt/operators/CPhysicalMotionRandom.h"
+#include "gpopt/operators/CExpressionHandle.h"
 
 using namespace gpopt;
 
 
-//---------------------------------------------------------------------------
-//	@function:
-//		CDistributionSpecRandom::CDistributionSpecRandom
-//
-//	@doc:
-//		Ctor
-//
-//---------------------------------------------------------------------------
-CDistributionSpecRandom::CDistributionSpecRandom()
+CDistributionSpecRandom::CDistributionSpecRandom(ESpecOrigin spec_origin)
 	:
 	m_is_duplicate_sensitive(false),
-	m_fSatisfiedBySingleton(true)
+	m_fSatisfiedBySingleton(true),
+	m_is_child_universal(false),
+	m_spec_origin(spec_origin)
 {
 	if (COptCtxt::PoctxtFromTLS()->FDMLQuery())
 	{
@@ -93,6 +88,18 @@ CDistributionSpecRandom::FSatisfies
 		return true;
 	}
 	
+	if (EdtExplicitRandom == pds->Edt())
+	{
+		if (GetSpecOrigin() == CDistributionSpecRandom::EsoDerived)
+		{
+			return true;
+		}
+		if (!IsChildUniversal())
+		{
+			return true;
+		}
+	}
+	
 	return EdtAny == pds->Edt() || EdtNonSingleton == pds->Edt();
 }
 
@@ -108,7 +115,7 @@ void
 CDistributionSpecRandom::AppendEnforcers
 	(
 	IMemoryPool *mp,
-	CExpressionHandle &, // exprhdl
+	CExpressionHandle &exprhdl,
 	CReqdPropPlan *
 #ifdef GPOS_DEBUG
 	prpp
@@ -133,7 +140,15 @@ CDistributionSpecRandom::AppendEnforcers
 		return;
 	}
 
-	// add a hashed distribution enforcer
+	// if the child of the random motion has universal spec, mark random motion spec
+	// to indicate it
+	CDrvdPropPlan *drvd_prop_plan = CDrvdPropPlan::Pdpplan(exprhdl.Pdp());
+	const CDistributionSpec *child_expr_distr_spec = drvd_prop_plan->Pds();
+	if (child_expr_distr_spec->Edt() == CDistributionSpec::EdtUniversal)
+	{
+		MarkUniversalChild();
+	}
+
 	AddRef();
 	pexpr->AddRef();
 	CExpression *pexprMotion = GPOS_NEW(mp) CExpression
@@ -143,6 +158,24 @@ CDistributionSpecRandom::AppendEnforcers
 										pexpr
 										);
 	pdrgpexpr->Append(pexprMotion);		
+}
+
+CDistributionSpecRandom::ESpecOrigin
+CDistributionSpecRandom::GetSpecOrigin() const
+{
+	return m_spec_origin;
+}
+
+BOOL
+CDistributionSpecRandom::IsChildUniversal() const
+{
+	return m_is_child_universal;
+}
+
+void
+CDistributionSpecRandom::MarkUniversalChild()
+{
+	m_is_child_universal = true;
 }
 
 //---------------------------------------------------------------------------

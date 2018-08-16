@@ -840,7 +840,7 @@ CExpressionTest::EresUnittest_FValidPlan_InvalidDistribution()
 	SetupPlanForFValidPlanTest(mp, &pexprGby, &pcrs, &pexprPlan, &prpp);
 	CDrvdPropCtxtPlan *pdpctxtplan = GPOS_NEW(mp) CDrvdPropCtxtPlan(mp);
 	COrderSpec *pos = GPOS_NEW(mp) COrderSpec(mp);
-	CDistributionSpec *pds = GPOS_NEW(mp) CDistributionSpecRandom();
+	CDistributionSpec *pds = GPOS_NEW(mp) CDistributionSpecRandom(CDistributionSpecRandom::EsoSentinel);
 	CRewindabilitySpec *prs = GPOS_NEW(mp) CRewindabilitySpec(CRewindabilitySpec::ErtNone /*ert*/);
 	CEnfdOrder *peo = GPOS_NEW(mp) CEnfdOrder(pos, CEnfdOrder::EomSatisfy);
 	CEnfdDistribution *ped = GPOS_NEW(mp) CEnfdDistribution(pds, CEnfdDistribution::EdmExact);

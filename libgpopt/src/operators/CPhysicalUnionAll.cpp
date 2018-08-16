@@ -616,7 +616,7 @@ const
 	}
 
 	// output has unknown distribution on all segments
-	return GPOS_NEW(mp) CDistributionSpecRandom();
+	return GPOS_NEW(mp) CDistributionSpecRandom(CDistributionSpecRandom::EsoDerived);
 }
 
 //---------------------------------------------------------------------------

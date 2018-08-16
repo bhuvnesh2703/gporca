@@ -16,6 +16,7 @@
 #include "gpopt/base/CDistributionSpecAny.h"
 #include "gpopt/operators/CExpressionHandle.h"
 #include "gpopt/operators/CPhysicalMotion.h"
+#include "gpopt/base/CDistributionSpecRandom.h"
 #include "gpopt/search/CMemo.h"
 
 using namespace gpopt;
@@ -76,7 +77,7 @@ CPhysicalMotion::PdsRequired
 	(
 	IMemoryPool *mp,
 	CExpressionHandle &, // exprhdl
-	CDistributionSpec *, // pdsRequired
+	CDistributionSpec *pdsRequired,
 	ULONG
 #ifdef GPOS_DEBUG
 	child_index
@@ -88,6 +89,13 @@ CPhysicalMotion::PdsRequired
 	const
 {
 	GPOS_ASSERT(0 == child_index);
+
+	// if this motion is in a group where the required spec is explicit random,
+	// request random spec from the childs
+	if (pdsRequired->Edt() == CDistributionSpec::EdtExplicitRandom)
+	{
+		return GPOS_NEW(mp) CDistributionSpecRandom(CDistributionSpecRandom::EsoRequired);
+	}
 
 	// any motion operator is distribution-establishing and does not require
 	// child to deliver any specific distribution
