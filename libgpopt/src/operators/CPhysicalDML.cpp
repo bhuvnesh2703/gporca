@@ -17,7 +17,7 @@
 #include "gpopt/base/CDistributionSpecAny.h"
 #include "gpopt/base/CDistributionSpecHashed.h"
 #include "gpopt/base/CDistributionSpecRouted.h"
-#include "gpopt/base/CDistributionSpecExplicitRandom.h"
+#include "gpopt/base/CDistributionSpecStrictRandom.h"
 #include "gpopt/operators/CExpressionHandle.h"
 #include "gpopt/operators/CPredicateUtils.h"
 #include "gpopt/operators/CPhysicalDML.h"
@@ -235,7 +235,7 @@ CPhysicalDML::PdsRequired
 	{
 		if (CLogicalDML::EdmlInsert == m_edmlop)
 		{
-			return GPOS_NEW(mp) CDistributionSpecExplicitRandom();
+			return GPOS_NEW(mp) CDistributionSpecStrictRandom();
 		}
 		else
 		{
@@ -362,7 +362,7 @@ CPhysicalDML::PdsDerive
 	const
 {
 	CDistributionSpec *derived_distr_spec = PdsDerivePassThruOuter(exprhdl);
-	if (derived_distr_spec->Edt() == CDistributionSpecRandom::EdtExplicitRandom)
+	if (derived_distr_spec->Edt() == CDistributionSpecRandom::EdtStrictRandom)
 	{
 		derived_distr_spec->Release();
 		return GPOS_NEW(mp) CDistributionSpecRandom(CDistributionSpecRandom::EsoDerived);

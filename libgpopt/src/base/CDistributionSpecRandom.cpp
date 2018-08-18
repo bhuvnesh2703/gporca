@@ -89,7 +89,7 @@ CDistributionSpecRandom::FSatisfies
 	}
 	
 	// random spec satisfies explicit random spec in some cases
-	if (EdtExplicitRandom == pds->Edt())
+	if (EdtStrictRandom == pds->Edt())
 	{
 		// if motion node enforcing random spec has a universal child,
 		// the random motion node poses duplicate data hazard. To avoid duplication,

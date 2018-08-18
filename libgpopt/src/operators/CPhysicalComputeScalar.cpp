@@ -229,8 +229,8 @@ CPhysicalComputeScalar::PdsRequired
 		}
 	}
 
-	// if required distribution spec is ExplicitRandom, enforce it on top of the ComputeScalar
-	if (pdsRequired->Edt() == CDistributionSpec::EdtExplicitRandom)
+	// if required distribution spec is strict random, enforce it on top of the ComputeScalar
+	if (pdsRequired->Edt() == CDistributionSpec::EdtStrictRandom)
 	{
 		return GPOS_NEW(mp) CDistributionSpecRandom(CDistributionSpecRandom::EsoRequired);
 	}
@@ -540,7 +540,7 @@ const
 	// if the requested spec is explicit random and the derived spec is Random,
 	// check if it is necessary to enforce the explicit random spec
 	if (pds->Edt() == CDistributionSpec::EdtRandom &&
-			ped->PdsRequired()->Edt() == CDistributionSpecRandom::EdtExplicitRandom)
+			ped->PdsRequired()->Edt() == CDistributionSpecRandom::EdtStrictRandom)
 	{
 		CDistributionSpecRandom *pdsRandom = CDistributionSpecRandom::PdsConvert(pds);
 		// if its a spec of the randomly distributed relation or is marked derived,

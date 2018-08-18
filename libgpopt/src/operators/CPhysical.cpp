@@ -1167,22 +1167,6 @@ const
 		return CEnfdProp::EpetUnnecessary;
 	}
 
-//	// if the requested spec is ExplicitRandom and the derived spec is Random,
-//	// check if it is necessary to enforce the explicit random spec
-//	if (pds->Edt() == CDistributionSpec::EdtRandom &&
-//			ped->PdsRequired()->Edt() == CDistributionSpecRandom::EdtExplicitRandom)
-//	{
-//		CDistributionSpecRandom *pdsRandom = CDistributionSpecRandom::PdsConvert(pds);
-//		if (pdsRandom->IsRelDistribution())
-//		{
-//			return CEnfdProp::EpetRequired;
-//		}
-//		if (!pdsRandom->IsChildUniversal())
-//		{
-//			return CEnfdProp::EpetUnnecessary;
-//		}
-//	}
-
 	// required distribution will be enforced on Assert's output
 	return CEnfdProp::EpetRequired;
 }
