@@ -1,24 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <dxl:DXLMessage xmlns:dxl="http://greenplum.com/dxl/2010/12/">
 <dxl:Comment><![CDATA[
-Objective: A redistribute motion must be added before insert is performed on
-randomly distributed table t1_random from a partitioned table which has a
-mismatch in the distribution spec of the root (i.e hash distributed) and child
-partition randomly distributed.
-
-In case of mismatch of distribution between the root partition and child
-partition, scan operator derives the spec as random.  The derived random spec
-of scan operator matches the required spec of the DML node, due to which a
-random motion is deemed unnecessary.  However, since the derived spec does not
-gaurantee randomness of data, a redistribute motion must be added
-
+Setup:
 CREATE TABLE t1_random (a int, b int) DISTRIBUTED RANDOMLY;
 CREATE TABLE part1 (a int , b int) DISTRIBUTED BY (a) PARTITION BY RANGE(b) (START(1) END (2) EVERY(1));
 ALTER TABLE part1_1_prt_1 SET DISTRIBUTED RANDOMLY;
 
-pivotal=# explain INSERT INTO t1_random SELECT * FROM part1;
-LOG:  statement: explain INSERT INTO t1_random SELECT * FROM part1;
-LOG:  2018-08-17 15:21:36:670862 PDT,THD000,TRACE,"
+Expectation:
+Random distribution motion must exists prior to INSERT.
+
+EXPLAIN INSERT INTO t1_random SELECT * FROM part1;
 Physical plan:
 +--CPhysicalDML (Insert, "t1_random"), Source Columns: ["a" (0), "b" (1)], Action: ("ColRef_0009" (9))   rows:1   width:38  rebinds:1   cost:431.015656   origin: [Grp:1, GrpExpr:2]
    +--CPhysicalMotionRandom   rows:1   width:1  rebinds:1   cost:431.000031   origin: [Grp:5, GrpExpr:2] ==> Newly Added
