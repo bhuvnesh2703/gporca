@@ -537,41 +537,6 @@ const
 		return CEnfdProp::EpetUnnecessary;
 	}
 
-
-	if (CDistributionSpec::EdtStrictRandom == ped->PdsRequired()->Edt() &&
-		pds->Edt() == CDistributionSpecRandom::EdtRandom)
-	{
-		CDistributionSpecRandom *pdsRandomDerived = CDistributionSpecRandom::PdsConvert(pds);
-		if (!pdsRandomDerived->EnforcedByMotionNode())
-			return CEnfdProp::EpetRequired;
-		return CEnfdProp::EpetUnnecessary;
-	}
-	
-	//	// if the requested spec is explicit random and the derived spec is Random,
-	//	// check if it is necessary to enforce the explicit random spec
-	//	if (pds->Edt() == CDistributionSpec::EdtRandom &&
-	//			ped->PdsRequired()->Edt() == CDistributionSpecRandom::EdtStrictRandom)
-	//	{
-	//		CDistributionSpecRandom *pdsRandom = CDistributionSpecRandom::PdsConvert(pds);
-	//		// if its a spec of the randomly distributed relation or is marked derived,
-	//		// the randomness can't be guaranteed, so enforce explicit random
-	//		if (pdsRandom->GetSpecOrigin() == CDistributionSpecRandom::EsoDerived)
-	//		{
-	//			return CEnfdProp::EpetRequired;
-	//		}
-	//		// if the underlying motion node was enforced (required by parent node) and the
-	//		// child of the motion node does not have a universal child, it provides
-	//		// true random distribution.
-	//		// if the underlying random motion node with random spec has a universal child it is
-	//		// converted to a result node with hash filter to avoid duplicates, in
-	//		// such cases, me must enforce another random motion to gaurantee randomness
-	//		if (pdsRandom->GetSpecOrigin() == CDistributionSpecRandom::EsoRequired &&
-	//				!pdsRandom->IsChildUniversal())
-	//		{
-	//			return CEnfdProp::EpetUnnecessary;
-	//		}
-	//	}
-	
 	// required distribution will be enforced on Assert's output
 	return CEnfdProp::EpetRequired;
 }

@@ -32,7 +32,8 @@ using namespace gpopt;
 CDistributionSpecRandom::CDistributionSpecRandom()
 	:
 	m_is_duplicate_sensitive(false),
-	m_fSatisfiedBySingleton(true)
+	m_fSatisfiedBySingleton(true),
+	m_is_enforced_by_motion(false)
 {
 	if (COptCtxt::PoctxtFromTLS()->FDMLQuery())
 	{
@@ -40,7 +41,6 @@ CDistributionSpecRandom::CDistributionSpecRandom()
 		// Const Tables in DML queries
 		MarkDuplicateSensitive();
 	}
-	m_is_enforced_by_motion_node = false;
 }
 
 //---------------------------------------------------------------------------
@@ -60,6 +60,10 @@ CDistributionSpecRandom::Matches
 {
 	if (Edt() != pds->Edt())
 	{
+		if (pds->Edt() == EdtStrictRandom && IsEnforcedByMotion())
+		{
+			return true;
+		}
 		return false;
 	}
 
@@ -95,12 +99,9 @@ CDistributionSpecRandom::FSatisfies
 		return true;
 	}
 	
-	if (EdtStrictRandom == pds->Edt())
+	if (EdtStrictRandom == pds->Edt() && m_is_enforced_by_motion)
 	{
-		if (m_is_enforced_by_motion_node)
-		{
-			return true;
-		}
+		return true;
 	}
 	return EdtAny == pds->Edt() || EdtNonSingleton == pds->Edt();
 }
@@ -144,13 +145,13 @@ CDistributionSpecRandom::AppendEnforcers
 
 	CDrvdPropPlan *drvd_prop_plan = CDrvdPropPlan::Pdpplan(exprhdl.Pdp());
 	const CDistributionSpec *child_expr_distr_spec = drvd_prop_plan->Pds();
-	if (child_expr_distr_spec->Edt() == CDistributionSpec::EdtUniversal)
+	if (child_expr_distr_spec->Edt() != CDistributionSpec::EdtUniversal)
 	{
-		MarkEnforcedByMotionNode(false);
-	}
-	else
-	{
-		MarkEnforcedByMotionNode(true);
+//		MarkEnforcedByMotion(false);
+//	}
+//	else
+//	{
+		MarkEnforcedByMotion(true);
 	}
 	
 	// add a hashed distribution enforcer
@@ -163,6 +164,21 @@ CDistributionSpecRandom::AppendEnforcers
 										pexpr
 										);
 	pdrgpexpr->Append(pexprMotion);		
+}
+
+BOOL
+CDistributionSpecRandom::IsEnforcedByMotion() const
+{
+	return m_is_enforced_by_motion;
+}
+
+void
+CDistributionSpecRandom::MarkEnforcedByMotion
+	(
+	BOOL is_enforced_by_motion
+	)
+{
+	m_is_enforced_by_motion = is_enforced_by_motion;
 }
 
 //---------------------------------------------------------------------------
