@@ -237,6 +237,11 @@ namespace gpopt
 				return dynamic_cast<CPhysicalComputeScalar*>(pop);
 			}
 		
+			virtual
+			CEnfdProp::EPropEnforcingType
+			EpetDistribution(CExpressionHandle &exprhdl, const CEnfdDistribution *ped) const;
+		
+		
 	}; // class CPhysicalComputeScalar
 
 }

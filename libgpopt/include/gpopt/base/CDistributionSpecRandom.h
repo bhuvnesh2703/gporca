@@ -41,6 +41,8 @@ namespace gpopt
 			// this flag adds the ability to mark a distribution request as non-satisfiable by Singleton
 			// in case we need to enforce across segments distribution
 			BOOL m_fSatisfiedBySingleton;
+		
+			BOOL m_is_enforced_by_motion_node;
 
 			// private copy ctor
 			CDistributionSpecRandom(const CDistributionSpecRandom &);
@@ -49,7 +51,16 @@ namespace gpopt
 
 			//ctor
 			CDistributionSpecRandom();
-			
+		
+			BOOL EnforcedByMotionNode() const
+			{
+				return m_is_enforced_by_motion_node;
+			}
+		
+			void MarkEnforcedByMotionNode(BOOL flag)
+			{
+				m_is_enforced_by_motion_node = flag;
+			}
 			// accessor
 			virtual 
 			EDistributionType Edt() const

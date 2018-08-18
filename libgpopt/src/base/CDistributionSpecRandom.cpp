@@ -16,6 +16,7 @@
 #include "gpopt/base/CDistributionSpecRandom.h"
 #include "gpopt/base/COptCtxt.h"
 #include "gpopt/operators/CPhysicalMotionRandom.h"
+#include "gpopt/operators/CExpressionHandle.h"
 
 using namespace gpopt;
 
@@ -39,6 +40,7 @@ CDistributionSpecRandom::CDistributionSpecRandom()
 		// Const Tables in DML queries
 		MarkDuplicateSensitive();
 	}
+	m_is_enforced_by_motion_node = false;
 }
 
 //---------------------------------------------------------------------------
@@ -93,6 +95,13 @@ CDistributionSpecRandom::FSatisfies
 		return true;
 	}
 	
+	if (EdtStrictRandom == pds->Edt())
+	{
+		if (m_is_enforced_by_motion_node)
+		{
+			return true;
+		}
+	}
 	return EdtAny == pds->Edt() || EdtNonSingleton == pds->Edt();
 }
 
@@ -108,7 +117,7 @@ void
 CDistributionSpecRandom::AppendEnforcers
 	(
 	IMemoryPool *mp,
-	CExpressionHandle &, // exprhdl
+	CExpressionHandle &exprhdl,
 	CReqdPropPlan *
 #ifdef GPOS_DEBUG
 	prpp
@@ -133,6 +142,17 @@ CDistributionSpecRandom::AppendEnforcers
 		return;
 	}
 
+	CDrvdPropPlan *drvd_prop_plan = CDrvdPropPlan::Pdpplan(exprhdl.Pdp());
+	const CDistributionSpec *child_expr_distr_spec = drvd_prop_plan->Pds();
+	if (child_expr_distr_spec->Edt() == CDistributionSpec::EdtUniversal)
+	{
+		MarkEnforcedByMotionNode(false);
+	}
+	else
+	{
+		MarkEnforcedByMotionNode(true);
+	}
+	
 	// add a hashed distribution enforcer
 	AddRef();
 	pexpr->AddRef();
