@@ -88,13 +88,17 @@ CDistributionSpecRandom::FSatisfies
 		return true;
 	}
 	
+	// random spec satisfies explicit random spec in some cases
 	if (EdtExplicitRandom == pds->Edt())
 	{
-		if (GetSpecOrigin() == CDistributionSpecRandom::EsoDerived)
-		{
-			return true;
-		}
-		if (!IsChildUniversal())
+		// if motion node enforcing random spec has a universal child,
+		// the random motion node poses duplicate data hazard. To avoid duplication,
+		// the random motion node is converted into a result node with hash filter in
+		// dxl to plannedstmt translator.
+		// if requested spec is explicit random and the node delivering random spec does not
+		// have a universal child, in such cases random spec satisifies explicit random and
+		// an additional random motion is not required
+		if (CDistributionSpecRandom::EsoRequired == GetSpecOrigin() && !IsChildUniversal())
 		{
 			return true;
 		}
