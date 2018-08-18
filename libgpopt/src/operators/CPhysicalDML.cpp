@@ -18,6 +18,7 @@
 #include "gpopt/base/CDistributionSpecHashed.h"
 #include "gpopt/base/CDistributionSpecRouted.h"
 #include "gpopt/base/CDistributionSpecStrictRandom.h"
+#include "gpopt/base/CDistributionSpecRandom.h"
 #include "gpopt/operators/CExpressionHandle.h"
 #include "gpopt/operators/CPredicateUtils.h"
 #include "gpopt/operators/CPhysicalDML.h"
@@ -235,7 +236,10 @@ CPhysicalDML::PdsRequired
 	{
 		if (CLogicalDML::EdmlInsert == m_edmlop)
 		{
-			return GPOS_NEW(mp) CDistributionSpecStrictRandom();
+			CDistributionSpecRandom *pdsRandom = GPOS_NEW(mp) CDistributionSpecRandom(CDistributionSpecRandom::EsoRequired);
+			pdsRandom->MarkEnforcedByMotionNode(true);
+			return pdsRandom;
+//			return GPOS_NEW(mp) CDistributionSpecStrictRandom();
 		}
 		else
 		{

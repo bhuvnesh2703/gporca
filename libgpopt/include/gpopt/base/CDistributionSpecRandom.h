@@ -65,6 +65,8 @@ namespace gpopt
 
 			// is the spec derived or required
 			const ESpecOrigin m_spec_origin;
+		
+			BOOL m_is_enforced_by_motion_node;
 
 			// private copy ctor
 			CDistributionSpecRandom(const CDistributionSpecRandom &);
@@ -73,6 +75,16 @@ namespace gpopt
 
 			// ctor
 			CDistributionSpecRandom(ESpecOrigin spec_origin);
+		
+			BOOL EnforcedByMotionNode() const
+			{
+				return m_is_enforced_by_motion_node;
+			}
+		
+			void MarkEnforcedByMotionNode(BOOL flag)
+			{
+				m_is_enforced_by_motion_node = flag;
+			}
 		
 			// accessor
 			virtual 

@@ -92,9 +92,11 @@ CPhysicalMotion::PdsRequired
 
 	// if this motion is in a group where the required spec is explicit random,
 	// request random spec from the childs
-	if (pdsRequired->Edt() == CDistributionSpec::EdtStrictRandom)
+	if (pdsRequired->Edt() == CDistributionSpec::EdtRandom)
 	{
-		return GPOS_NEW(mp) CDistributionSpecRandom(CDistributionSpecRandom::EsoRequired);
+		CDistributionSpecRandom *pdsRandomRequired = CDistributionSpecRandom::PdsConvert(pdsRequired);
+		if (pdsRandomRequired->EnforcedByMotionNode())
+			return GPOS_NEW(mp) CDistributionSpecRandom(CDistributionSpecRandom::EsoRequired);
 	}
 
 	// any motion operator is distribution-establishing and does not require

@@ -34,6 +34,7 @@ CDistributionSpecRandom::CDistributionSpecRandom(ESpecOrigin spec_origin)
 		// Const Tables in DML queries
 		MarkDuplicateSensitive();
 	}
+	m_is_enforced_by_motion_node = false;
 }
 
 //---------------------------------------------------------------------------
@@ -58,6 +59,9 @@ CDistributionSpecRandom::Matches
 
 	const CDistributionSpecRandom *pdsRandom =
 			dynamic_cast<const CDistributionSpecRandom*>(pds);
+	
+	if (pdsRandom->EnforcedByMotionNode() && !m_is_enforced_by_motion_node)
+		return false;
 
 	return pdsRandom->IsDuplicateSensitive() == m_is_duplicate_sensitive;
 }
@@ -77,6 +81,15 @@ CDistributionSpecRandom::FSatisfies
 	)
 	const
 {
+//	if (EdtRandom == pds->Edt())
+//	{
+//		const CDistributionSpecRandom *pdsRandomRequired = CDistributionSpecRandom::PdsConvert(pds);
+//		if (pdsRandomRequired->EnforcedByMotionNode())
+//		{
+//			return true;
+//		}
+//	}
+	
 	if (Matches(pds))
 	{
 		return true;
@@ -88,21 +101,23 @@ CDistributionSpecRandom::FSatisfies
 		return true;
 	}
 	
+
+	
 	// random spec satisfies explicit random spec in some cases
-	if (EdtStrictRandom == pds->Edt())
-	{
-		// if motion node enforcing random spec has a universal child,
-		// the random motion node poses duplicate data hazard. To avoid duplication,
-		// the random motion node is converted into a result node with hash filter in
-		// dxl to plannedstmt translator.
-		// if requested spec is explicit random and the node delivering random spec does not
-		// have a universal child, in such cases random spec satisifies explicit random and
-		// an additional random motion is not required
-		if (CDistributionSpecRandom::EsoRequired == GetSpecOrigin() && !IsChildUniversal())
-		{
-			return true;
-		}
-	}
+//	if (EdtStrictRandom == pds->Edt())
+//	{
+//		// if motion node enforcing random spec has a universal child,
+//		// the random motion node poses duplicate data hazard. To avoid duplication,
+//		// the random motion node is converted into a result node with hash filter in
+//		// dxl to plannedstmt translator.
+//		// if requested spec is explicit random and the node delivering random spec does not
+//		// have a universal child, in such cases random spec satisifies explicit random and
+//		// an additional random motion is not required
+//		if (CDistributionSpecRandom::EsoRequired == GetSpecOrigin() && !IsChildUniversal())
+//		{
+//			return true;
+//		}
+//	}
 	
 	return EdtAny == pds->Edt() || EdtNonSingleton == pds->Edt();
 }
@@ -150,8 +165,13 @@ CDistributionSpecRandom::AppendEnforcers
 	const CDistributionSpec *child_expr_distr_spec = drvd_prop_plan->Pds();
 	if (child_expr_distr_spec->Edt() == CDistributionSpec::EdtUniversal)
 	{
-		MarkUniversalChild();
+		MarkEnforcedByMotionNode(false);
 	}
+	else
+	{
+		MarkEnforcedByMotionNode(true);
+	}
+	
 
 	AddRef();
 	pexpr->AddRef();
