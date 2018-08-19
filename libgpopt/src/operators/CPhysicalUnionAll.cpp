@@ -615,8 +615,44 @@ const
 		return pds;
 	}
 
+	CDistributionSpecRandom *pdsUnionAll = PdsDeriveParallelUnionAllChildren(mp, exprhdl);
+	if (NULL != pdsUnionAll)
+	{
+		return pdsUnionAll;
+	}
+
 	// output has unknown distribution on all segments
 	return GPOS_NEW(mp) CDistributionSpecRandom();
+}
+
+CDistributionSpecRandom *
+CPhysicalUnionAll::PdsDeriveParallelUnionAllChildren
+	(
+	IMemoryPool *mp,
+	CExpressionHandle &exprhdl
+	)
+	const
+{
+	if (COperator::EopPhysicalParallelUnionAll == exprhdl.Pop()->Eopid())
+	{
+		BOOL fStrictRandom = true;
+		for (ULONG ul = 0; fStrictRandom && ul < exprhdl.Arity(); ul++)
+		{
+			CDistributionSpec *pdsChild = exprhdl.Pdpplan(ul /*child_index*/)->Pds();
+			CDistributionSpec::EDistributionType edtChild = pdsChild->Edt();
+			if (CDistributionSpec::EdtStrictRandom != edtChild)
+			{
+				fStrictRandom = false;
+			}
+		}
+		if (fStrictRandom)
+		{
+			CDistributionSpecRandom *pdsSpec = GPOS_NEW(mp) CDistributionSpecRandom();
+			pdsSpec->MarkEnforcedByMotion(true);
+			return pdsSpec;
+		}
+	}
+	return NULL;
 }
 
 //---------------------------------------------------------------------------

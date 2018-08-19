@@ -39,6 +39,8 @@ namespace gpopt
 			// derive hashed distribution from child operators
 			CDistributionSpecHashed *PdshashedDerive(IMemoryPool *mp, CExpressionHandle &exprhdl) const;
 
+			CDistributionSpecRandom *PdsDeriveParallelUnionAllChildren(IMemoryPool *mp, CExpressionHandle &exprhdl) const;
+
 			// compute output hashed distribution matching the outer child's hashed distribution
 			CDistributionSpecHashed *PdsMatching(IMemoryPool *mp, const ULongPtrArray *pdrgpulOuter) const;
 
