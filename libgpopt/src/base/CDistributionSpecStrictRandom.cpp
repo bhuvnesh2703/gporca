@@ -11,12 +11,7 @@ CDistributionSpecStrictRandom::CDistributionSpecStrictRandom()
 
 BOOL CDistributionSpecStrictRandom::Matches(const CDistributionSpec *pds) const
 {
-	if (pds->Edt() == Edt())
-	{
-		return true;
-	}
-
-	return false;
+    return pds->Edt() == Edt();
 }
 
 BOOL CDistributionSpecStrictRandom::FSatisfies(const CDistributionSpec *pds) const
