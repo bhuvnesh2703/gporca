@@ -615,6 +615,8 @@ const
 		return pds;
 	}
 
+	// derive random spec with enforced by motion flag set to true,
+	// if parallel union all enforces strict random
 	CDistributionSpecRandom *pdsUnionAll = PdsDeriveParallelUnionAllChildren(mp, exprhdl);
 	if (NULL != pdsUnionAll)
 	{

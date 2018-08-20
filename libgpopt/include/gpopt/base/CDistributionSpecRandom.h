@@ -42,7 +42,13 @@ namespace gpopt
 			// in case we need to enforce across segments distribution
 			BOOL m_fSatisfiedBySingleton;
 
-			// is this spec enforced by a motion or is a derived spec
+			// is this spec enforced by a redistribute motion or is a derived spec?
+			// when optimization framework appends a random distribution spec, this
+			// flag is set to true except when the motion delivers duplicate hazard.
+			// If the child of the motion node enforced is an operator which delivers
+			// universal spec, the motion node poses duplicate hazard and is
+			// translated to a result node with hash filters to remove duplicate,
+			// in such case this flag defaults to false.
 			BOOL m_is_enforced_by_motion;
 
 			// private copy ctor

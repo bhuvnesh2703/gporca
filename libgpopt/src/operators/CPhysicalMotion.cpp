@@ -90,6 +90,11 @@ CPhysicalMotion::PdsRequired
 {
 	GPOS_ASSERT(0 == child_index);
 	
+	// this motion operator can be in the group of compute scalar
+	// from which a strict random spec may be required, so this motion
+	// must request random spec instead of any, as strict random does
+	// not satisfy any and we must enforce a motion on top of this group
+	// to ensure randomness of data.
 	if (pdsRequired->Edt() == CDistributionSpec::EdtStrictRandom)
 	{
 		return GPOS_NEW(mp) CDistributionSpecRandom();

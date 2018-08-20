@@ -60,6 +60,8 @@ CDistributionSpecRandom::Matches
 {
 	if (Edt() != pds->Edt())
 	{
+		// random spec matches strict random spec if random spec is enforced
+		// by a motion
 		if (pds->Edt() == EdtStrictRandom && IsEnforcedByMotion())
 		{
 			return true;
@@ -99,6 +101,8 @@ CDistributionSpecRandom::FSatisfies
 		return true;
 	}
 	
+	// random spec satisfies strict random spec if random spec is enforced
+	// by a motion
 	if (EdtStrictRandom == pds->Edt() && m_is_enforced_by_motion)
 	{
 		return true;
@@ -145,12 +149,11 @@ CDistributionSpecRandom::AppendEnforcers
 
 	CDrvdPropPlan *drvd_prop_plan = CDrvdPropPlan::Pdpplan(exprhdl.Pdp());
 	const CDistributionSpec *child_expr_distr_spec = drvd_prop_plan->Pds();
+	// if the chid of the motion node delivers universal spec, the motion node
+	// is converted to a result node with hash filter in translator. So, the enforced
+	// random spec is not a motion.
 	if (child_expr_distr_spec->Edt() != CDistributionSpec::EdtUniversal)
 	{
-//		MarkEnforcedByMotion(false);
-//	}
-//	else
-//	{
 		MarkEnforcedByMotion(true);
 	}
 	

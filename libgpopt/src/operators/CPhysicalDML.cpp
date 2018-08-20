@@ -359,10 +359,14 @@ CPhysicalDML::PdsDerive
 	const
 {
 	CDistributionSpec *pdsDerived = PdsDerivePassThruOuter(exprhdl);
+
+	// if the derived spec is strict random, derive random spec with enforced
+	// by motion flag set to true instead.
 	if (pdsDerived->Edt() == CDistributionSpecRandom::EdtStrictRandom)
 	{
 		pdsDerived->Release();
-		return GPOS_NEW(mp) CDistributionSpecRandom();
+		CDistributionSpecRandom *pdsRandom = GPOS_NEW(mp) CDistributionSpecRandom();
+		pdsRandom->MarkEnforcedByMotion(true);
 	}
 	return pdsDerived;
 }

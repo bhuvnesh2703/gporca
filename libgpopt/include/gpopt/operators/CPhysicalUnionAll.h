@@ -39,7 +39,12 @@ namespace gpopt
 			// derive hashed distribution from child operators
 			CDistributionSpecHashed *PdshashedDerive(IMemoryPool *mp, CExpressionHandle &exprhdl) const;
 
-			CDistributionSpecRandom *PdsDeriveParallelUnionAllChildren(IMemoryPool *mp, CExpressionHandle &exprhdl) const;
+			// if the node is a parallel union all and the child of parallel union all delivers
+			// strict random spec, mark the derived random spec as enforced by a motion
+			// the returned spec helps identifying if data is already randomly distributed.
+			// if parallel union all does not enforce strict random spec, a NULL spec is
+			// returned
+			CDistributionSpecRandom *PdsStrictRandomParallelUnionAllChildren(IMemoryPool *mp, CExpressionHandle &exprhdl) const;
 
 			// compute output hashed distribution matching the outer child's hashed distribution
 			CDistributionSpecHashed *PdsMatching(IMemoryPool *mp, const ULongPtrArray *pdrgpulOuter) const;
