@@ -5,7 +5,12 @@
 
 using namespace gpopt;
 
-CDistributionSpecStrictRandom::CDistributionSpecStrictRandom()
+CDistributionSpecStrictRandom::CDistributionSpecStrictRandom
+	(
+	BOOL is_enforced_by_motion
+	)
+	:
+	CDistributionSpecRandom(is_enforced_by_motion)
 {
 }
 
@@ -16,5 +21,5 @@ BOOL CDistributionSpecStrictRandom::Matches(const CDistributionSpec *pds) const
 
 BOOL CDistributionSpecStrictRandom::FSatisfies(const CDistributionSpec *pds) const
 {
-    return Matches(pds);
+    return Matches(pds) || pds->Edt() == EdtAny;
 }
