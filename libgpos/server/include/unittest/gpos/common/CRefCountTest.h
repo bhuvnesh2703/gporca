@@ -12,6 +12,7 @@
 #define GPOS_CRefCountTest_H
 
 #include "gpos/base.h"
+#include "gpos/common/CRefCount.h"
 
 namespace gpos
 {
@@ -53,7 +54,7 @@ namespace gpos
 
 				// return true if calling object's destructor is allowed
 				virtual
-				BOOL FDeletable() const
+				BOOL Deletable() const
 				{
 					return m_fDeletable;
 				}

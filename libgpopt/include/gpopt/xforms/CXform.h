@@ -307,7 +307,7 @@ namespace gpopt
 
 			// verify xform promise on the given expression
 			static
-			BOOL FPromising(IMemoryPool *pmp, const CXform *pxform, CExpression *pexpr);
+			BOOL FPromising(IMemoryPool *mp, const CXform *pxform, CExpression *pexpr);
 
 #endif // GPOS_DEBUG
 
@@ -319,32 +319,40 @@ namespace gpopt
 			// returns a set containing all xforms related to index join
 			// caller takes ownership of the returned set
 			static
-			CBitSet *PbsIndexJoinXforms(IMemoryPool *pmp);
+			CBitSet *PbsIndexJoinXforms(IMemoryPool *mp);
 
 			// returns a set containing all xforms related to bitmap indexes
 			// caller takes ownership of the returned set
 			static
-			CBitSet *PbsBitmapIndexXforms(IMemoryPool *pmp);
+			CBitSet *PbsBitmapIndexXforms(IMemoryPool *mp);
 
 			// returns a set containing all xforms related to heterogeneous indexes
 			// caller takes ownership of the returned set
 			static
-			CBitSet *PbsHeterogeneousIndexXforms(IMemoryPool *pmp);
+			CBitSet *PbsHeterogeneousIndexXforms(IMemoryPool *mp);
 
 			// returns a set containing all xforms that generate a plan with a hash join
 			// caller takes ownership of the returned set
 			static
-			CBitSet *PbsHashJoinXforms(IMemoryPool *pmp);
+			CBitSet *PbsHashJoinXforms(IMemoryPool *mp);
 
 			// returns a set containing xforms to use only the join order as available
 			// in the query
 			static
-			CBitSet *PbsJoinOrderInQueryXforms(IMemoryPool *pmp);
+			CBitSet *PbsJoinOrderInQueryXforms(IMemoryPool *mp);
 
 			// returns a set containing xforms to use combination of greedy xforms
 			// for join order
 			static
-			CBitSet *PbsJoinOrderOnGreedyXforms(IMemoryPool *pmp);
+			CBitSet *PbsJoinOrderOnGreedyXforms(IMemoryPool *mp);
+
+			// return true if xform should be applied only once.
+			// for expression of type CPatternTree, in deep trees, the number
+			// of expressions generated for group expression can be significantly
+			// large causing the Xform to be applied many times. This can lead to
+			// significantly long planning time, so such Xform should only be applied once
+			virtual
+			BOOL IsApplyOnce();
 
 	}; // class CXform
 	

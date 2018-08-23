@@ -37,7 +37,7 @@ namespace gpopt
 	//---------------------------------------------------------------------------
 	class CXformInnerJoinWithInnerSelect2DynamicBitmapIndexGetApply : public CXformJoin2IndexApplyBase
 		<CLogicalInnerJoin, CLogicalIndexApply, CLogicalDynamicGet,
-		true /*fWithSelect*/, false /*fPartial*/, IMDIndex::EmdindBitmap>
+		true /*fWithSelect*/, false /*is_partial*/, IMDIndex::EmdindBitmap>
 	{
 		private:
 			// private copy ctor
@@ -49,11 +49,11 @@ namespace gpopt
 		public:
 			// ctor
 			explicit
-			CXformInnerJoinWithInnerSelect2DynamicBitmapIndexGetApply(IMemoryPool *pmp)
+			CXformInnerJoinWithInnerSelect2DynamicBitmapIndexGetApply(IMemoryPool *mp)
 				: CXformJoin2IndexApplyBase
 				 <CLogicalInnerJoin, CLogicalIndexApply, CLogicalDynamicGet,
-				 true /*fWithSelect*/, false /*fPartial*/, IMDIndex::EmdindBitmap>
-				(pmp)
+				 true /*fWithSelect*/, false /*is_partial*/, IMDIndex::EmdindBitmap>
+				(mp)
 			{}
 
 			// dtor
@@ -72,6 +72,13 @@ namespace gpopt
 			const CHAR *SzId() const
 			{
 				return "CXformInnerJoinWithInnerSelect2DynamicBitmapIndexGetApply";
+			}
+
+			// return true if xform should be applied only once
+			virtual
+			BOOL IsApplyOnce()
+			{
+				return true;
 			}
 
 	}; // class CXformInnerJoinWithInnerSelect2DynamicBitmapIndexGetApply

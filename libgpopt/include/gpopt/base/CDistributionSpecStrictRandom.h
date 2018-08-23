@@ -25,7 +25,7 @@ namespace gpopt
     public:
 
         //ctor
-        CDistributionSpecStrictRandom();
+        CDistributionSpecStrictRandom(BOOL is_enforced_by_motion=false);
 
         // accessor
         virtual
@@ -42,7 +42,7 @@ namespace gpopt
 
         // does this distribution match the given one
         virtual
-        BOOL FMatch(const CDistributionSpec *pds) const;
+        BOOL Matches(const CDistributionSpec *pds) const;
 
         // does this distribution satisfy the given one
         virtual
