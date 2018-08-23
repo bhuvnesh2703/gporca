@@ -80,10 +80,11 @@ TypeModifierColumn TypeModifierCast TypeModifierConst TypeModifierDoubleMappable
 CIndexScanTest:
 BTreeIndex-Against-InList BTreeIndex-Against-ScalarSubquery BitmapIndex-Against-InList
 IndexScan-AOTable IndexScan-DroppedColumns IndexScan-BoolTrue IndexScan-BoolFalse
-IndexScan-Relabel IndexGet-OuterRefs LogicalIndexGetDroppedCols;
+IndexScan-Relabel IndexGet-OuterRefs LogicalIndexGetDroppedCols NewBtreeIndexScanCost;
 
 CIndexApplyTest:
-IndexApply1 IndexApply1-CalibratedCostModel IndexApply2 IndexApply3 IndexApply4
+IndexApply_NestLoopWithNestParamTrue IndexApply1
+IndexApply1-CalibratedCostModel IndexApply2 IndexApply3 IndexApply4
 IndexApply-IndexCondDisjointWithHashedDistr IndexApply-IndexCondIntersectWithHashedDistr
 IndexApply-IndexCondMatchHashedDistr IndexApply-IndexCondSubsetOfHashedDistr
 IndexApply-IndexCondSupersetOfHashedDistr IndexApply-IndexOnMasterOnlyTable
@@ -91,7 +92,7 @@ IndexApply-PartTable IndexApply-Heterogeneous-NoDTS IndexApply-Heterogeneous-DTS
 IndexApply-No-Motion-Below-Join IndexApply-Redistribute-Const-Table IndexApply-PartResolverExpand
 IndexApply-InnerSelect-Basic IndexApply-InnerSelect-PartTable IndexApply-PartKey-Is-IndexKey
 IndexApply-InnerSelect-Heterogeneous-DTS IndexApply-Heterogeneous-BothSidesPartitioned
-IndexApply-InnerSelect-PartTable2;
+IndexApply-InnerSelect-PartTable2 IndexApply-ForPartialIndex;
 
 CDynamicIndexScanTest:
 DynamicIndexScan-Homogenous DynamicIndexScan-BoolTrue DynamicIndexScan-BoolFalse
@@ -228,7 +229,12 @@ JOIN-NonRedistributableCol DQA-NonRedistributableCol
 MotionHazard-NoMaterializeHashAggUnderResult;
 
 CInvalidCostContextTest:
-SpoolShouldInvalidateUnresolvedDynamicScans
+SpoolShouldInvalidateUnresolvedDynamicScans;
+
+CGistIndexTest:
+Gist-AOCOTable-NonLossy-BitmapIndexPlan Gist-NonPart-Lossy-BitmapIndexPlan Gist-NonPart-Lossy-IndexPlan
+Gist-PartTable-Lossy-IndexPlan Gist-PartTable-NonLossy-BitmapIndexPlan Gist-PartialIndex-TableScan
+Gist-NestedLoopJoin-Lossy-IndexPlan Gist-NestedLoopJoin-Postgis-IndexPlan Gist-OrderBy-BitmapPlan Gist-OrderBy-IndexPlan
 ")
 
 set(mdp_dir "../data/dxl/minidump/")

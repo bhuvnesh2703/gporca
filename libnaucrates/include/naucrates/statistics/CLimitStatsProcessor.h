@@ -11,8 +11,14 @@
 #ifndef GPNAUCRATES_CLimitStatsProcessor_H
 #define GPNAUCRATES_CLimitStatsProcessor_H
 
+#include "gpopt/operators/ops.h"
+#include "gpopt/optimizer/COptimizerConfig.h"
+
+#include "naucrates/statistics/CStatisticsUtils.h"
+
 namespace gpnaucrates
 {
+	using namespace gpos;
 
 	class CLimitStatsProcessor
 	{
@@ -20,7 +26,7 @@ namespace gpnaucrates
 
 		// limit
 		static
-		CStatistics *PstatsLimit(IMemoryPool *pmp, const CStatistics *pstatsInput, CDouble dLimitRows);
+		CStatistics *CalcLimitStats(IMemoryPool *mp, const CStatistics *input_stats, CDouble input_limit_rows);
 	};
 }
 
