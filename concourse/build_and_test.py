@@ -89,6 +89,8 @@ def main():
                              options.compiler,
                              options.cxxflags,
                              options.thirty_two_bit)
+    if options.build_type == "DEBUG":
+       return -1
     if status:
         return status
     status = make()
