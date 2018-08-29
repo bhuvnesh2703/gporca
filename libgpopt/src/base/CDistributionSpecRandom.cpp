@@ -134,27 +134,17 @@ CDistributionSpecRandom::AppendEnforcers
 		// random Motion is disabled
 		return;
 	}
-
+	
+	// random motion added on top of a child delivering universal
+	// spec is converted to a result node with hash filters in dxl to planned
+	// statement translator. So, mark the spec of such a motion as random spec
+	// as it will not be ultimately enforced by a motion.
+	//
 	// consider the query: INSERT INTO t1_random VALUES (1), (2);
 	// where t1_random is randomly distributed.
-	//
-	// CPhysicalDML(Insert) on t1_random requires its child to deliver
-	// strict random spec or random spec enforced by motion, however
-	// CPhysicalConstTableGet (ie. VALUES) operator derives universal spec.
-	// In order to satisfy the distribution spec requirement of CPhysicalDML(Insert),
-	// enforcement framework adds a CPhysicalMotionRandom motion
-	// delivering random spec.
-	// Since, INSERT is executed directly on the segments,
-	// CPhysicalConstTableGet (deriving Universal spec) is executed on all the
-	// segments locally, but to ensure that duplicates are not inserted,
-	// DXL to Planned Statement translator converts the CPhysicalMotionRandom
-	// above CPhysicalConstTableGet to a "Result node" with hash filters, which
-	// filters data from all the segments except one.
-	// (See #2 below in Physical Plan and GPDB plan)
-	// In order to identify if the CPhysicalMotionRandom node added below
-	// will be not be translated to a Result Node, i.e it does not have a
-	// universal spec child, mark m_is_enforced_by_motion to true.
-	//
+	// the below plan shows the physical plan with random motion enforced in
+	// physical stage, and the GPDB plan which translated the motion node on
+	// top of universal spec child to a result node
 	// Physical plan:
 	// +--CPhysicalDML (Insert, "t1_random"), Source Columns: ["a" (0)], Action: ("ColRef_0001" (1))
 	//    +--CPhysicalMotionRandom (#1)
@@ -166,7 +156,7 @@ CDistributionSpecRandom::AppendEnforcers
 	//                +--CScalarConst (1)
 	//
 	// Insert  (cost=0.00..0.03 rows=1 width=4)
-	//   ->  Redistribute Motion 1:1  (slice1; segments: 1)  (cost=0.00..0.00 rows=1 width=8)
+	//   ->  Redistribute Motion 1:1  (slice1; segments: 1)  (cost=0.00..0.00 rows=1 width=8) ==> Random Distribution
 	//      ->  Result  (cost=0.00..0.00 rows=1 width=8)
 	//         ->  Result  (cost=0.00..0.00 rows=1 width=1)  (#2)  ==> Motion converted to Result Node
 	//            ->  Values Scan on "Values"  (cost=0.00..0.00 rows=2 width=4) ==> Derives universal spec
@@ -174,16 +164,9 @@ CDistributionSpecRandom::AppendEnforcers
 	CDistributionSpec *expr_dist_spec = CDrvdPropPlan::Pdpplan(exprhdl.Pdp())->Pds();
 	CDistributionSpecRandom *random_dist_spec = NULL;
 
-	if (Edt() == EdtStrictRandom)
+	if (expr_dist_spec->Edt() == CDistributionSpec::EdtUniversal)
 	{
-		// strict random spec is a derived class which calls the
-		// AppendEnforcers of random spec, thus instantiate an object
-		// of strict random spec
-		random_dist_spec = GPOS_NEW(mp) CDistributionSpecStrictRandom();
-	}
-	else if (expr_dist_spec->Edt() == CDistributionSpec::EdtUniversal)
-	{
-		// the motion node in the enforcer is added on top of a child
+		// the motion node is enforced on top of a child
 		// deriving universal spec, this motion node will be
 		// translated to a result node with hash filter to remove
 		// duplicates
@@ -196,7 +179,7 @@ CDistributionSpecRandom::AppendEnforcers
 		random_dist_spec = GPOS_NEW(mp) CDistributionSpecStrictRandom();
 	}
 
-	// add a hashed distribution enforcer
+	// add a distribution enforcer
 	pexpr->AddRef();
 	CExpression *pexprMotion = GPOS_NEW(mp) CExpression
 										(

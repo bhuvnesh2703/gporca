@@ -616,8 +616,7 @@ const
 		return pds;
 	}
 
-	// derive random spec with enforced by motion flag set to true,
-	// if parallel union all enforces strict random
+	// derive strict random spec, if parallel union all enforces strict random
 	CDistributionSpecRandom *random_dist_spec = PdsStrictRandomParallelUnionAllChildren(mp, exprhdl);
 	if (NULL != random_dist_spec)
 	{
@@ -646,10 +645,9 @@ const
 // in the above plan, the child of CPhysicalParallelUnionAll
 // enforces CDistributionSpecStrictRandom with CPhysicalMotionRandom
 // operator. Since, the data coming to CPhysicalParallelUnionAll
-// is already randomly distributed, there is no need to redistribute
-// the data again before inserting into t1_x. So, derive
-// CDistributionSpecRandom with is_enforced_by_motion
-// flag set to true.
+// is already randomly distributed due to existence of motion,
+// there is no need to redistribute the data again before
+// inserting into t1_x. So, derive CDistributionSpecStrictRandom
 CDistributionSpecRandom *
 CPhysicalUnionAll::PdsStrictRandomParallelUnionAllChildren
 	(

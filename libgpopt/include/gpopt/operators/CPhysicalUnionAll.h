@@ -40,8 +40,9 @@ namespace gpopt
 			CDistributionSpecHashed *PdshashedDerive(IMemoryPool *mp, CExpressionHandle &exprhdl) const;
 
 			// if the node is a parallel union all and the child of parallel union all delivers
-			// strict random spec, mark the derived random spec as enforced by a motion.
-			// the returned spec helps identifying if data is already randomly distributed.
+			// strict random spec, mark the derived random spec as strict random spec.
+			// the returned spec helps identifying if the data is already randomly distributed.
+			// due to existing of motion.
 			// if parallel union all does not enforce strict random spec, a NULL spec is
 			// returned
 			CDistributionSpecRandom *PdsStrictRandomParallelUnionAllChildren(IMemoryPool *mp, CExpressionHandle &expr_handle) const;
