@@ -15,6 +15,7 @@
 #include "gpopt/base/CColRefSetIter.h"
 #include "gpopt/base/COptCtxt.h"
 #include "gpos/error/CAutoTrace.h"
+#include "gpopt/base/CUtils.h"
 
 using namespace gpopt;
 
@@ -194,12 +195,15 @@ CPropConstraint::OsPrint
 	return os;
 }
 
-void
+CHAR *
 CPropConstraint::DbgPrint() const
 {
 	IMemoryPool *mp = COptCtxt::PoctxtFromTLS()->Pmp();
 	CAutoTrace at(mp);
 	(void) this->OsPrint(at.Os());
+	const WCHAR *buff = at.GetString()->GetBuffer();
+	char *sz = CUtils::CreateMultiByteCharStringFromWCString(mp, const_cast< wchar_t* >(buff));
+	return sz;
 }
 // EOF
 

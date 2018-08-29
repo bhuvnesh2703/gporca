@@ -151,7 +151,7 @@ namespace gpopt
 			virtual
 			IOstream &OsPrint(IOstream &) const;
 
-			void DbgPrint() const;
+			CHAR *DbgPrint() const;
 #endif // GPOS_DEBUG
 
 			// walk the expression and add the mapping between computed column

@@ -13,6 +13,7 @@
 #include "gpopt/base/CPartKeys.h"
 #include "gpopt/base/CColRefSet.h"
 #include "gpopt/base/CUtils.h"
+#include "gpopt/base/CUtils.h"
 
 using namespace gpopt;
 
@@ -218,13 +219,16 @@ CPartKeys::OsPrint
 }
 
 #ifdef GPOS_DEBUG
-void
+CHAR *
 CPartKeys::DbgPrint() const
 {
 
 	IMemoryPool *mp = COptCtxt::PoctxtFromTLS()->Pmp();
 	CAutoTrace at(mp);
 	(void) this->OsPrint(at.Os());
+	const WCHAR *buff = at.GetString()->GetBuffer();
+	char *sz = CUtils::CreateMultiByteCharStringFromWCString(mp, const_cast< wchar_t* >(buff));
+	return sz;
 }
 #endif // GPOS_DEBUG
 // EOF

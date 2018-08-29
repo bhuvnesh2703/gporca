@@ -282,11 +282,14 @@ CQueryContext::OsPrint
 	return os << *m_pexpr << std::endl << *m_prpp;
 }
 
-void
+CHAR *
 CQueryContext::DbgPrint() const
 {
 	CAutoTrace at(m_mp);
 	(void) this->OsPrint(at.Os());
+	const WCHAR *buff = at.GetString()->GetBuffer();
+	char *sz = CUtils::CreateMultiByteCharStringFromWCString(m_mp, const_cast< wchar_t* >(buff));
+	return sz;
 }
 #endif // GPOS_DEBUG
 

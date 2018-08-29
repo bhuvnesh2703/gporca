@@ -298,7 +298,7 @@ namespace gpopt
 			BOOL FMatchDebug(CExpression *pexpr) const;
 
 			// debug print; for interactive debugging sessions only
-			void DbgPrint() const;
+			CHAR *DbgPrint() const;
 
 			// debug print; for interactive debugging sessions only
 			// prints expression properties as well

@@ -1241,12 +1241,15 @@ CGroupExpression::OsPrint
 //		always prints to stderr;
 //
 //---------------------------------------------------------------------------
-void
+CHAR *
 CGroupExpression::DbgPrint()
 {
 	CAutoTraceFlag atf(EopttracePrintGroupProperties, true);
 	CAutoTrace at(m_mp);
 	(void) this->OsPrint(at.Os());
+	const WCHAR *buff = at.GetString()->GetBuffer();
+	char *sz = CUtils::CreateMultiByteCharStringFromWCString(m_mp, const_cast< wchar_t* >(buff));
+	return sz;
 }
 #endif // GPOS_DEBUG
 

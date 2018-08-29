@@ -17,6 +17,7 @@
 #include "gpopt/base/COptCtxt.h"
 #include "gpos/error/CAutoTrace.h"
 #endif // GPOS_DEBUG
+#include "gpopt/base/CUtils.h"
 
 using namespace gpopt;
 
@@ -212,13 +213,16 @@ CPartIndexMap::CPartTableInfo::OsPrint
 }
 
 #ifdef GPOS_DEBUG
-void
+CHAR *
 CPartIndexMap::CPartTableInfo::DbgPrint() const
 {
 
 	IMemoryPool *mp = COptCtxt::PoctxtFromTLS()->Pmp();
 	CAutoTrace at(mp);
 	(void) this->OsPrint(at.Os());
+	const WCHAR *buff = at.GetString()->GetBuffer();
+	char *sz = CUtils::CreateMultiByteCharStringFromWCString(mp, const_cast< wchar_t* >(buff));
+	return sz;
 }
 #endif
 
@@ -1083,11 +1087,14 @@ CPartIndexMap::OsPrintPartCnstrMap
 }
 
 #ifdef GPOS_DEBUG
-void
+CHAR *
 CPartIndexMap::DbgPrint() const
 {
 	CAutoTrace at(m_mp);
 	(void) this->OsPrint(at.Os());
+	const WCHAR *buff = at.GetString()->GetBuffer();
+	char *sz = CUtils::CreateMultiByteCharStringFromWCString(m_mp, const_cast< wchar_t* >(buff));
+	return sz;
 }
 #endif // GPOS_DEBUG
 

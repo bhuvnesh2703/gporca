@@ -214,7 +214,7 @@ namespace gpopt
 			IOstream &OsPrint(IOstream &os) const;
 
 			// debug print
-			void DbgPrint() const;
+			CHAR *DbgPrint() const;
 
 	}; // class CRange
 

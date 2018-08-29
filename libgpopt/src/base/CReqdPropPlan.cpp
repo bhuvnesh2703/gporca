@@ -830,12 +830,15 @@ CReqdPropPlan::PrppRemap
 }
 
 #ifdef GPOS_DEBUG
-void
+CHAR *
 CReqdPropPlan::DbgPrint() const
 {
 	IMemoryPool *mp = COptCtxt::PoctxtFromTLS()->Pmp();
 	CAutoTrace at(mp);
 	(void) this->OsPrint(at.Os());
+	const WCHAR *buff = at.GetString()->GetBuffer();
+	char *sz = CUtils::CreateMultiByteCharStringFromWCString(mp, const_cast< wchar_t* >(buff));
+	return sz;
 }
 #endif // GPOS_DEBUG
 // EOF

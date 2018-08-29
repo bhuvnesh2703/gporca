@@ -17,6 +17,7 @@
 #include "gpopt/operators/CPredicateUtils.h"
 
 #include "naucrates/md/IMDScalarOp.h"
+#include "gpopt/base/CUtils.h"
 
 using namespace gpopt;
 
@@ -815,12 +816,15 @@ CRange::OsPrintBound
 	return os;
 }
 
-void
+CHAR *
 CRange::DbgPrint() const
 {
 	IMemoryPool *mp = COptCtxt::PoctxtFromTLS()->Pmp();
 	CAutoTrace at(mp);
 	(void) this->OsPrint(at.Os());
+	const WCHAR *buff = at.GetString()->GetBuffer();
+	char *sz = CUtils::CreateMultiByteCharStringFromWCString(mp, const_cast< wchar_t* >(buff));
+	return sz;
 }
 
 // EOF

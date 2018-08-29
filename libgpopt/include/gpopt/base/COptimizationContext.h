@@ -371,7 +371,7 @@ namespace gpopt
 
 #ifdef GPOS_DEBUG
 			// debug print; for interactive debugging sessions only
-			void DbgPrint();
+			char *DbgPrint();
 #endif // GPOS_DEBUG
 
 

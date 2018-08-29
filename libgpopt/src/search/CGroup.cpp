@@ -2200,12 +2200,15 @@ CGroup::CostLowerBound
 //		always prints to stderr;
 //
 //---------------------------------------------------------------------------
-void
+CHAR *
 CGroup::DbgPrint()
 {
 	CAutoTraceFlag atf(EopttracePrintGroupProperties, true);
 	CAutoTrace at(m_mp);
 	(void) this->OsPrint(at.Os());
+	const WCHAR *buff = at.GetString()->GetBuffer();
+	char *sz = CUtils::CreateMultiByteCharStringFromWCString(m_mp, const_cast< wchar_t* >(buff));
+	return sz;
 }
 #endif
 

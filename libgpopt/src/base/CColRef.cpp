@@ -201,12 +201,18 @@ CColRef::Equals
 }
 
 #ifdef GPOS_DEBUG
-void
+CHAR *
 CColRef::DbgPrint() const
 {
 	IMemoryPool *pmp = COptCtxt::PoctxtFromTLS()->Pmp();
 	CAutoTrace at(pmp);
 	(void) this->OsPrint(at.Os());
+	const WCHAR *buff = at.GetString()->GetBuffer();
+	ULONG ulMaxLength = GPOS_WSZ_LENGTH(const_cast< wchar_t* >(buff)) * GPOS_SIZEOF(WCHAR) + 1;
+	CHAR *sz = GPOS_NEW_ARRAY(pmp, CHAR, ulMaxLength);
+	clib::Wcstombs(sz, const_cast< wchar_t* >(buff), ulMaxLength);
+	sz[ulMaxLength - 1] = '\0';
+	return sz;
 }
 #endif // GPOS_DEBUG
 

@@ -46,7 +46,7 @@ namespace gpopt
 
 #ifdef GPOS_DEBUG
 			// debug print; for interactive debugging sessions only
-			void DbgPrint();
+			CHAR * DbgPrint();
 #endif 		// GPOS_DEBUG
 
 			// states of a group expression

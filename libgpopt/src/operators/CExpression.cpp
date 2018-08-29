@@ -1189,11 +1189,14 @@ CExpression::PrintProperties
 // ----------------------------------------------------------------
 
 // prints expression only
-void
+CHAR *
 CExpression::DbgPrint() const
 {
 	CAutoTrace at(m_mp);
 	(void) this->OsPrint(at.Os());
+	const WCHAR *buff = at.GetString()->GetBuffer();
+	char *sz = CUtils::CreateMultiByteCharStringFromWCString(m_mp, const_cast< wchar_t* >(buff));
+	return sz;
 }
 
 // Prints expression along with it's properties
@@ -1203,6 +1206,7 @@ CExpression::DbgPrintWithProperties() const
 	CAutoTraceFlag atf(EopttracePrintExpressionProperties, true);
 	CAutoTrace at(m_mp);
 	(void) this->OsPrint(at.Os());
+	
 }
 
 #endif // GPOS_DEBUG

@@ -56,6 +56,11 @@ namespace gpos
 			{
 				return m_os;
 			}
+		
+			const CWStringDynamic *GetString() const
+			{
+				return &m_wstr;
+			}
 
 	}; // class CAutoTrace
 }

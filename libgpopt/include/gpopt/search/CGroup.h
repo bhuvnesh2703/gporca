@@ -627,7 +627,7 @@ namespace gpopt
 
 #ifdef GPOS_DEBUG
 			// debug print; for interactive debugging sessions only
-			void DbgPrint();
+			CHAR * DbgPrint();
 #endif
 
 	}; // class CGroup

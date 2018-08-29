@@ -720,11 +720,17 @@ CBitSet::OsPrint
 }
 
 #ifdef GPOS_DEBUG
-void
+CHAR *
 CBitSet::DbgPrint() const
 {
 	CAutoTrace at(m_mp);
 	(void) this->OsPrint(at.Os());
+	const WCHAR *buff = at.GetString()->GetBuffer();
+	ULONG ulMaxLength = GPOS_WSZ_LENGTH(const_cast< wchar_t* >(buff)) * GPOS_SIZEOF(WCHAR) + 1;
+	CHAR *sz = GPOS_NEW_ARRAY(m_mp, CHAR, ulMaxLength);
+	clib::Wcstombs(sz, const_cast< wchar_t* >(buff), ulMaxLength);
+	sz[ulMaxLength - 1] = '\0';
+	return sz;
 }
 #endif // GPOS_DEBUG
 // EOF

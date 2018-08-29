@@ -179,7 +179,7 @@ namespace gpopt
 			CGroup *Pgroup(ULONG id);
 
 			// debug print for interactive debugging sessions only
-			void DbgPrint();
+			CHAR * DbgPrint();
 #endif // GPOS_DEBUG
 
 	}; // class CMemo

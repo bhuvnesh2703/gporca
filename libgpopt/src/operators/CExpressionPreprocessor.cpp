@@ -1472,13 +1472,18 @@ CExpressionPreprocessor::PexprFromConstraints
 		}
 
 		// generate predicates for the output columns of child
-		CExpression *pexprPred = PexprScalarPredicates(mp, ppc, pcrsNotNull, pcrsOutChild, pcrsProcessed);
+		CExpression *pexprPred = NULL;
+//		CExpression *pexprChildNew = NULL;
+		if (COperator::EopLogicalSequenceProject != pexprChild->Pop()->Eopid())
+		{
+			pexprPred = PexprScalarPredicates(mp, ppc, pcrsNotNull, pcrsOutChild, pcrsProcessed);
+		}
 		pcrsOutChild->Release();
 
 		// process child
 		CExpression *pexprChildNew = PexprFromConstraints(mp, pexprChild, pcrsProcessed);
 
-		if (NULL != pexprPred)
+		if (NULL != pexprPred && COperator::EopLogicalSequenceProject != pexprChild->Pop()->Eopid())
 		{
 			pdrgpexprChildren->Append(CUtils::PexprSafeSelect(mp, pexprChildNew, pexprPred));
 		}
@@ -2182,6 +2187,7 @@ CExpressionPreprocessor::PexprPreprocess
 
 	// (10) infer predicates from constraints
 	CExpression *pexprInferredPreds = PexprInferPredicates(mp, pexprConvert2In);
+//	pexprInferredPreds->DbgPrint();
 	GPOS_CHECK_ABORT;
 	pexprConvert2In->Release();
 

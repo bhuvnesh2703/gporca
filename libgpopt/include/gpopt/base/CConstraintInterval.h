@@ -309,7 +309,7 @@ namespace gpopt
 
 
 #ifdef GPOS_DEBUG
-			void DbgPrint() const;
+			CHAR *DbgPrint() const;
 #endif  // GPOS_DEBUG
 	}; // class CConstraintInterval
 

@@ -13,6 +13,7 @@
 #include "gpopt/base/CPartInfo.h"
 #include "gpopt/base/CUtils.h"
 #include "gpopt/metadata/CPartConstraint.h"
+#include "gpopt/base/CUtils.h"
 
 using namespace gpopt;
 
@@ -120,12 +121,15 @@ CPartInfo::CPartInfoEntry::OsPrint
 }
 
 #ifdef GPOS_DEBUG
-void
+CHAR *
 CPartInfo::CPartInfoEntry::DbgPrint() const
 {
 	IMemoryPool *mp = COptCtxt::PoctxtFromTLS()->Pmp();
 	CAutoTrace at(mp);
 	(void) this->OsPrint(at.Os());
+	const WCHAR *buff = at.GetString()->GetBuffer();
+	char *sz = CUtils::CreateMultiByteCharStringFromWCString(mp, const_cast< wchar_t* >(buff));
+	return sz;
 }
 #endif // GPOS_DEBUG
 
@@ -496,12 +500,15 @@ CPartInfo::OsPrint
 }
 
 #ifdef GPOS_DEBUG
-void
+CHAR *
 CPartInfo::DbgPrint() const
 {
 	IMemoryPool *mp = COptCtxt::PoctxtFromTLS()->Pmp();
 	CAutoTrace at(mp);
 	(void) this->OsPrint(at.Os());
+	const WCHAR *buff = at.GetString()->GetBuffer();
+	char *sz = CUtils::CreateMultiByteCharStringFromWCString(mp, const_cast< wchar_t* >(buff));
+	return sz;
 }
 #endif // GPOS_DEBUG
 

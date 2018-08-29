@@ -18,6 +18,7 @@
 #include "gpos/error/CAutoTrace.h"
 #include "gpopt/base/COptCtxt.h"
 #endif // GPOS_DEBUG
+#include "gpopt/base/CUtils.h"
 
 using namespace gpopt;
 
@@ -46,12 +47,15 @@ CReqdProp::~CReqdProp()
 
 
 #ifdef GPOS_DEBUG
-void
+CHAR *
 CReqdProp::DbgPrint() const
 {
 	IMemoryPool *mp = COptCtxt::PoctxtFromTLS()->Pmp();
 	CAutoTrace at(mp);
 	at.Os() << *this;
+	const WCHAR *buff = at.GetString()->GetBuffer();
+	char *sz = CUtils::CreateMultiByteCharStringFromWCString(mp, const_cast< wchar_t* >(buff));
+	return sz;
 }
 #endif // GPOS_DEBUG
 

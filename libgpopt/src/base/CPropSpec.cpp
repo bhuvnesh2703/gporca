@@ -15,17 +15,21 @@
 #include "gpopt/base/COptCtxt.h"
 #include "gpos/error/CAutoTrace.h"
 #endif
+#include "gpopt/base/CUtils.h"
 
 using namespace gpopt;
 
 #ifdef GPOS_DEBUG
 // print distribution spec
-void
+CHAR *
 CPropSpec::DbgPrint() const
 {
 	IMemoryPool *mp = COptCtxt::PoctxtFromTLS()->Pmp();
 	CAutoTrace at(mp);
 	at.Os() << *this;
+	const WCHAR *buff = at.GetString()->GetBuffer();
+	char *sz = CUtils::CreateMultiByteCharStringFromWCString(mp, const_cast< wchar_t* >(buff));
+	return sz;
 }
 #endif // GPOS_DEBUG
 // EOF

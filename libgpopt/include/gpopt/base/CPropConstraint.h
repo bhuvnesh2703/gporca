@@ -94,7 +94,7 @@ namespace gpopt
 			IOstream &OsPrint(IOstream &) const;
 
 			// debug print
-			void DbgPrint() const;
+			CHAR *DbgPrint() const;
 
 	}; // class CPropConstraint
 

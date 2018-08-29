@@ -270,7 +270,7 @@ namespace gpopt
 			static
 			CConstraintArray *PdrgpcnstrOnColumn(IMemoryPool *mp, CConstraintArray *pdrgpcnstr, CColRef *colref, BOOL fExclusive);
 #ifdef GPOS_DEBUG
-			void DbgPrint() const;
+			CHAR *DbgPrint() const;
 #endif  // GPOS_DEBUG
 
 	}; // class CConstraint

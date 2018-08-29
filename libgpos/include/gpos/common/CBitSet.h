@@ -162,7 +162,7 @@ namespace gpos
 
 #ifdef GPOS_DEBUG
 			// debug print for interactive debugging sessions only
-			void DbgPrint() const;
+			CHAR *DbgPrint() const;
 #endif // GPOS_DEBUG
 
 	}; // class CBitSet

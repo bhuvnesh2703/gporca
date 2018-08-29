@@ -178,7 +178,7 @@ namespace gpopt
 			const ULONG m_ulInvalid;
 
 #ifdef GPOS_DEBUG
-			void DbgPrint() const;
+			CHAR *DbgPrint() const;
 #endif  // GPOS_DEBUG
 
 	}; // class CColRef
