@@ -77,7 +77,7 @@ CPhysicalMotion::PdsRequired
 	(
 	IMemoryPool *mp,
 	CExpressionHandle &, // exprhdl
-	CDistributionSpec *,//pdsRequired,
+	CDistributionSpec *pdsRequired,
 	ULONG
 #ifdef GPOS_DEBUG
 	child_index
@@ -138,6 +138,10 @@ CPhysicalMotion::PdsRequired
 	//	      +--CScalarProjectList
 	//	         +--CScalarProjectElement "ColRef_0008"
 	//	            +--CScalarConst (1)
+	if (CDistributionSpec::EdtStrictRandom == pdsRequired->Edt())
+	{
+		return GPOS_NEW(mp) CDistributionSpecRandom();
+	}
 
 	// any motion operator is distribution-establishing and does not require
 	// child to deliver any specific distribution
