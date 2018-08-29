@@ -130,9 +130,7 @@ namespace gpopt
 		public:
 
 			//ctor
-			CDistributionSpecRandom(BOOL is_enforced_by_motion=false);
-
-			BOOL IsEnforcedByMotion() const;
+			CDistributionSpecRandom();
 
 			// accessor
 			virtual 
