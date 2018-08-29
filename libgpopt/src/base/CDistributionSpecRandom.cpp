@@ -30,14 +30,10 @@ using namespace gpopt;
 //		Ctor
 //
 //---------------------------------------------------------------------------
-CDistributionSpecRandom::CDistributionSpecRandom
-	(
-	BOOL is_enforced_by_motion
-	)
+CDistributionSpecRandom::CDistributionSpecRandom()
 	:
 	m_is_duplicate_sensitive(false),
-	m_fSatisfiedBySingleton(true),
-	m_is_enforced_by_motion(is_enforced_by_motion)
+	m_fSatisfiedBySingleton(true)
 {
 	if (COptCtxt::PoctxtFromTLS()->FDMLQuery())
 	{
@@ -64,9 +60,7 @@ CDistributionSpecRandom::Matches
 {
 	if (Edt() != pds->Edt())
 	{
-		// random spec matches strict random spec if random spec is delivered
-		// by a motion enforced during property enforcement
-		return pds->Edt() == EdtStrictRandom && IsEnforcedByMotion();
+		return false;
 	}
 
 	const CDistributionSpecRandom *pdsRandom =
@@ -97,13 +91,6 @@ CDistributionSpecRandom::FSatisfies
 	
 	if (EdtRandom == pds->Edt() && 
 			(IsDuplicateSensitive() || !CDistributionSpecRandom::PdsConvert(pds)->IsDuplicateSensitive()))
-	{
-		return true;
-	}
-
-	// random spec matches strict random spec if random spec is delivered
-	// by a motion enforced during property enforcement
-	if (EdtStrictRandom == pds->Edt() && IsEnforcedByMotion())
 	{
 		return true;
 	}
@@ -192,7 +179,7 @@ CDistributionSpecRandom::AppendEnforcers
 		// strict random spec is a derived class which calls the
 		// AppendEnforcers of random spec, thus instantiate an object
 		// of strict random spec
-		random_dist_spec = GPOS_NEW(mp) CDistributionSpecStrictRandom(true /* is_enforced_by_motion */);
+		random_dist_spec = GPOS_NEW(mp) CDistributionSpecStrictRandom();
 	}
 	else if (expr_dist_spec->Edt() == CDistributionSpec::EdtUniversal)
 	{
@@ -206,7 +193,7 @@ CDistributionSpecRandom::AppendEnforcers
 	{
 		// the motion added in this enforcer will translate to
 		// a redistribute motion
-		random_dist_spec = GPOS_NEW(mp) CDistributionSpecRandom(true /* is_enforced_by_motion */);
+		random_dist_spec = GPOS_NEW(mp) CDistributionSpecStrictRandom();
 	}
 
 	// add a hashed distribution enforcer
@@ -220,11 +207,6 @@ CDistributionSpecRandom::AppendEnforcers
 	pdrgpexpr->Append(pexprMotion);
 }
 
-BOOL
-CDistributionSpecRandom::IsEnforcedByMotion() const
-{
-	return m_is_enforced_by_motion;
-}
 
 //---------------------------------------------------------------------------
 //	@function:

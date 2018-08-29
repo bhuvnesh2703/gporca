@@ -3,6 +3,7 @@
 #include "gpopt/operators/CPhysicalUnionAll.h"
 #include "gpopt/operators/CExpressionHandle.h"
 #include "gpopt/operators/CHashedDistributions.h"
+#include "gpopt/base/CDistributionSpecStrictRandom.h"
 #include "gpopt/operators/CScalarIdent.h"
 
 using namespace gpopt;
@@ -670,7 +671,7 @@ CPhysicalUnionAll::PdsStrictRandomParallelUnionAllChildren
 		}
 		if (has_motion_random && has_strict_random_spec)
 		{
-			return GPOS_NEW(mp) CDistributionSpecRandom(true /* is_enforced_by_motion */);
+			return GPOS_NEW(mp) CDistributionSpecStrictRandom();
 		}
 	}
 	return NULL;

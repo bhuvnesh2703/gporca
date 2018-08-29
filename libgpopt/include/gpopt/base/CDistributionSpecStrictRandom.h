@@ -25,7 +25,7 @@ namespace gpopt
     public:
 
         //ctor
-        CDistributionSpecStrictRandom(BOOL is_enforced_by_motion=false);
+        CDistributionSpecStrictRandom();
 
         // accessor
         virtual

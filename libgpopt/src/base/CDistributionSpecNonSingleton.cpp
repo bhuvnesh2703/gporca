@@ -15,6 +15,7 @@
 #include "gpopt/base/CColRefSetIter.h"
 #include "gpopt/base/CDistributionSpecNonSingleton.h"
 #include "gpopt/operators/CPhysicalMotionRandom.h"
+#include "gpopt/base/CDistributionSpecStrictRandom.h"
 
 using namespace gpopt;
 
@@ -111,7 +112,7 @@ CDistributionSpecNonSingleton::AppendEnforcers
 	}
 
 	// add a random distribution enforcer
-	CDistributionSpecRandom *pdsrandom = GPOS_NEW(mp) CDistributionSpecRandom(true /*is_enforced_by_motion*/);
+	CDistributionSpecStrictRandom *pdsrandom = GPOS_NEW(mp) CDistributionSpecStrictRandom();
 	pexpr->AddRef();
 	CExpression *pexprMotion = GPOS_NEW(mp) CExpression
 										(
