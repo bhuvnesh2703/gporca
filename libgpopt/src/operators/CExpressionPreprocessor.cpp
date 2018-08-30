@@ -1471,12 +1471,12 @@ CExpressionPreprocessor::PexprFromConstraints
 			pcrsOutChild->Exclude(pcrsProcessed);
 		}
 
+		// process child
+		CExpression *pexprChildNew = PexprFromConstraints(mp, pexprChild, pcrsProcessed);
+
 		// generate predicates for the output columns of child
 		CExpression *pexprPred = PexprScalarPredicates(mp, ppc, pcrsNotNull, pcrsOutChild, pcrsProcessed);
 		pcrsOutChild->Release();
-
-		// process child
-		CExpression *pexprChildNew = PexprFromConstraints(mp, pexprChild, pcrsProcessed);
 
 		if (NULL != pexprPred)
 		{
