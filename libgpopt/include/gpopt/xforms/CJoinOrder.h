@@ -80,6 +80,10 @@ namespace gpopt
 				// a flag to component edge as used
 				BOOL m_fUsed;
 
+				INT outerchild_index;
+
+				INT innerchild_index;
+
 				// ctor
 				SComponent(IMemoryPool *mp, CExpression *pexpr);
 				
@@ -91,6 +95,16 @@ namespace gpopt
 
 				// print routine
 				IOstream &OsPrint(IOstream &os) const;
+
+				// set outer child index
+				void SetOuterChildIndex(INT index);
+
+				// set inner child index
+				void SetInnerChildIndex(INT index);
+
+				INT GetOuterChildIndex() { return outerchild_index; }
+
+				INT GetInnerChildIndex() { return innerchild_index; }
 			};
 
 		protected:
@@ -109,6 +123,9 @@ namespace gpopt
 			
 			// number of components
 			ULONG m_ulComps;
+
+			// should we optimize outer joins
+			BOOL m_include_outer_join_rels;
 			
 			// compute cover of each edge
 			void ComputeEdgeCover();
@@ -132,7 +149,8 @@ namespace gpopt
 				(
 				IMemoryPool *mp,
 				CExpressionArray *pdrgpexprComponents,
-				CExpressionArray *pdrgpexprConjuncts
+				CExpressionArray *pdrgpexprConjuncts,
+				BOOL include_outer_join_rels
 				);
 		
 			// dtor
@@ -142,6 +160,10 @@ namespace gpopt
 			// print function
 			virtual
 			IOstream &OsPrint(IOstream &) const;
+
+			BOOL IsValidOuterJoinCombination(SComponent *component_1, SComponent *component_2) const;
+
+			BOOL IsSameOuterJoin(SComponent *outer_component, SComponent *inner_component) const;
 
 	}; // class CJoinOrder
 
