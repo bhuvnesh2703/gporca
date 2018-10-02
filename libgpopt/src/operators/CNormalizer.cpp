@@ -456,7 +456,7 @@ CNormalizer::PushThruSelect
 		CExpressionArray *pdrgpexprConjuncts = CPredicateUtils::PdrgpexprConjuncts(mp, pexprPred);
 		CExpressionArray *pdrgpexprRemaining = NULL;
 		CExpression *pexpr = NULL;
-		PushThru(mp, pexprLogicalChild, pdrgpexprConjuncts, &pexpr, &pdrgpexprRemaining);
+		PushThru(mp, pexprLogicalChild, pdrgpexprConjuncts, &pexpr, &pdrgpexprRemaining, false);
 		*ppexprResult = PexprSelect(mp, pexpr, pdrgpexprRemaining);
 		pdrgpexprConjuncts->Release();
 	}
@@ -557,7 +557,7 @@ CNormalizer::PushThruUnaryWithoutScalarChild
 	// push conjuncts through the logical child
 	CExpression *pexprNewLogicalChild = NULL;
 	CExpressionArray *pdrgpexprUnpushable = NULL;
-	PushThru(mp, pexprLogicalChild, pdrgpexprConjuncts, &pexprNewLogicalChild, &pdrgpexprUnpushable);
+	PushThru(mp, pexprLogicalChild, pdrgpexprConjuncts, &pexprNewLogicalChild, &pdrgpexprUnpushable, false);
 	pdrgpexprConjuncts->Release();
 
 	// create a new logical expression based on recursion results
@@ -601,7 +601,7 @@ CNormalizer::PushThruUnaryWithScalarChild
 	// break scalar expression to conjuncts
 	CExpressionArray *pdrgpexprConjuncts = CPredicateUtils::PdrgpexprConjuncts(mp, pexprConj);
 
-	PushThru(mp, pexprLogicalChild, pdrgpexprConjuncts, &pexprNewLogicalChild, &pdrgpexprUnpushable);
+	PushThru(mp, pexprLogicalChild, pdrgpexprConjuncts, &pexprNewLogicalChild, &pdrgpexprUnpushable, false);
 	pdrgpexprConjuncts->Release();
 
 	// create a new logical expression based on recursion results
@@ -809,6 +809,7 @@ CNormalizer::PushThruJoin
 	const ULONG arity = pexprJoin->Arity();
 	BOOL fLASApply = CUtils::FLeftAntiSemiApply(pop);
 	COperator::EOperatorId op_id = pop->Eopid();
+	BOOL is_child_of_inner_join = COperator::EopLogicalInnerJoin == op_id;
 	BOOL fOuterJoin =
 		COperator::EopLogicalLeftOuterJoin == op_id ||
 		COperator::EopLogicalLeftOuterApply == op_id ||
@@ -857,7 +858,7 @@ CNormalizer::PushThruJoin
 		}
 
 		CExpressionArray *pdrgpexprRemaining = NULL;
-		PushThru(mp, pexprChild, pdrgpexprConjuncts, &pexprNewChild, &pdrgpexprRemaining);
+		PushThru(mp, pexprChild, pdrgpexprConjuncts, &pexprNewChild, &pdrgpexprRemaining, is_child_of_inner_join);
 		pdrgpexprChildren->Append(pexprNewChild);
 
 		pdrgpexprConjuncts->Release();
@@ -981,7 +982,8 @@ CNormalizer::PushThru
 	CExpression *pexprLogical,
 	CExpressionArray *pdrgpexprConjuncts,
 	CExpression **ppexprResult,
-	CExpressionArray **ppdrgpexprRemaining
+	CExpressionArray **ppdrgpexprRemaining,
+	BOOL is_child_of_inner_join
 	)
 {
 	GPOS_ASSERT(NULL != pexprLogical);
@@ -996,7 +998,12 @@ CNormalizer::PushThru
 	{
 		CExpression *pexprConj = (*pdrgpexprConjuncts)[ul];
 		pexprConj->AddRef();
-		if (FPushable(pexprLogical, pexprConj))
+
+		if(is_child_of_inner_join && COperator::EopLogicalLeftOuterJoin == pexprLogical->Pop()->Eopid())
+		{
+			pdrgpexprUnpushable->Append(pexprConj);
+		}
+		else if (FPushable(pexprLogical, pexprConj))
 		{
 			pdrgpexprPushable->Append(pexprConj);
 		}
@@ -1010,7 +1017,20 @@ CNormalizer::PushThru
 	CExpression *pexprPred = CPredicateUtils::PexprConjunction(mp, pdrgpexprPushable);
 	if (FPushThruOuterChild(pexprLogical))
 	{
-		PushThruOuterChild(mp, pexprLogical, pexprPred, ppexprResult);
+		if (is_child_of_inner_join || (0 == pexprLogical->Arity()))
+		{
+
+			// end recursion early for leaf patterns extracted from memo
+			pexprLogical->AddRef();
+			pexprPred->AddRef();
+			*ppexprResult = CUtils::PexprSafeSelect(mp, pexprLogical, pexprPred);
+
+		}
+		else
+		{
+			PushThruOuterChild(mp, pexprLogical, pexprPred, ppexprResult);
+		}
+		
 	}
 	else
 	{

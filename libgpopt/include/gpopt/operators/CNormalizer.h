@@ -140,7 +140,8 @@ namespace gpopt
 				CExpression *pexprLogical,
 				CExpressionArray *pdrgpexprConjuncts,
 				CExpression **ppexprResult,
-				CExpressionArray **ppdrgpexprRemaining
+				CExpressionArray **ppdrgpexprRemaining,
+				BOOL is_child_of_inner_join
 				);
 
 			// private copy ctor
