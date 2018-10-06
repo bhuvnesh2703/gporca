@@ -999,11 +999,28 @@ CNormalizer::PushThru
 		CExpression *pexprConj = (*pdrgpexprConjuncts)[ul];
 		pexprConj->AddRef();
 
-		if(is_child_of_inner_join && COperator::EopLogicalLeftOuterJoin == pexprLogical->Pop()->Eopid())
+		CColRefSet *pcrsUsed =
+		CDrvdPropScalar::GetDrvdScalarProps(pexprConj->PdpDerive())->PcrsUsed();
+		BOOL pushable = true;
+		if (pexprLogical->Pop()->Eopid() == COperator::EopLogicalLeftOuterJoin)
 		{
-			pdrgpexprUnpushable->Append(pexprConj);
+			CExpression *pexprPredLogical = (*pexprLogical)[2];
+			CExpressionArray *pred_expr_conjuncts = CPredicateUtils::PdrgpexprConjuncts(mp, pexprPredLogical);
+			
+			for (ULONG id = 0; id < pred_expr_conjuncts->Size(); id++)
+			{
+				CExpression *pexprChild = (*pred_expr_conjuncts)[id];
+				CColRefSet *pcrsUsedChild = CDrvdPropScalar::GetDrvdScalarProps(pexprChild->PdpDerive())->PcrsUsed();
+				if (pcrsUsedChild->Equals(pcrsUsed))
+				{
+					pushable = false;
+					break;
+				}
+			}
+			pred_expr_conjuncts->Release();
 		}
-		else if (FPushable(pexprLogical, pexprConj))
+		
+		if (FPushable(pexprLogical, pexprConj) && pushable)
 		{
 			pdrgpexprPushable->Append(pexprConj);
 		}
