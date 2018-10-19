@@ -410,16 +410,25 @@ CPhysicalComputeScalar::PdsDerive
 	const
 {
 	CDistributionSpec *pds = exprhdl.Pdpplan(0 /*child_index*/)->Pds();
-	
-	if (CDistributionSpec::EdtUniversal == pds->Edt() && 
-		IMDFunction::EfsVolatile == exprhdl.GetDrvdScalarProps(1 /*child_index*/)->Pfp()->Efs())
-	{
-		if (COptCtxt::PoctxtFromTLS()->OptimizeDMLQueryWithSingletonSegment())
-		{
-			return GPOS_NEW(mp) CDistributionSpecStrictSingleton(CDistributionSpecSingleton::EstSegment);
-		}
-		return GPOS_NEW(mp) CDistributionSpecStrictSingleton(CDistributionSpecSingleton::EstMaster);
-	}
+//    BOOL is_universal_distribution = CDistributionSpec::EdtUniversal == pds->Edt();
+    BOOL proj_list_contains_volatile_func = IMDFunction::EfsVolatile == exprhdl.GetDrvdScalarProps(1 /*child_index*/)->Pfp()->Efs();
+    BOOL proj_list_contains_immutable_func = IMDFunction::EfsImmutable == exprhdl.GetDrvdScalarProps(1 /*child_index*/)->Pfp()->Efs();
+    
+    if (CDistributionSpec::EdtUniversal == pds->Edt())
+    {
+        if (proj_list_contains_volatile_func)
+        {
+            if (COptCtxt::PoctxtFromTLS()->OptimizeDMLQueryWithSingletonSegment())
+            {
+                return GPOS_NEW(mp) CDistributionSpecStrictSingleton(CDistributionSpecSingleton::EstSegment);
+            }
+            return GPOS_NEW(mp) CDistributionSpecStrictSingleton(CDistributionSpecSingleton::EstMaster);
+        }
+        else if (proj_list_contains_immutable_func && COptCtxt::PoctxtFromTLS()->FDMLQuery() && !COptCtxt::PoctxtFromTLS()->HasReplicatedTables() && !COptCtxt::PoctxtFromTLS()->HasMasterOnlyTables())
+        {
+            return GPOS_NEW(mp) CDistributionSpecStrictSingleton(CDistributionSpecSingleton::EstSegment);
+        }
+    }
 	
 	pds->AddRef();
 

@@ -2376,6 +2376,11 @@ CTranslatorDXLToExpr::PtabdescFromCTAS
 	{
 		AddDistributionColumns(ptabdesc, pmdrel, phmiulAttnoColMapping);
 	}
+    
+    if(IMDRelation::EreldistrReplicated == rel_distr_policy)
+    {
+        COptCtxt::PoctxtFromTLS()->SetHasReplicatedTables();
+    }
 
 	GPOS_ASSERT(!pmdrel->IsPartitioned());
 
