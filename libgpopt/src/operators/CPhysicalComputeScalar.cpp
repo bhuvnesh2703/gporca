@@ -410,9 +410,31 @@ CPhysicalComputeScalar::PdsDerive
 	const
 {
 	CDistributionSpec *pds = exprhdl.Pdpplan(0 /*child_index*/)->Pds();
-	
+	CDrvdPropRelational *pdrvdPropRelational = exprhdl.GetRelationalProperties();
+	const CColRefSet *pcrsOutput = pdrvdPropRelational->PcrsOutput();
+	GPOS_ASSERT(pcrsOutput);
+	CDrvdPropScalar *pdrvdPropScalar = exprhdl.GetDrvdScalarProps(1);
+	const CColRefSet *pcrsUsed = pdrvdPropScalar->PcrsUsed();
+	GPOS_ASSERT(pcrsUsed);
+	CColRefSet *pcrsTemp = GPOS_NEW(mp) CColRefSet(mp, *pcrsUsed);
+	GPOS_ASSERT(pcrsTemp);
+	pcrsTemp->Intersection(pcrsOutput);
+	BOOL pass = false;
+	if (pcrsTemp->Size() == 1 && pcrsUsed->Size() == 1)
+	{
+		const IMDFunction::EFuncStbl tempfuncStbl = pdrvdPropRelational->Pfp()->Efs();
+		if (tempfuncStbl == IMDFunction::EfsVolatile)
+		{
+			pass = true;
+		}
+	}
+	GPOS_ASSERT(pdrvdPropScalar);
+	GPOS_ASSERT(pdrvdPropRelational);
+	pcrsTemp->Release();
 	if (CDistributionSpec::EdtUniversal == pds->Edt() && 
-		IMDFunction::EfsVolatile == exprhdl.GetDrvdScalarProps(1 /*child_index*/)->Pfp()->Efs())
+		(IMDFunction::EfsVolatile == exprhdl.GetDrvdScalarProps(1 /*child_index*/)->Pfp()->Efs()
+		|| (IMDFunction::EfsImmutable == exprhdl.GetDrvdScalarProps(1 /*child_index*/)->Pfp()->Efs() && pass)
+		))
 	{
 		if (COptCtxt::PoctxtFromTLS()->OptimizeDMLQueryWithSingletonSegment())
 		{

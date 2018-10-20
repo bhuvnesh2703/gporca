@@ -16,7 +16,7 @@
 
 namespace gpopt
 {
-	
+//	class CColRefSet;
 	//---------------------------------------------------------------------------
 	//	@class:
 	//		CPhysicalComputeScalar
