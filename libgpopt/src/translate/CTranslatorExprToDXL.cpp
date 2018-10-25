@@ -1665,18 +1665,72 @@ CTranslatorExprToDXL::PdxlnResultFromFilter
 	// translate relational child expression
 	CDXLNode *child_dxlnode = CreateDXLNode(pexprRelational, NULL /* colref_array */, pdrgpdsBaseTables, pulNonGatherMotions, pfDML, false /*fRemap*/, false /*fRoot*/);
 
-	// translate scalar expression
-	CDXLNode *pdxlnCond = PdxlnScalar(pexprScalar);
+	// translate scalar expression in to filter and one time filter dxl node
+	CColRefSet *relational_child_colrefset = CDrvdPropRelational::GetRelationalProperties(pexprRelational->Pdp(DrvdPropArray::EptRelational))->PcrsOutput();
+	// get all the scalar conditions in an array
+	CExpressionArray *scalar_expr_array = CPredicateUtils::PdrgpexprConjuncts(m_mp, pexprScalar);
+	// array to hold scalar conditions which will qualify for filter condition
+	CExpressionArray *filter_expr_array = GPOS_NEW(m_mp) CExpressionArray(m_mp);
+	// array to hold scalar conditions which qualify for one time filter condition
+	CExpressionArray *one_time_filter_expr_array = GPOS_NEW(m_mp) CExpressionArray(m_mp);
+	for (ULONG ul=0; ul < scalar_expr_array->Size(); ul++)
+	{
+		CExpression *scalar_child_expr = (*scalar_expr_array)[ul];
+		CColRefSet *scalar_child_colrefset = CDrvdPropScalar::GetDrvdScalarProps(scalar_child_expr->Pdp(DrvdPropArray::EptScalar))->PcrsUsed();
+		// col refs in scalar which come from relational child
+		CColRefSet *intersecting_colrefset = GPOS_NEW(m_mp) CColRefSet(m_mp, *scalar_child_colrefset);
+		intersecting_colrefset->Intersection(relational_child_colrefset);
+		// if there is any column in scalar child coming from relational child or
+		// has a volatile function add it to the filter else it can be used as a one time filter
+		scalar_child_expr->AddRef();
+		if (intersecting_colrefset->Size() > 0 || CPredicateUtils::FContainsVolatileFunction(scalar_child_expr))
+		{
+			filter_expr_array->Append(scalar_child_expr);
+		}
+		else
+		{
+			one_time_filter_expr_array->Append(scalar_child_expr);
+		}
+		intersecting_colrefset->Release();
+	}
+	scalar_expr_array->Release();
 
-	// wrap condition in a DXL filter node
-	CDXLNode *filter_dxlnode = PdxlnFilter(pdxlnCond);
+	// create an emtpy filter
+	CDXLNode *filter_dxlnode = GPOS_NEW(m_mp) CDXLNode(m_mp, GPOS_NEW(m_mp) CDXLScalarFilter(m_mp));
+	// create an empty one-time filter
+	CDXLNode *one_time_filter_dxlnode = GPOS_NEW(m_mp) CDXLNode(m_mp, GPOS_NEW(m_mp) CDXLScalarOneTimeFilter(m_mp));
+
+	if (filter_expr_array->Size() > 0)
+	{
+		// create scalar cmp expression for filter expression
+		CExpression *scalar_cmp_expr = CPredicateUtils::PexprConjunction(m_mp, filter_expr_array);
+		// create dxl node for the filter
+		CDXLNode *scalar_cmp_dxlnode = PdxlnScalar(scalar_cmp_expr);
+		filter_dxlnode->AddChild(scalar_cmp_dxlnode);
+		scalar_cmp_expr->Release();
+	}
+	else
+	{
+		filter_expr_array->Release();
+	}
+
+	if (one_time_filter_expr_array->Size() > 0)
+	{
+		// create scalar cmp expression for one time filter expression
+		CExpression *scalar_cmp_expr = CPredicateUtils::PexprConjunction(m_mp, one_time_filter_expr_array);
+		// create dxl node for one time filter
+		CDXLNode *scalar_cmp_dxlnode = PdxlnScalar(scalar_cmp_expr);
+		one_time_filter_dxlnode->AddChild(scalar_cmp_dxlnode);
+		scalar_cmp_expr->Release();
+	}
+	else
+	{
+		one_time_filter_expr_array->Release();
+	}
 
 	GPOS_ASSERT(NULL != pexprFilter->Prpp());
 
 	CDXLNode *pdxlnPrL = PdxlnProjList(pcrsOutput, colref_array);
-
-	// create an empty one-time filter
-	CDXLNode *one_time_filter = GPOS_NEW(m_mp) CDXLNode(m_mp, GPOS_NEW(m_mp) CDXLScalarOneTimeFilter(m_mp));
 
 	return CTranslatorExprToDXLUtils::PdxlnResult
 											(
@@ -1684,7 +1738,7 @@ CTranslatorExprToDXL::PdxlnResultFromFilter
 											dxl_properties,
 											pdxlnPrL,
 											filter_dxlnode,
-											one_time_filter,
+											one_time_filter_dxlnode,
 											child_dxlnode
 											);
 }
