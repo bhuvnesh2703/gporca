@@ -33,6 +33,7 @@
 #include "naucrates/md/IMDScalarOp.h"
 #include "naucrates/md/IMDType.h"
 #include "naucrates/statistics/CStatistics.h"
+#include "gpopt/base/CDefaultComparator.h"
 
 #include "naucrates/traceflags/traceflags.h"
 
@@ -2106,6 +2107,113 @@ CExpressionPreprocessor::PexprExistWithPredFromINSubq
 	return pexprNew;
 }
 
+// eliminate self comparisons in the given expression
+CExpression *
+CExpressionPreprocessor::PexprSubquerAnyWithLimitAdded
+(
+ IMemoryPool *mp,
+ CExpression *pexpr
+ )
+{
+	// protect against stack overflow during recursion
+	GPOS_CHECK_STACK_SIZE;
+	GPOS_ASSERT(NULL != mp);
+	GPOS_ASSERT(NULL != pexpr);
+	
+	COperator *popCurrent = pexpr->Pop();
+	
+	if (COperator::EopScalarSubqueryAny == popCurrent->Eopid())
+	{
+		CExpression *pexprSubqueryRelChild = (*pexpr)[0];
+		ULONG arity = pexprSubqueryRelChild->Arity();
+		CExpression *pexprRelationalChild = NULL;
+		const CColRef *pcrScalarSubqueryAny = CScalarSubqueryAny::PopConvert(popCurrent)->Pcr();
+		CColRefSet *pcrsSubqueryUsed = CDrvdPropScalar::GetDrvdScalarProps(pexpr->PdpDerive())->PcrsUsed();
+		GPOS_ASSERT(pcrsSubqueryUsed);
+		CColRefSet *pcrsSubqueryDefined = CDrvdPropScalar::GetDrvdScalarProps(pexpr->PdpDerive())->PcrsDefined();
+		GPOS_ASSERT(pcrsSubqueryDefined);
+		CExpression *pexprScalarChild = (*pexpr)[1];
+		if (arity > 0)
+		{
+			CDrvdPropScalar *pdpscalar = CDrvdPropScalar::GetDrvdScalarProps((*pexprSubqueryRelChild)[arity-1]->PdpDerive());
+			if (pdpscalar->FHasSubquery())
+			{
+				CExpression *pexprTemp = (*pexpr)[0];
+				pexprRelationalChild = PexprSubquerAnyWithLimitAdded(mp, pexprTemp);
+			}
+			else
+			{
+				pexprRelationalChild = (*pexpr)[0];
+				pexprRelationalChild->AddRef();
+			}
+		}
+		else
+		{
+			pexprRelationalChild = (*pexpr)[0];
+			pexprRelationalChild->AddRef();
+		}
+		CColRefSet *pcrsRelational = CDrvdPropRelational::GetRelationalProperties(pexprRelationalChild->PdpDerive())->PcrsOutput(); 
+		if ((!pcrsSubqueryDefined->ContainsAll(pcrsSubqueryUsed)) && !pcrsRelational->FMember(pcrScalarSubqueryAny))
+		{
+			BOOL replace_limit = false;
+			if (COperator::EopLogicalLimit == pexprRelationalChild->Pop()->Eopid())
+			{
+				CLogicalLimit *popLogicalLimit = CLogicalLimit::PopConvert(pexprRelationalChild->Pop());
+				CExpression *pexprLimitCount = CUtils::PexprScalarConstInt8(mp, 1 /*limit count*/);
+				if (popLogicalLimit->FHasCount())
+				{
+					CScalarConst *popLimitCount = CScalarConst::PopConvert((*pexprRelationalChild)[2]->Pop());
+					IDatum *datum1NewLimit = CScalarConst::PopConvert(pexprLimitCount->Pop())->GetDatum();
+					IDatum *datum2OldLimit = popLimitCount->GetDatum();
+					if (CUtils::FIntType(datum1NewLimit->MDId()) &&
+						CUtils::FIntType(datum2OldLimit->MDId()))
+					{
+						
+						replace_limit = datum2OldLimit->StatsAreGreaterThan(datum1NewLimit);
+					}
+					pexprLimitCount->Release();
+					
+					if (replace_limit)
+					{
+						CExpression *pexprOldLimitChild = (*pexprRelationalChild)[0];
+						pexprOldLimitChild->AddRef();
+						CExpression *pexprWithNewLimit = CUtils::PexprLimit(mp, pexprOldLimitChild, 0 /*offset*/, 1 /*count*/);
+						
+						popCurrent->AddRef();
+						pexprScalarChild->AddRef();
+						CExpression *pexprNewSubqueryAny = GPOS_NEW(mp) CExpression(mp, popCurrent, pexprWithNewLimit, pexprScalarChild);
+//						pexpr->Release();
+						
+						return pexprNewSubqueryAny;
+					}
+					pexpr->AddRef();
+					return pexpr;
+				}
+				
+			}
+			CExpression *pexprWithLimit = CUtils::PexprLimit(mp, pexprRelationalChild, 0 /*offset*/, 1 /*count*/);
+//			pexprRelationalChild->AddRef();
+			pexprScalarChild->AddRef();
+			popCurrent->AddRef();
+			CExpression *pexprNewSubqueryAny = GPOS_NEW(mp) CExpression(mp, popCurrent, pexprWithLimit, pexprScalarChild);
+			return pexprNewSubqueryAny;
+		}
+	}
+	// recursively process children
+	const ULONG arity = pexpr->Arity();
+	CExpressionArray *pdrgpexprChildren = GPOS_NEW(mp) CExpressionArray(mp);
+	for (ULONG ul = 0; ul < arity; ul++)
+	{
+		CExpression *pexprChild = PexprSubquerAnyWithLimitAdded(mp, (*pexpr)[ul]);
+		pdrgpexprChildren->Append(pexprChild);
+	}
+	
+	COperator *pop = pexpr->Pop();
+	pop->AddRef();
+	
+	return GPOS_NEW(mp) CExpression(mp, pop, pdrgpexprChildren);
+}
+
 // main driver, pre-processing of input logical expression
 CExpression *
 CExpressionPreprocessor::PexprPreprocess
@@ -2124,10 +2232,14 @@ CExpressionPreprocessor::PexprPreprocess
 	CExpression *pexprNoUnusedCTEs = PexprRemoveUnusedCTEs(mp, pexpr);
 	GPOS_CHECK_ABORT;
 
-	// (2) remove intermediate superfluous limit
-	CExpression *pexprSimplified = PexprRemoveSuperfluousLimit(mp, pexprNoUnusedCTEs);
+	CExpression *pexprSubquerAnyWithLimitAdded = PexprSubquerAnyWithLimitAdded(mp, pexprNoUnusedCTEs);
 	GPOS_CHECK_ABORT;
 	pexprNoUnusedCTEs->Release();
+	
+	// (2) remove intermediate superfluous limit
+	CExpression *pexprSimplified = PexprRemoveSuperfluousLimit(mp, pexprSubquerAnyWithLimitAdded);
+	GPOS_CHECK_ABORT;
+	pexprSubquerAnyWithLimitAdded->Release();
 
 	// (3) trim unnecessary existential subqueries
 	CExpression * pexprTrimmed = PexprTrimExistentialSubqueries(mp, pexprSimplified);
@@ -2254,12 +2366,12 @@ CExpressionPreprocessor::PexprPreprocess
 	GPOS_CHECK_ABORT;
 	pexprSubquery->Release();
 
-	// (25) rewrite IN subquery to EXIST subquery with a predicate
-	CExpression *pexprExistWithPredFromINSubq = PexprExistWithPredFromINSubq(mp, pexrReorderedScalarCmpChildren);
-	GPOS_CHECK_ABORT;
-	pexrReorderedScalarCmpChildren->Release();
-
-	return pexprExistWithPredFromINSubq;
+//	// (25) rewrite IN subquery to EXIST subquery with a predicate
+//	CExpression *pexprExistWithPredFromINSubq = PexprExistWithPredFromINSubq(mp, pexrReorderedScalarCmpChildren);
+//	GPOS_CHECK_ABORT;
+//	pexrReorderedScalarCmpChildren->Release();
+	
+	return pexrReorderedScalarCmpChildren;
 }
 
 // EOF

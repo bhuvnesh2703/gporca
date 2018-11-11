@@ -206,6 +206,10 @@ namespace gpopt
 			static CExpression *
 			PexprReorderScalarCmpChildren(IMemoryPool *mp, CExpression *pexpr);
 
+			// TODO:
+			static CExpression *
+			PexprSubquerAnyWithLimitAdded(IMemoryPool *mp, CExpression *pexpr);
+		
 			// private ctor
 			CExpressionPreprocessor();
 
