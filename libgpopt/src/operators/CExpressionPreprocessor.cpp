@@ -2125,7 +2125,7 @@ CExpressionPreprocessor::PexprSubquerAnyWithLimitAdded
 	if (COperator::EopScalarSubqueryAny == popCurrent->Eopid())
 	{
 		CExpression *pexprSubqueryRelChild = (*pexpr)[0];
-		ULONG arity = pexprSubqueryRelChild->Arity();
+//		ULONG arity = pexprSubqueryRelChild->Arity();
 		CExpression *pexprRelationalChild = NULL;
 		const CColRef *pcrScalarSubqueryAny = CScalarSubqueryAny::PopConvert(popCurrent)->Pcr();
 		CColRefSet *pcrsSubqueryUsed = CDrvdPropScalar::GetDrvdScalarProps(pexpr->PdpDerive())->PcrsUsed();
@@ -2133,28 +2133,41 @@ CExpressionPreprocessor::PexprSubquerAnyWithLimitAdded
 		CColRefSet *pcrsSubqueryDefined = CDrvdPropScalar::GetDrvdScalarProps(pexpr->PdpDerive())->PcrsDefined();
 		GPOS_ASSERT(pcrsSubqueryDefined);
 		CExpression *pexprScalarChild = (*pexpr)[1];
-		if (arity > 0)
+		COperator::EOperatorId rgeopid[] =
 		{
-			CDrvdPropScalar *pdpscalar = CDrvdPropScalar::GetDrvdScalarProps((*pexprSubqueryRelChild)[arity-1]->PdpDerive());
-			if (pdpscalar->FHasSubquery())
-			{
-				CExpression *pexprTemp = (*pexpr)[0];
-				pexprRelationalChild = PexprSubquerAnyWithLimitAdded(mp, pexprTemp);
-			}
-			else
-			{
-				pexprRelationalChild = (*pexpr)[0];
-				pexprRelationalChild->AddRef();
-			}
+			COperator::EopScalarSubqueryAny,
+		};
+		BOOL hasSubquery = CUtils::FHasOp(pexprSubqueryRelChild, rgeopid, GPOS_ARRAY_SIZE(rgeopid));
+		if (hasSubquery)
+		{
+			CExpression *pexprTemp = (*pexpr)[0];
+			pexprRelationalChild = PexprSubquerAnyWithLimitAdded(mp, pexprTemp);
 		}
 		else
 		{
 			pexprRelationalChild = (*pexpr)[0];
-			pexprRelationalChild->AddRef();
 		}
-		CColRefSet *pcrsRelational = CDrvdPropRelational::GetRelationalProperties(pexprRelationalChild->PdpDerive())->PcrsOutput(); 
-		if ((!pcrsSubqueryDefined->ContainsAll(pcrsSubqueryUsed)) && !pcrsRelational->FMember(pcrScalarSubqueryAny))
+		CColRefSet *pcrsRelational = CDrvdPropRelational::GetRelationalProperties(pexprRelationalChild->PdpDerive())->PcrsOutput();
+		CColRefSet *pcrsTempRelational = GPOS_NEW (mp) CColRefSet(mp, *pcrsRelational);
+		BOOL below_project = false;
+		CColRefSet *pcrsLogicalProjectUsed = NULL;
+		if (COperator::EopLogicalProject == pexprRelationalChild->Pop()->Eopid())
 		{
+			pcrsLogicalProjectUsed = CDrvdPropScalar::GetDrvdScalarProps((*pexprRelationalChild)[pexprRelationalChild->Arity()-1]->PdpDerive())->PcrsUsed();
+			CColRefSet *pcrsLogicalProjectDefined = CDrvdPropScalar::GetDrvdScalarProps((*pexprRelationalChild)[pexprRelationalChild->Arity()-1]->PdpDerive())->PcrsDefined();
+//			pcrsLogicalProjectUsed->Union(pcrsLogicalProjectDefined);
+			pcrsTempRelational->Difference(pcrsLogicalProjectDefined);
+			below_project = true;
+		}
+		
+		BOOL allow = pcrsLogicalProjectUsed == NULL? true: !pcrsLogicalProjectUsed->FIntersects(pcrsRelational);
+		
+		
+		if ((!pcrsSubqueryDefined->ContainsAll(pcrsSubqueryUsed)) && !pcrsTempRelational->FMember(pcrScalarSubqueryAny) && allow)
+		{
+			if (!hasSubquery)
+				pexprRelationalChild->AddRef();
+			pcrsTempRelational->Release();
 			BOOL replace_limit = false;
 			if (COperator::EopLogicalLimit == pexprRelationalChild->Pop()->Eopid())
 			{
@@ -2191,6 +2204,23 @@ CExpressionPreprocessor::PexprSubquerAnyWithLimitAdded
 				}
 				
 			}
+			if (below_project)
+			{
+				CExpression *pexprProjectChild = (*pexprRelationalChild)[0];
+				pexprProjectChild->AddRef();
+				CExpression *pexprWithLimit = CUtils::PexprLimit(mp, pexprProjectChild, 0 /*offset*/, 1 /*count*/);
+				COperator *popLogicalProject = pexprRelationalChild->Pop();
+				CExpression *pexprProjectList = (*pexprRelationalChild)[1];
+				popLogicalProject->AddRef();
+				pexprProjectList->AddRef();
+				CExpression *pexprNewProjectExpr = GPOS_NEW(mp) CExpression(mp, popLogicalProject, pexprWithLimit, pexprProjectList);
+				pexprRelationalChild->Release();
+				pexprScalarChild->AddRef();
+				popCurrent->AddRef();
+				CExpression *pexprNewSubqueryAny = GPOS_NEW(mp) CExpression(mp, popCurrent, pexprNewProjectExpr, pexprScalarChild);
+				return pexprNewSubqueryAny;
+				
+			}
 			CExpression *pexprWithLimit = CUtils::PexprLimit(mp, pexprRelationalChild, 0 /*offset*/, 1 /*count*/);
 //			pexprRelationalChild->AddRef();
 			pexprScalarChild->AddRef();
@@ -2198,6 +2228,12 @@ CExpressionPreprocessor::PexprSubquerAnyWithLimitAdded
 			CExpression *pexprNewSubqueryAny = GPOS_NEW(mp) CExpression(mp, popCurrent, pexprWithLimit, pexprScalarChild);
 			return pexprNewSubqueryAny;
 		}
+		pcrsTempRelational->Release();
+		pexpr->Pop()->AddRef();
+		pexprScalarChild->AddRef();
+		if (!hasSubquery)
+			pexprRelationalChild->AddRef();
+		return GPOS_NEW(mp) CExpression(mp, pexpr->Pop(), pexprRelationalChild, pexprScalarChild);
 	}
 	// recursively process children
 	const ULONG arity = pexpr->Arity();
