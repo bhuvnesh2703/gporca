@@ -4990,14 +4990,7 @@ CUtils::FAnySubquery
 {
 	GPOS_ASSERT(NULL != pop);
 
-	BOOL fInSubquery = false;
-	if (COperator::EopScalarSubqueryAny == pop->Eopid())
-	{
-		fInSubquery = true;
-	}
-
-
-	return fInSubquery;
+	return COperator::EopScalarSubqueryAny == pop->Eopid();
 }
 
 // returns the expression under the Nth project element of a CLogicalProject
@@ -5201,6 +5194,22 @@ CUtils::PexprMatchEqualityOrINDF
 	}
 
 	return pexprMatching;
+}
+
+BOOL
+CUtils::FHasSubqueryAny
+	 (
+	 CExpression *pexpr
+	 )
+{
+	GPOS_ASSERT(NULL != pexpr);
+	
+	COperator::EOperatorId rgeopid[] =
+	{
+		COperator::EopScalarSubqueryAny,
+	};
+	
+	return CUtils::FHasOp(pexpr, rgeopid, GPOS_ARRAY_SIZE(rgeopid));
 }
 
 // EOF

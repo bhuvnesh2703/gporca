@@ -100,31 +100,6 @@ CExpressionPreprocessorTest::FHasSubqueryAll
 
 //---------------------------------------------------------------------------
 //	@function:
-//		CExpressionPreprocessorTest::FHasSubqueryAny
-//
-//	@doc:
-//		Check if a given expression has an ANY subquery
-//
-//---------------------------------------------------------------------------
-BOOL
-CExpressionPreprocessorTest::FHasSubqueryAny
-	(
-	CExpression *pexpr
-	)
-{
-	GPOS_ASSERT(NULL != pexpr);
-
-	COperator::EOperatorId rgeopid[] =
-	{
-		COperator::EopScalarSubqueryAny,
-	};
-
-	return CUtils::FHasOp(pexpr, rgeopid, GPOS_ARRAY_SIZE(rgeopid));
-}
-
-
-//---------------------------------------------------------------------------
-//	@function:
 //		CExpressionPreprocessorTest::FHasSubqueryExists
 //
 //	@doc:
@@ -1334,7 +1309,7 @@ CExpressionPreprocessorTest::EresCheckQuantifiedSubqueryType
 	COperator::EOperatorId eopidPresent
 	)
 {
-	if (COperator::EopScalarSubqueryAny == eopidPresent && !FHasSubqueryAny(pexpr))
+	if (COperator::EopScalarSubqueryAny == eopidPresent && !CUtils::FHasSubqueryAny(pexpr))
 	{
 		return GPOS_FAILED;
 	}

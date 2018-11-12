@@ -208,7 +208,7 @@ namespace gpopt
 
 			// TODO:
 			static CExpression *
-			PexprSubquerAnyWithLimitAdded(IMemoryPool *mp, CExpression *pexpr);
+			PexprAddLimitOnSubqueryAnyChild(IMemoryPool *mp, CExpression *pexpr);
 		
 			// private ctor
 			CExpressionPreprocessor();

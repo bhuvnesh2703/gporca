@@ -1091,6 +1091,9 @@ namespace gpopt
 				CExpression *pexprToMatch,
 				CExpressionArray *pdrgpexpr // array of predicates to inspect
 				);
+
+			static
+			BOOL FHasSubqueryAny(CExpression *pexpr);
 	}; // class CUtils
 
 	// hash set from expressions

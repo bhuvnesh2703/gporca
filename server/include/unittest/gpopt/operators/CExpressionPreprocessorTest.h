@@ -69,10 +69,6 @@ namespace gpopt
 			static
 			BOOL FHasSubqueryAll(CExpression *pexpr);
 
-			// check if a given expression has an ANY subquery
-			static
-			BOOL FHasSubqueryAny(CExpression *pexpr);
-
 			// check the type of the subquery
 			static
 			GPOS_RESULT EresCheckSubqueryType(CExpression *pexpr, COperator::EOperatorId eopidPresent);

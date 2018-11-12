@@ -2109,7 +2109,7 @@ CExpressionPreprocessor::PexprExistWithPredFromINSubq
 
 // eliminate self comparisons in the given expression
 CExpression *
-CExpressionPreprocessor::PexprSubquerAnyWithLimitAdded
+CExpressionPreprocessor::PexprAddLimitOnSubqueryAnyChild
 (
  IMemoryPool *mp,
  CExpression *pexpr
@@ -2120,50 +2120,50 @@ CExpressionPreprocessor::PexprSubquerAnyWithLimitAdded
 	GPOS_ASSERT(NULL != mp);
 	GPOS_ASSERT(NULL != pexpr);
 	
-	COperator *popCurrent = pexpr->Pop();
+	COperator *pop = pexpr->Pop();
 	
-	if (COperator::EopScalarSubqueryAny == popCurrent->Eopid())
+	if (CUtils::FAnySubquery(pop))
 	{
-		CExpression *pexprSubqueryRelChild = (*pexpr)[0];
-//		ULONG arity = pexprSubqueryRelChild->Arity();
-		CExpression *pexprRelationalChild = NULL;
-		const CColRef *pcrScalarSubqueryAny = CScalarSubqueryAny::PopConvert(popCurrent)->Pcr();
-		CColRefSet *pcrsSubqueryUsed = CDrvdPropScalar::GetDrvdScalarProps(pexpr->PdpDerive())->PcrsUsed();
-		GPOS_ASSERT(pcrsSubqueryUsed);
-		CColRefSet *pcrsSubqueryDefined = CDrvdPropScalar::GetDrvdScalarProps(pexpr->PdpDerive())->PcrsDefined();
-		GPOS_ASSERT(pcrsSubqueryDefined);
+		// left side colref used for comparision
+		const CColRef *pcrSubqueryAnyCmpIdent = CScalarSubqueryAny::PopConvert(pop)->Pcr();
+		
+		CDrvdPropScalar *pdrvdPropScalarSubqueryAny = CDrvdPropScalar::GetDrvdScalarProps(pexpr->PdpDerive());
+		CColRefSet *pcrsSubqueryAnyUsed = pdrvdPropScalarSubqueryAny->PcrsUsed();
+		CColRefSet *pcrsSubqueryAnyDefined = pdrvdPropScalarSubqueryAny->PcrsDefined();
+
 		CExpression *pexprScalarChild = (*pexpr)[1];
-		COperator::EOperatorId rgeopid[] =
-		{
-			COperator::EopScalarSubqueryAny,
-		};
-		BOOL hasSubquery = CUtils::FHasOp(pexprSubqueryRelChild, rgeopid, GPOS_ARRAY_SIZE(rgeopid));
+		
+		CExpression *pexprSubqueryRelChild = (*pexpr)[0];
+		BOOL hasSubquery = CUtils::FHasSubqueryAny(pexprSubqueryRelChild);
+		CExpression *pexprRelationalChild = NULL;
 		if (hasSubquery)
 		{
-			CExpression *pexprTemp = (*pexpr)[0];
-			pexprRelationalChild = PexprSubquerAnyWithLimitAdded(mp, pexprTemp);
+			// keep recursing until a scalar subquery any node has no further any subqueries
+			pexprRelationalChild = PexprAddLimitOnSubqueryAnyChild(mp, (*pexpr)[0]);
 		}
 		else
 		{
 			pexprRelationalChild = (*pexpr)[0];
 		}
+
 		CColRefSet *pcrsRelational = CDrvdPropRelational::GetRelationalProperties(pexprRelationalChild->PdpDerive())->PcrsOutput();
 		CColRefSet *pcrsTempRelational = GPOS_NEW (mp) CColRefSet(mp, *pcrsRelational);
 		BOOL below_project = false;
-		CColRefSet *pcrsLogicalProjectUsed = NULL;
+		CColRefSet *pcrsScalarProjListUsed = NULL;
+		
 		if (COperator::EopLogicalProject == pexprRelationalChild->Pop()->Eopid())
 		{
-			pcrsLogicalProjectUsed = CDrvdPropScalar::GetDrvdScalarProps((*pexprRelationalChild)[pexprRelationalChild->Arity()-1]->PdpDerive())->PcrsUsed();
-			CColRefSet *pcrsLogicalProjectDefined = CDrvdPropScalar::GetDrvdScalarProps((*pexprRelationalChild)[pexprRelationalChild->Arity()-1]->PdpDerive())->PcrsDefined();
-//			pcrsLogicalProjectUsed->Union(pcrsLogicalProjectDefined);
-			pcrsTempRelational->Difference(pcrsLogicalProjectDefined);
+			CDrvdPropScalar *pdrvdPropScalarProjList = CDrvdPropScalar::GetDrvdScalarProps((*pexprRelationalChild)[pexprRelationalChild->Arity()-1]->PdpDerive());
+			pcrsScalarProjListUsed = pdrvdPropScalarProjList->PcrsUsed();
+			CColRefSet *pcrsScalarProjListDefined = pdrvdPropScalarProjList->PcrsDefined();
+			pcrsTempRelational->Difference(pcrsScalarProjListDefined);
 			below_project = true;
 		}
 		
-		BOOL allow = pcrsLogicalProjectUsed == NULL? true: !pcrsLogicalProjectUsed->FIntersects(pcrsRelational);
+		BOOL allow = pcrsScalarProjListUsed == NULL? true: !pcrsScalarProjListUsed->FIntersects(pcrsRelational);
 		
 		
-		if ((!pcrsSubqueryDefined->ContainsAll(pcrsSubqueryUsed)) && !pcrsTempRelational->FMember(pcrScalarSubqueryAny) && allow)
+		if ((!pcrsSubqueryAnyDefined->ContainsAll(pcrsSubqueryAnyUsed)) && !pcrsTempRelational->FMember(pcrSubqueryAnyCmpIdent) && allow)
 		{
 			if (!hasSubquery)
 				pexprRelationalChild->AddRef();
@@ -2178,26 +2178,24 @@ CExpressionPreprocessor::PexprSubquerAnyWithLimitAdded
 					CScalarConst *popLimitCount = CScalarConst::PopConvert((*pexprRelationalChild)[2]->Pop());
 					IDatum *datum1NewLimit = CScalarConst::PopConvert(pexprLimitCount->Pop())->GetDatum();
 					IDatum *datum2OldLimit = popLimitCount->GetDatum();
-					if (CUtils::FIntType(datum1NewLimit->MDId()) &&
-						CUtils::FIntType(datum2OldLimit->MDId()))
-					{
-						
-						replace_limit = datum2OldLimit->StatsAreGreaterThan(datum1NewLimit);
-					}
+					GPOS_ASSERT(CUtils::FIntType(datum1NewLimit->MDId()));
+					GPOS_ASSERT(CUtils::FIntType(datum2OldLimit->MDId()));
+
+					replace_limit = datum2OldLimit->StatsAreGreaterThan(datum1NewLimit);
+
 					pexprLimitCount->Release();
 					
 					if (replace_limit)
 					{
-						CExpression *pexprOldLimitChild = (*pexprRelationalChild)[0];
-						pexprOldLimitChild->AddRef();
-						CExpression *pexprWithNewLimit = CUtils::PexprLimit(mp, pexprOldLimitChild, 0 /*offset*/, 1 /*count*/);
-						
-						popCurrent->AddRef();
+						// use chid node of the limit and place it below new limit 1
+						CExpression *pexprCurrentLimitChild = (*pexprRelationalChild)[0];
+						pexprCurrentLimitChild->AddRef();
+						CExpression *pexprNewLimit = CUtils::PexprLimit(mp, pexprCurrentLimitChild, 0 /*offset*/, 1 /*count*/);
+
+						// create scalar subquery any expression on top of limit 1 expression created above
+						pop->AddRef();
 						pexprScalarChild->AddRef();
-						CExpression *pexprNewSubqueryAny = GPOS_NEW(mp) CExpression(mp, popCurrent, pexprWithNewLimit, pexprScalarChild);
-//						pexpr->Release();
-						
-						return pexprNewSubqueryAny;
+						return GPOS_NEW(mp) CExpression(mp, pop, pexprNewLimit, pexprScalarChild);
 					}
 					pexpr->AddRef();
 					return pexpr;
@@ -2216,35 +2214,33 @@ CExpressionPreprocessor::PexprSubquerAnyWithLimitAdded
 				CExpression *pexprNewProjectExpr = GPOS_NEW(mp) CExpression(mp, popLogicalProject, pexprWithLimit, pexprProjectList);
 				pexprRelationalChild->Release();
 				pexprScalarChild->AddRef();
-				popCurrent->AddRef();
-				CExpression *pexprNewSubqueryAny = GPOS_NEW(mp) CExpression(mp, popCurrent, pexprNewProjectExpr, pexprScalarChild);
+				pop->AddRef();
+				CExpression *pexprNewSubqueryAny = GPOS_NEW(mp) CExpression(mp, pop, pexprNewProjectExpr, pexprScalarChild);
 				return pexprNewSubqueryAny;
 				
 			}
 			CExpression *pexprWithLimit = CUtils::PexprLimit(mp, pexprRelationalChild, 0 /*offset*/, 1 /*count*/);
-//			pexprRelationalChild->AddRef();
 			pexprScalarChild->AddRef();
-			popCurrent->AddRef();
-			CExpression *pexprNewSubqueryAny = GPOS_NEW(mp) CExpression(mp, popCurrent, pexprWithLimit, pexprScalarChild);
+			pop->AddRef();
+			CExpression *pexprNewSubqueryAny = GPOS_NEW(mp) CExpression(mp, pop, pexprWithLimit, pexprScalarChild);
 			return pexprNewSubqueryAny;
 		}
 		pcrsTempRelational->Release();
-		pexpr->Pop()->AddRef();
+		pop->AddRef();
 		pexprScalarChild->AddRef();
 		if (!hasSubquery)
 			pexprRelationalChild->AddRef();
-		return GPOS_NEW(mp) CExpression(mp, pexpr->Pop(), pexprRelationalChild, pexprScalarChild);
+		return GPOS_NEW(mp) CExpression(mp, pop, pexprRelationalChild, pexprScalarChild);
 	}
 	// recursively process children
 	const ULONG arity = pexpr->Arity();
 	CExpressionArray *pdrgpexprChildren = GPOS_NEW(mp) CExpressionArray(mp);
 	for (ULONG ul = 0; ul < arity; ul++)
 	{
-		CExpression *pexprChild = PexprSubquerAnyWithLimitAdded(mp, (*pexpr)[ul]);
+		CExpression *pexprChild = PexprAddLimitOnSubqueryAnyChild(mp, (*pexpr)[ul]);
 		pdrgpexprChildren->Append(pexprChild);
 	}
-	
-	COperator *pop = pexpr->Pop();
+
 	pop->AddRef();
 	
 	return GPOS_NEW(mp) CExpression(mp, pop, pdrgpexprChildren);
@@ -2268,14 +2264,14 @@ CExpressionPreprocessor::PexprPreprocess
 	CExpression *pexprNoUnusedCTEs = PexprRemoveUnusedCTEs(mp, pexpr);
 	GPOS_CHECK_ABORT;
 
-	CExpression *pexprSubquerAnyWithLimitAdded = PexprSubquerAnyWithLimitAdded(mp, pexprNoUnusedCTEs);
+	CExpression *pexprAddLimitOnSubqueryAnyChild = PexprAddLimitOnSubqueryAnyChild(mp, pexprNoUnusedCTEs);
 	GPOS_CHECK_ABORT;
 	pexprNoUnusedCTEs->Release();
 	
 	// (2) remove intermediate superfluous limit
-	CExpression *pexprSimplified = PexprRemoveSuperfluousLimit(mp, pexprSubquerAnyWithLimitAdded);
+	CExpression *pexprSimplified = PexprRemoveSuperfluousLimit(mp, pexprAddLimitOnSubqueryAnyChild);
 	GPOS_CHECK_ABORT;
-	pexprSubquerAnyWithLimitAdded->Release();
+	pexprAddLimitOnSubqueryAnyChild->Release();
 
 	// (3) trim unnecessary existential subqueries
 	CExpression * pexprTrimmed = PexprTrimExistentialSubqueries(mp, pexprSimplified);
