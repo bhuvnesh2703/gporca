@@ -2402,12 +2402,12 @@ CExpressionPreprocessor::PexprPreprocess
 	GPOS_CHECK_ABORT;
 	pexprSubquery->Release();
 
-//	// (25) rewrite IN subquery to EXIST subquery with a predicate
-//	CExpression *pexprExistWithPredFromINSubq = PexprExistWithPredFromINSubq(mp, pexrReorderedScalarCmpChildren);
-//	GPOS_CHECK_ABORT;
-//	pexrReorderedScalarCmpChildren->Release();
+	// (25) rewrite IN subquery to EXIST subquery with a predicate
+	CExpression *pexprExistWithPredFromINSubq = PexprExistWithPredFromINSubq(mp, pexrReorderedScalarCmpChildren);
+	GPOS_CHECK_ABORT;
+	pexrReorderedScalarCmpChildren->Release();
 	
-	return pexrReorderedScalarCmpChildren;
+	return pexprExistWithPredFromINSubq;
 }
 
 // EOF
