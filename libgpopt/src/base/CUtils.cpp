@@ -5212,4 +5212,21 @@ CUtils::FHasSubqueryAny
 	return CUtils::FHasOp(pexpr, rgeopid, GPOS_ARRAY_SIZE(rgeopid));
 }
 
+CExpression *
+CUtils::PexprSubqueryAnyWithLimitOnChild
+	 (
+	 IMemoryPool *mp,
+	 COperator *pop,
+	 CExpression *pexprRelationalChild,
+	 CExpression *pexprScalarChild
+	 )
+{
+	GPOS_ASSERT(COperator::EopScalarSubqueryAny == pop->Eopid());
+	CExpression *pexprWithLimit = CUtils::PexprLimit(mp, pexprRelationalChild, 0 /*offset*/, 1 /*count*/);
+	pexprScalarChild->AddRef();
+	pop->AddRef();
+	CExpression *pexprSubqueryAny = GPOS_NEW(mp) CExpression(mp, pop, pexprWithLimit, pexprScalarChild);
+	return pexprSubqueryAny;
+}
+
 // EOF

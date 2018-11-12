@@ -1094,6 +1094,9 @@ namespace gpopt
 
 			static
 			BOOL FHasSubqueryAny(CExpression *pexpr);
+		
+			static
+			CExpression *PexprSubqueryAnyWithLimitOnChild(IMemoryPool *mp, COperator *pop, CExpression *pexprRelationalChild, CExpression *pexprScalarChild);
 	}; // class CUtils
 
 	// hash set from expressions

@@ -2127,9 +2127,9 @@ CExpressionPreprocessor::PexprAddLimitOnSubqueryAnyChild
 		// left side colref used for comparision
 		const CColRef *pcrSubqueryAnyCmpIdent = CScalarSubqueryAny::PopConvert(pop)->Pcr();
 		
-		CDrvdPropScalar *pdrvdPropScalarSubqueryAny = CDrvdPropScalar::GetDrvdScalarProps(pexpr->PdpDerive());
-		CColRefSet *pcrsSubqueryAnyUsed = pdrvdPropScalarSubqueryAny->PcrsUsed();
-		CColRefSet *pcrsSubqueryAnyDefined = pdrvdPropScalarSubqueryAny->PcrsDefined();
+//		CDrvdPropScalar *pdrvdPropScalarSubqueryAny = CDrvdPropScalar::GetDrvdScalarProps(pexpr->PdpDerive());
+//		CColRefSet *pcrsSubqueryAnyUsed = pdrvdPropScalarSubqueryAny->PcrsUsed();
+//		CColRefSet *pcrsSubqueryAnyDefined = pdrvdPropScalarSubqueryAny->PcrsDefined();
 
 		CExpression *pexprScalarChild = (*pexpr)[1];
 		
@@ -2161,13 +2161,13 @@ CExpressionPreprocessor::PexprAddLimitOnSubqueryAnyChild
 		}
 		
 		BOOL allow = pcrsScalarProjListUsed == NULL? true: !pcrsScalarProjListUsed->FIntersects(pcrsRelational);
+		BOOL pass = !pcrsTempRelational->FMember(pcrSubqueryAnyCmpIdent);
+		pcrsTempRelational->Release();
 		
-		
-		if ((!pcrsSubqueryAnyDefined->ContainsAll(pcrsSubqueryAnyUsed)) && !pcrsTempRelational->FMember(pcrSubqueryAnyCmpIdent) && allow)
+		if (pass && allow)
 		{
 			if (!hasSubquery)
 				pexprRelationalChild->AddRef();
-			pcrsTempRelational->Release();
 			BOOL replace_limit = false;
 			if (COperator::EopLogicalLimit == pexprRelationalChild->Pop()->Eopid())
 			{
@@ -2180,9 +2180,8 @@ CExpressionPreprocessor::PexprAddLimitOnSubqueryAnyChild
 					IDatum *datum2OldLimit = popLimitCount->GetDatum();
 					GPOS_ASSERT(CUtils::FIntType(datum1NewLimit->MDId()));
 					GPOS_ASSERT(CUtils::FIntType(datum2OldLimit->MDId()));
-
+					
 					replace_limit = datum2OldLimit->StatsAreGreaterThan(datum1NewLimit);
-
 					pexprLimitCount->Release();
 					
 					if (replace_limit)
@@ -2190,18 +2189,16 @@ CExpressionPreprocessor::PexprAddLimitOnSubqueryAnyChild
 						// use chid node of the limit and place it below new limit 1
 						CExpression *pexprCurrentLimitChild = (*pexprRelationalChild)[0];
 						pexprCurrentLimitChild->AddRef();
-						CExpression *pexprNewLimit = CUtils::PexprLimit(mp, pexprCurrentLimitChild, 0 /*offset*/, 1 /*count*/);
-
-						// create scalar subquery any expression on top of limit 1 expression created above
-						pop->AddRef();
-						pexprScalarChild->AddRef();
-						return GPOS_NEW(mp) CExpression(mp, pop, pexprNewLimit, pexprScalarChild);
+						return CUtils::PexprSubqueryAnyWithLimitOnChild(mp, pop, pexprCurrentLimitChild, pexprScalarChild);
 					}
 					pexpr->AddRef();
 					return pexpr;
 				}
-				
+				pexprLimitCount->Release();
+
+				return CUtils::PexprSubqueryAnyWithLimitOnChild(mp, pop, pexprRelationalChild, pexprScalarChild);
 			}
+
 			if (below_project)
 			{
 				CExpression *pexprProjectChild = (*pexprRelationalChild)[0];
@@ -2219,13 +2216,8 @@ CExpressionPreprocessor::PexprAddLimitOnSubqueryAnyChild
 				return pexprNewSubqueryAny;
 				
 			}
-			CExpression *pexprWithLimit = CUtils::PexprLimit(mp, pexprRelationalChild, 0 /*offset*/, 1 /*count*/);
-			pexprScalarChild->AddRef();
-			pop->AddRef();
-			CExpression *pexprNewSubqueryAny = GPOS_NEW(mp) CExpression(mp, pop, pexprWithLimit, pexprScalarChild);
-			return pexprNewSubqueryAny;
+			return CUtils::PexprSubqueryAnyWithLimitOnChild(mp, pop, pexprRelationalChild, pexprScalarChild);
 		}
-		pcrsTempRelational->Release();
 		pop->AddRef();
 		pexprScalarChild->AddRef();
 		if (!hasSubquery)
