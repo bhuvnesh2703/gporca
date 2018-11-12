@@ -1,36 +1,41 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--
-create table r (a int, b int);
-create table s (c int, d int);
-insert into r select i, i from generate_series(1,20)i;
-insert into s select i, i from generate_series(1,30)i;
-analyze r;
-analyze s;
-
-explain select a, c from r, s where a in (select c from r) order by a,c limit 10;
-pivotal=# explain select a, c from r, s where a in (select c from r) order by a,c limit 10;
-					    QUERY PLAN
- Limit  (cost=0.00..1765380.24 rows=4 width=8)
-   ->  Gather Motion 3:1  (slice3; segments: 3)  (cost=0.00..1765380.24 rows=10 width=8)
-	 Merge Key: public.r.a, s.c
-	 ->  Limit  (cost=0.00..1765380.24 rows=4 width=8)
-	       ->  Sort  (cost=0.00..1765380.24 rows=7 width=8)
-		     Sort Key: public.r.a, s.c
-		     ->  Nested Loop  (cost=0.00..1765380.24 rows=7 width=8)
-			   Join Filter: true
-			   ->  Hash Join  (cost=0.00..862.00 rows=7 width=8)
-				 Hash Cond: s.c = public.r.a
-				 ->  Table Scan on s  (cost=0.00..431.00 rows=10 width=4)
-				 ->  Hash  (cost=431.00..431.00 rows=7 width=4)
-				       ->  Table Scan on r  (cost=0.00..431.00 rows=7 width=4)
-			   ->  Materialize  (cost=0.00..431.00 rows=1 width=1)
-				 ->  Broadcast Motion 1:3  (slice2)  (cost=0.00..431.00 rows=3 width=1)
-				       ->  Limit  (cost=0.00..431.00 rows=1 width=1)
-					     ->  Gather Motion 3:1  (slice1; segments: 3)  (cost=0.00..431.00 rows=1 width=1)
-						   ->  Limit  (cost=0.00..431.00 rows=1 width=1)
-							 ->  Table Scan on r  (cost=0.00..431.00 rows=7 width=1)
--->
 <dxl:DXLMessage xmlns:dxl="http://greenplum.com/dxl/2010/12/">
+  <dxl:Comment><![CDATA[ 
+  create table r (a int, b int);
+  create table s (c int, d int);
+  insert into r select i, i from generate_series(1,20)i;
+  insert into s select i, i from generate_series(1,30)i;
+  analyze r;
+  analyze s;
+  
+  explain select a, c from r, s where a in (select c from r) order by a,c limit 10;
+                                                                QUERY PLAN
+  --------------------------------------------------------------------------------------------------------------------------------------
+   Limit  (cost=0.00..1765380.24 rows=4 width=8)
+     ->  Gather Motion 3:1  (slice3; segments: 3)  (cost=0.00..1765380.24 rows=10 width=8)
+           Merge Key: r.a, s.c
+           ->  Limit  (cost=0.00..1765380.24 rows=4 width=8)
+                 ->  Sort  (cost=0.00..1765380.24 rows=7 width=8)
+                       Sort Key: r.a, s.c
+                       ->  Result  (cost=0.00..1765380.24 rows=7 width=8)
+                             Filter: (SubPlan 1)
+                             ->  Hash Join  (cost=0.00..862.00 rows=7 width=8)
+                                   Hash Cond: (s.c = r.a)
+                                   ->  Table Scan on s  (cost=0.00..431.00 rows=10 width=4)
+                                   ->  Hash  (cost=431.00..431.00 rows=7 width=4)
+                                         ->  Table Scan on r  (cost=0.00..431.00 rows=7 width=4)
+                             SubPlan 1  (slice3; segments: 3)
+                               ->  Result  (cost=0.00..431.00 rows=1 width=1)
+                                     ->  Materialize  (cost=0.00..431.00 rows=1 width=1)
+                                           ->  Broadcast Motion 1:3  (slice2)  (cost=0.00..431.00 rows=3 width=1)
+                                                 ->  Limit  (cost=0.00..431.00 rows=1 width=1)
+                                                       ->  Gather Motion 3:1  (slice1; segments: 3)  (cost=0.00..431.00 rows=1 width=1)
+                                                             ->  Limit  (cost=0.00..431.00 rows=1 width=1)
+                                                                   ->  Table Scan on r r_1  (cost=0.00..431.00 rows=7 width=1)
+   Planning time: 627.518 ms
+   Optimizer: PQO version 3.9.0
+    ]]>
+  </dxl:Comment> 
   <dxl:Thread Id="0">
     <dxl:OptimizerConfig>
       <dxl:EnumeratorConfig Id="0" PlanSamples="0" CostThreshold="0"/>

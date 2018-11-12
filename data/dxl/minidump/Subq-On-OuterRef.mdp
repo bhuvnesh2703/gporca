@@ -1,5 +1,28 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <dxl:DXLMessage xmlns:dxl="http://greenplum.com/dxl/2010/12/">
+  <dxl:Comment><![CDATA[ 
+  create table csq_t1(a int, b int);
+  create table csq_t2(x int, y int);
+  explain select csq_t1.a, csq_t2.x from csq_t1, csq_t2 where csq_t1.a in (select x from (values(1))f);
+                                      QUERY PLAN
+  ----------------------------------------------------------------------------------
+   Gather Motion 3:1  (slice1; segments: 3)  (cost=0.00..1324032.46 rows=1 width=8)
+     ->  Result  (cost=0.00..1324032.46 rows=1 width=8)
+           Filter: (SubPlan 1)
+           ->  Hash Join  (cost=0.00..862.00 rows=1 width=8)
+                 Hash Cond: (csq_t1.a = csq_t2.x)
+                 ->  Table Scan on csq_t1  (cost=0.00..431.00 rows=1 width=4)
+                 ->  Hash  (cost=431.00..431.00 rows=1 width=4)
+                       ->  Table Scan on csq_t2  (cost=0.00..431.00 rows=1 width=4)
+           SubPlan 1  (slice1; segments: 3)
+             ->  Result  (cost=0.00..0.00 rows=1 width=1)
+                   ->  Limit  (cost=0.00..0.00 rows=1 width=1)
+                         ->  Result  (cost=0.00..0.00 rows=1 width=1)
+                               ->  Result  (cost=0.00..0.00 rows=1 width=1)
+   Planning time: 394.143 ms
+   Optimizer: PQO version 3.9.0
+    ]]>
+  </dxl:Comment>  
   <dxl:Thread Id="0">
     <dxl:OptimizerConfig>
       <dxl:EnumeratorConfig Id="0" PlanSamples="0" CostThreshold="0"/>

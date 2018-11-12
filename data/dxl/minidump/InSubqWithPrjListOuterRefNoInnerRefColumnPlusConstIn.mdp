@@ -7,7 +7,6 @@
   INSERT INTO foo SELECT i,i FROM generate_series(1,100)i;
   INSERT INTO bar SELECT i FROM generate_series(1,100)i;
   ANALYZE;
-  
   EXPLAIN SELECT * FROM foo WHERE 1+a IN (SELECT b+1 FROM bar);
                                                       QUERY PLAN
   ------------------------------------------------------------------------------------------------------------------
@@ -23,7 +22,7 @@
                                    ->  Gather Motion 3:1  (slice1; segments: 3)  (cost=0.00..431.00 rows=1 width=1)
                                          ->  Limit  (cost=0.00..431.00 rows=1 width=1)
                                                ->  Table Scan on bar  (cost=0.00..431.00 rows=34 width=1)
-   Planning time: 1137.084 ms
+   Planning time: 1103.588 ms
    Optimizer: PQO version 3.9.0
     ]]>
   </dxl:Comment>  
