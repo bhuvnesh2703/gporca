@@ -1,26 +1,25 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <dxl:DXLMessage xmlns:dxl="http://greenplum.com/dxl/2010/12/">
   <dxl:Comment><![CDATA[
-       CREATE TABLE foo (a int, b int);
-     CREATE TABLE bar (c int, d int);
-
-     EXPLAIN SELECT * FROM foo WHERE foo.a IN (SELECT foo.b FROM bar);
-EXPLAIN SELECT * FROM foo WHERE foo.a IN (SELECT foo.b FROM bar);
-                                               QUERY PLAN
---------------------------------------------------------------------------------------------------------
- Result  (cost=0.00..1324032.17 rows=1 width=8)
-   Filter: (SubPlan 1)
-   ->  Gather Motion 3:1  (slice1; segments: 3)  (cost=0.00..431.00 rows=1 width=8)
-         ->  Table Scan on foo  (cost=0.00..431.00 rows=1 width=8)
-               Filter: (a = b)
-   SubPlan 1  (slice0)
-     ->  Result  (cost=0.00..431.00 rows=1 width=1)
-           ->  Materialize  (cost=0.00..431.00 rows=1 width=1)
-                 ->  Limit  (cost=0.00..431.00 rows=1 width=1)
-                       ->  Gather Motion 3:1  (slice2; segments: 3)  (cost=0.00..431.00 rows=1 width=1)
-                             ->  Table Scan on bar  (cost=0.00..431.00 rows=1 width=1)
- Planning time: 438.424 ms
- Optimizer: PQO version 3.9.0
+   CREATE TABLE foo (a int, b int);
+   CREATE TABLE bar (c int, d int);
+   
+   EXPLAIN SELECT * FROM foo WHERE foo.a IN (SELECT foo.b FROM bar);
+                                                  QUERY PLAN
+   --------------------------------------------------------------------------------------------------------
+    Result  (cost=0.00..1324032.17 rows=1 width=8)
+      Filter: (SubPlan 1)
+      ->  Gather Motion 3:1  (slice1; segments: 3)  (cost=0.00..431.00 rows=1 width=8)
+            ->  Table Scan on foo  (cost=0.00..431.00 rows=1 width=8)
+                  Filter: (a = b)
+      SubPlan 1  (slice0)
+        ->  Result  (cost=0.00..431.00 rows=1 width=1)
+              ->  Materialize  (cost=0.00..431.00 rows=1 width=1)
+                    ->  Limit  (cost=0.00..431.00 rows=1 width=1)
+                          ->  Gather Motion 3:1  (slice2; segments: 3)  (cost=0.00..431.00 rows=1 width=1)
+                                ->  Table Scan on bar  (cost=0.00..431.00 rows=1 width=1)
+    Planning time: 438.424 ms
+    Optimizer: PQO version 3.9.0
     ]]>
   </dxl:Comment>
   <dxl:Thread Id="0">

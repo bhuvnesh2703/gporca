@@ -1,15 +1,32 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <dxl:DXLMessage xmlns:dxl="http://greenplum.com/dxl/2010/12/">
-  <!--
-CREATE TABLE foo (a int, b int);
-CREATE TABLE bar (c int);
-
-INSERT INTO foo SELECT i,i FROM generate_series(1,100)i;
-INSERT INTO bar SELECT i FROM generate_series(1,100)i;
-ANALYZE;
-
-SELECT * FROM foo WHERE 1+a IN (SELECT b+1 FROM bar);
--->
+  <dxl:Comment><![CDATA[ 
+  CREATE TABLE foo (a int, b int);
+  CREATE TABLE bar (c int);
+  
+  INSERT INTO foo SELECT i,i FROM generate_series(1,100)i;
+  INSERT INTO bar SELECT i FROM generate_series(1,100)i;
+  ANALYZE;
+  
+  EXPLAIN SELECT * FROM foo WHERE 1+a IN (SELECT b+1 FROM bar);
+                                                      QUERY PLAN
+  ------------------------------------------------------------------------------------------------------------------
+   Gather Motion 3:1  (slice3; segments: 3)  (cost=0.00..1324036.41 rows=40 width=8)
+     ->  Nested Loop Semi Join  (cost=0.00..1324036.41 rows=14 width=8)
+           Join Filter: true
+           ->  Table Scan on foo  (cost=0.00..431.00 rows=14 width=8)
+                 Filter: ((1 + a) = (b + 1))
+           ->  Materialize  (cost=0.00..431.00 rows=1 width=1)
+                 ->  Broadcast Motion 1:3  (slice2)  (cost=0.00..431.00 rows=3 width=1)
+                       ->  Limit  (cost=0.00..431.00 rows=1 width=1)
+                             ->  Limit  (cost=0.00..431.00 rows=1 width=1)
+                                   ->  Gather Motion 3:1  (slice1; segments: 3)  (cost=0.00..431.00 rows=1 width=1)
+                                         ->  Limit  (cost=0.00..431.00 rows=1 width=1)
+                                               ->  Table Scan on bar  (cost=0.00..431.00 rows=34 width=1)
+   Planning time: 1137.084 ms
+   Optimizer: PQO version 3.9.0
+    ]]>
+  </dxl:Comment>  
   <dxl:Thread Id="0">
     <dxl:OptimizerConfig>
       <dxl:EnumeratorConfig Id="0" PlanSamples="0" CostThreshold="0"/>

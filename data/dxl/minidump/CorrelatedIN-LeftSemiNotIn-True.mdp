@@ -1,42 +1,46 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <dxl:DXLMessage xmlns:dxl="http://greenplum.com/dxl/2010/12/">
-<!--
-create table customer
-   (
-           cn int not null,
-           cname text not null,
-          cloc text,
-
-          primary key (cn)
-
-  ) distributed by (cn);
-
- create table product
-  (
-          pn int not null,
-          pname text not null,
-          pcolor text,
-
-          primary key (pn)
-
-  ) distributed by (pn);
-
-  create table sale
-  (
-          cn int not null,
-          vn int not null,
-          pn int not null,
-         dt date not null,
-          qty int not null,
-          prc float not null,
-
-          primary key (cn, vn, pn)
-
-  ) distributed by (cn,vn,pn);
-
-  EXPLAIN SELECT pn, cn, vn FROM sale s WHERE cn IN (SELECT s.pn FROM customer WHERE cn NOT IN (SELECT pn FROM product WHERE pn = s.pn));
-
--->
+  <dxl:Comment><![CDATA[
+   create table customer ( cn int not null, cname text not null, cloc text, primary key (cn) ) distributed by (cn);
+  
+   create table product ( pn int not null, pname text not null, pcolor text, primary key (pn) ) distributed by (pn);
+  
+   create table sale ( cn int not null, vn int not null, pn int not null, dt date not null, qty int not null, prc float not null, primary key (cn, vn, pn) ) distributed by (cn,vn,pn);
+  
+   EXPLAIN SELECT pn, cn, vn FROM sale s WHERE cn IN (SELECT s.pn FROM customer WHERE cn NOT IN (SELECT pn FROM product WHERE pn = s.pn));
+                                                                                                                                                                                                        QUERY PLAN
+  ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+   Result  (cost=0.00..1356691757.03 rows=1 width=12)
+     Filter: (SubPlan 2)
+     ->  Gather Motion 3:1  (slice1; segments: 3)  (cost=0.00..431.00 rows=1 width=12)
+           ->  Result  (cost=0.00..431.00 rows=1 width=12)
+                 ->  Table Scan on sale  (cost=0.00..431.00 rows=1 width=12)
+                       Filter: (cn = pn)
+     SubPlan 2  (slice0)
+       ->  Result  (cost=0.00..1324032.29 rows=1 width=1)
+             ->  Limit  (cost=0.00..1324032.29 rows=1 width=1)
+                   ->  Result  (cost=0.00..1324032.29 rows=1 width=1)
+                         ->  Result  (cost=0.00..1324032.29 rows=1 width=1)
+                               Filter: (SubPlan 1)
+                               ->  Materialize  (cost=0.00..431.00 rows=1 width=4)
+                                     ->  Gather Motion 3:1  (slice2; segments: 3)  (cost=0.00..431.00 rows=1 width=4)
+                                           ->  Table Scan on customer  (cost=0.00..431.00 rows=1 width=4)
+                               SubPlan 1  (slice0)
+                                 ->  Result  (cost=0.00..431.00 rows=1 width=1)
+                                       ->  Result  (cost=0.00..431.00 rows=1 width=1)
+                                             Filter: ((CASE WHEN ((sum((CASE WHEN (customer.cn = product.pn) THEN 1 ELSE 0 END))) IS NULL) THEN true WHEN ((sum((CASE WHEN (product.pn IS NULL) THEN 1 ELSE 0 END))) > 0::bigint) THEN NULL::boolean WHEN (customer.cn IS NULL) THEN NULL::boolean WHEN ((sum((CASE WHEN (customer.cn = product.pn) THEN 1 ELSE 0 END))) = 0::bigint) THEN true ELSE false END) = true)
+                                             ->  Result  (cost=0.00..431.00 rows=1 width=1)
+                                                   ->  Aggregate  (cost=0.00..431.00 rows=1 width=16)
+                                                         ->  Result  (cost=0.00..431.00 rows=1 width=8)
+                                                               ->  Result  (cost=0.00..431.00 rows=1 width=4)
+                                                                     Filter: (product.pn = sale.pn)
+                                                                     ->  Materialize  (cost=0.00..431.00 rows=1 width=4)
+                                                                           ->  Gather Motion 3:1  (slice3; segments: 3)  (cost=0.00..431.00 rows=1 width=4)
+                                                                                 ->  Table Scan on product  (cost=0.00..431.00 rows=1 width=4)
+   Planning time: 596.327 ms
+   Optimizer: PQO version 3.9.0
+    ]]>
+  </dxl:Comment>
   <dxl:Thread Id="0">
     <dxl:OptimizerConfig>
       <dxl:EnumeratorConfig Id="0" PlanSamples="0" CostThreshold="0"/>

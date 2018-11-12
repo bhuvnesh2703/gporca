@@ -1,10 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--
-CREATE TABLE btree_test as SELECT * FROM generate_series(1,1000000) as a distributed randomly;
-CREATE INDEX test_index ON btree_test(a);
-SELECT * FROM btree_test WHERE a in (select 1);
--->
 <dxl:DXLMessage xmlns:dxl="http://greenplum.com/dxl/2010/12/">
+  <dxl:Comment><![CDATA[
+  CREATE TABLE btree_test as SELECT * FROM generate_series(1,1000000) as a distributed randomly;
+  CREATE INDEX test_index ON btree_test(a);
+  SELECT * FROM btree_test WHERE a in (select 1);
+  explain  SELECT * FROM btree_test WHERE a in (select 1);
+                                         QUERY PLAN
+  -----------------------------------------------------------------------------------------
+   Gather Motion 3:1  (slice1; segments: 3)  (cost=0.00..6.00 rows=1 width=4)
+     ->  Nested Loop  (cost=0.00..6.00 rows=1 width=4)
+           Join Filter: true
+           ->  GroupAggregate  (cost=0.00..0.00 rows=1 width=4)
+                 Group Key: ?column?
+                 ->  Sort  (cost=0.00..0.00 rows=1 width=4)
+                       Sort Key: ?column?
+                       ->  Result  (cost=0.00..0.00 rows=1 width=4)
+                             ->  Limit  (cost=0.00..0.00 rows=1 width=1)
+                                   ->  Result  (cost=0.00..0.00 rows=1 width=1)
+                                         ->  Result  (cost=0.00..0.00 rows=1 width=1)
+           ->  Index Scan using test_index on btree_test  (cost=0.00..6.00 rows=1 width=4)
+                 Index Cond: (a = "outer".?column?)
+  ]]>
+  </dxl:Comment>
   <dxl:Thread Id="0">
     <dxl:OptimizerConfig>
       <dxl:EnumeratorConfig Id="0" PlanSamples="0" CostThreshold="0"/>
@@ -17,7 +34,7 @@ SELECT * FROM btree_test WHERE a in (select 1);
         </dxl:CostParams>
       </dxl:CostModelConfig>
       <dxl:Hint MinNumOfPartsToRequireSortOnInsert="2147483647" JoinArityForAssociativityCommutativity="18" ArrayExpansionThreshold="100" JoinOrderDynamicProgThreshold="10" BroadcastThreshold="10000000" EnforceConstraintsOnDML="false"/>
-      <dxl:TraceFlags Value="102074,102120,103001,103014,103015,103022,103027,104003,104004,104005,105000,106000"/>
+      <dxl:TraceFlags Value="103027,101013,102120,103001,103014,103015,103022,104004,104005,105000"/>
     </dxl:OptimizerConfig>
     <dxl:Metadata SystemIds="0.GPDB">
       <dxl:RelationStatistics Mdid="2.16523.1.0" Name="btree_test" Rows="1001718.000000" EmptyRelation="false"/>
