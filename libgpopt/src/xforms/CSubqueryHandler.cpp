@@ -1095,7 +1095,8 @@ CSubqueryHandler::FCreateCorrelatedApplyForExistentialSubquery
 
 	// for existential subqueries, any column produced by inner expression
 	// can be used to check for empty answers; we use first column for that
-	CColRef *colref = CDrvdPropRelational::GetRelationalProperties(pexprInner->PdpDerive())->PcrsOutput()->PcrFirst();
+	CDrvdPropRelational *pdpInner = CDrvdPropRelational::GetRelationalProperties(pexprInner->PdpDerive());
+	CColRef *colref = pdpInner->PcrsOutput()->PcrFirst();
 
 	pexprInner->AddRef();
 	if (EsqctxtFilter == esqctxt)
@@ -1103,6 +1104,16 @@ CSubqueryHandler::FCreateCorrelatedApplyForExistentialSubquery
 		// we can use correlated semi/anti-semi apply here since the subquery is used in filtering context
 		if (COperator::EopScalarSubqueryExists == eopidSubq)
 		{
+			CColRefSet *outer_refs = pdpInner->PcrsOuter();
+
+			if (0 == outer_refs->Size())
+			{
+				// add a limit operator on top of the inner child if the subquery does not have
+				// any outer references. Adding Limit for the correlated case hinders pulling up
+				// predicates into an EXISTS join
+				pexprInner = CUtils::PexprLimit(mp, pexprInner, 0, 1);
+			}
+
 			*ppexprNewOuter = CUtils::PexprLogicalApply<CLogicalLeftSemiCorrelatedApply>(mp, pexprOuter, pexprInner, colref, eopidSubq);
 		}
 		else
@@ -1610,7 +1621,6 @@ CSubqueryHandler::FRemoveExistentialSubquery
 
 	// we always add-ref Apply's inner child since it is reused from subquery
 	// inner expression
-
 	pexprInner->AddRef();
 
 	BOOL fSuccess = true;
