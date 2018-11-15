@@ -2003,41 +2003,51 @@ CExpressionPreprocessor::ConvertInToSimpleExists
 	CExpression *pexpr
 	)
 {
-	COperator *pop = pexpr->Pop();
-	CExpression *pexprLogicalProject = (*pexpr)[0];
-
-	GPOS_ASSERT(COperator::EopLogicalProject == pexprLogicalProject->Pop()->Eopid());
-
-	// generate scalarOp expression by using column referance of the IN subquery's inner
-	// child's column referance as well as the expression extracted above from the
-	// project element
+	// relational child of subquery any
+	CExpression *pexprSubqAnyRelChild = (*pexpr)[0];
+	CExpression *pexprRight = NULL;
 	CExpression *pexprLeft = (*pexpr)[1];
+	COperator *pop = pexpr->Pop();
+	CScalarSubqueryAny *popAny = CScalarSubqueryAny::PopConvert(pop);
+	// relational child of subquery exists
+	CExpression *pexprSubqExistsRelChild = NULL;
+	if (COperator::EopLogicalProject == pexprSubqAnyRelChild->Pop()->Eopid())
+	{
+		// since Orca doesn't support IN subqueries of multiple columns such as
+		// (a,a) in (select foo.a, foo.a from ...) ,
+		// we only extract the first expression under the first project element in the
+		// project list and make it as the right operand to the scalar operation.
+		pexprRight = CUtils::PNthProjectElementExpr(pexprSubqAnyRelChild, 0);
+		pexprRight->AddRef();
+
+		// relational child of logical project becomes the relation child of subquery exists
+		pexprSubqExistsRelChild = (*pexprSubqAnyRelChild)[0];
+	}
+	else
+	{
+		// projection from the subquery becomes the right hand side of the scalar cmp
+		// extracted out
+		pexprRight = CUtils::PexprScalarIdent(mp, popAny->Pcr());
+		// relational child of the subquery any becomes relational child of subquery exists
+		pexprSubqExistsRelChild = pexprSubqAnyRelChild;
+	}
 
 	if (CUtils::FSubquery(pexprLeft->Pop()))
 	{
 		return NULL;
 	}
 
-	// since Orca doesn't support IN subqueries of multiple columns such as
-	// (a,a) in (select foo.a, foo.a from ...) ,
-	// we only extract the first expression under the first project element in the
-	// project list and make it as the right operand to the scalar operation.
-	CExpression *pexprRight = CUtils::PNthProjectElementExpr(pexprLogicalProject, 0);
-
 	CMDAccessor *md_accessor = COptCtxt::PoctxtFromTLS()->Pmda();
 	IMDId *mdid = CScalarSubqueryAny::PopConvert(pop)->MdIdOp();
 	const CWStringConst *str = md_accessor->RetrieveScOp(mdid)->Mdname().GetMDName();
 
 	mdid->AddRef();
-	pexprRight->AddRef();
 	pexprLeft->AddRef();
 
 	CExpression *pexprScalarOp = CUtils::PexprScalarCmp(mp, pexprLeft, pexprRight, *str, mdid);
 
-	// EXISTS subquery becomes the logical projects relational child.
-	CExpression *pexprSubqOfExists = (*pexprLogicalProject)[0];
-	pexprSubqOfExists->AddRef();
-	CExpression *pexprScalarSubqExists = GPOS_NEW(mp) CExpression(mp, GPOS_NEW(mp) CScalarSubqueryExists(mp), pexprSubqOfExists);
+	pexprSubqExistsRelChild->AddRef();
+	CExpression *pexprScalarSubqExists = GPOS_NEW(mp) CExpression(mp, GPOS_NEW(mp) CScalarSubqueryExists(mp), pexprSubqExistsRelChild);
 
 	// AND the generated predicate with the EXISTS subquery expression and return.
 	CExpressionArray *pdrgpexprBoolOperands = GPOS_NEW(mp) CExpressionArray(mp);
@@ -2082,18 +2092,29 @@ CExpressionPreprocessor::PexprExistWithPredFromINSubq
 	//Check if the inner is a SubqueryAny
 	if (CUtils::FAnySubquery(pop))
 	{
-		CExpression *pexprLogicalProject = (*pexprNew)[0];
-
-		// we do the conversion if the project list has an outer reference and
-		// it does not include any column from the relational child.
-		if (COperator::EopLogicalProject != pexprLogicalProject->Pop()->Eopid() ||
-			!CUtils::HasOuterRefs(pexprLogicalProject) ||
-			CUtils::FInnerRefInProjectList(pexprLogicalProject))
+		CExpression *pexprRelChild= (*pexprNew)[0];
+		// if it a logical project, and does not have outer reference or has
+		// inner references in the project list, we can't convert IN to EXISTS
+		if (COperator::EopLogicalProject == pexprRelChild->Pop()->Eopid())
 		{
-			return pexprNew;
+			if (!CUtils::HasOuterRefs(pexprRelChild) ||
+				CUtils::FInnerRefInProjectList(pexprRelChild))
+			{
+				return pexprNew;
+			}
 		}
-
+		else
+		{
+			CDrvdPropRelational *pdrvdPropRelChid = CDrvdPropRelational::GetRelationalProperties(pexprRelChild->PdpDerive());
+			CColRefSet *pcrsLogicalRelChild = pdrvdPropRelChid->PcrsOutput();
+			CScalarSubqueryAny *popAny = CScalarSubqueryAny::PopConvert(pop);
+			if (pcrsLogicalRelChild->FMember(popAny->Pcr()))
+			{
+				return pexprNew;
+			}
+		}
 		CExpression *pexprNewConverted = ConvertInToSimpleExists(mp, pexprNew);
+
 		if (NULL == pexprNewConverted)
 		{
 			return pexprNew;
@@ -2214,15 +2235,10 @@ CExpressionPreprocessor::PexprPreprocess
 	GPOS_CHECK_ABORT;
 	pexprWindowPreprocessed->Release();
 
-	// (17) normalize expression
-	CExpression *pexprNormalized = CNormalizer::PexprNormalize(mp, pexprNoUnusedPrEl);
+	// (18) transform outer join into inner join whenever possible
+	CExpression *pexprLOJToIJ = PexprOuterJoinToInnerJoin(mp, pexprNoUnusedPrEl);
 	GPOS_CHECK_ABORT;
 	pexprNoUnusedPrEl->Release();
-
-	// (18) transform outer join into inner join whenever possible
-	CExpression *pexprLOJToIJ = PexprOuterJoinToInnerJoin(mp, pexprNormalized);
-	GPOS_CHECK_ABORT;
-	pexprNormalized->Release();
 
 	// (19) collapse cascaded inner joins
 	CExpression *pexprCollapsed = PexprCollapseInnerJoins(mp, pexprLOJToIJ);
@@ -2259,7 +2275,12 @@ CExpressionPreprocessor::PexprPreprocess
 	GPOS_CHECK_ABORT;
 	pexrReorderedScalarCmpChildren->Release();
 
-	return pexprExistWithPredFromINSubq;
+	// (17) normalize expression
+	CExpression *pexprNormalized = CNormalizer::PexprNormalize(mp, pexprExistWithPredFromINSubq);
+	GPOS_CHECK_ABORT;
+	pexprExistWithPredFromINSubq->Release();
+
+	return pexprNormalized;
 }
 
 // EOF
