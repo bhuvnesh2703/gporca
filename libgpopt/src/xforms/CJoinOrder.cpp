@@ -462,6 +462,7 @@ CJoinOrder::PcompCombine
 				// to create an Inner Join. for other non LOJ childs of NAry join, the parent loj id is
 				// defaulted to 0, so assert the condition.
 				GPOS_ASSERT_IMP(comp1->ParentLojId() > NON_LOJ_DEFAULT_ID, comp2->ParentLojId() == 0);
+				GPOS_ASSERT_IMP(comp2->ParentLojId() > NON_LOJ_DEFAULT_ID, comp1->ParentLojId() == 0);
 
 				parent_loj_id = NON_LOJ_DEFAULT_ID < comp1->ParentLojId() ? comp1->ParentLojId(): comp2->ParentLojId();
 				position = NON_LOJ_DEFAULT_ID < comp1->ParentLojId()  ? comp1->Position(): comp2->Position();
@@ -579,54 +580,41 @@ const
 	//	|  +--<Join Condition>
 	//	+--<Join Condition>
 
-	// Rule 1: joining right child of LOJ with another right child of LOJ
-	// is not a valid combination.
-	// example: CLogicalGet "t4" cannot be joined with CLogicalGet "t6"
-	if (comp1_position == CJoinOrder::EpRight &&
-			comp2_position == CJoinOrder::EpRight)
+	if ((NON_LOJ_DEFAULT_ID == comp1_parent_loj_id &&
+		NON_LOJ_DEFAULT_ID == comp2_parent_loj_id))
 	{
+		// neither component contains any LOJs childs,
+		// this is valid
+		// example: CLogicalGet "t1" join CLogicalGet "t2"
+		return true;
+	}
+
+	if (NON_LOJ_DEFAULT_ID < comp1_parent_loj_id &&
+		NON_LOJ_DEFAULT_ID < comp2_parent_loj_id)
+	{
+		// both components contain LOJs child,
+		// check whether they are referring to same LOJ
+		if (comp1_parent_loj_id == comp2_parent_loj_id)
+		{
+			// one of them should be a left child and other one right child
+			// example: CLogicalGet "t3" join CLogicalGet "t4" is valid
+			GPOS_ASSERT(comp1_position != EpSentinel && comp2_position != EpSentinel);
+			if ((comp1_position == EpLeft && comp2_position == EpRight) ||
+				(comp1_position == EpRight && comp2_position == EpLeft))
+			{
+				return true;
+			}
+		}
+		// two components with children from different LOJs, this is not valid
+		// example: CLogicalGet "t3" join CLogicalGet "t5"
 		return false;
 	}
 
-	// Rule 2: joining a child of LOJ x with a child of another LOJ y
-	// is not a valid combination, where x and y represent 2 different
-	// LOJs
-	// example: CLogicalGet "t3" or "t4" cannot be joined with CLogicalGet "t5" or "t6"
-	if (comp1_parent_loj_id > NON_LOJ_DEFAULT_ID &&
-		 	comp2_parent_loj_id > NON_LOJ_DEFAULT_ID &&
-			comp1_parent_loj_id != comp2_parent_loj_id)
-	{
-		return false;
-	}
-
-	// Rule 3: joining right child of LOJ with other NAry component (non LOJs) is not
-	// a valid combination.
-	// example: CLogicalGet "t4" or "t6" cannot be joined with CLogicalGet "t1" or "t2"
-	if ((comp1_parent_loj_id == NON_LOJ_DEFAULT_ID && comp2_position == CJoinOrder::EpRight)
-		|| (comp1_position == CJoinOrder::EpRight && comp2_parent_loj_id == NON_LOJ_DEFAULT_ID))
-	{
-		return false;
-	}
-
-	// Rule 4: What is allowed?
-	// a) joining left child of LOJ x with other NAry component (non LOJs) is valid
-	// 	example: joining CLogicalGet "t3" with CLogicalGet "t1" or "t2"
-	// b) joining left child of LOJ x with the right child of the same LOJ x is valid.
-	//	example: joining CLogicalGet "t3" with "t4"
-	// c) joining non LOJ childs is valid, as they are inner joins.
-	//	example: joining CLogicalGet "t1" with CLogicalGet "t2"
-	//
-	// Note: extending the example to component's containing left child of LOJs
-	// The below component contains left child of LOJ 1, so it will have parent_loj_id = 1
-	// and position = left
-	// +--CLogicalInnerJoin
-	//	 |--CLogicalGet "t1"
-	//	 |--CLogicalGet "t3" ==> Left child of LOJ 1
-	//	 +--<Join Condition>
-	// It can be joined with CLogicalGet "t4", as it ensures that
-	// "t4" remains the right child of the LOJ containing "t3"
-
-	return true;
+	// one of the components contains one LOJ child without the sibling,
+	// this is allowed if it is a left LOJ child
+	// example 1: CLogicalGet "t1" join CLogicalGet "t3" is valid
+	// example 2: CLogicalGet "t1" join CLogicalGet "t4 is not valid
+	return comp1_position != EpRight && comp2_position != EpRight;
 }
 
 BOOL
