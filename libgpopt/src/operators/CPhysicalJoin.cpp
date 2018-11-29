@@ -360,7 +360,7 @@ CPhysicalJoin::PdsDerive
 		// if outer is replicated/universal, return inner distribution
 		pdsInner->AddRef();
 		return pdsInner;
-	}
+	}	
 
 	// otherwise, return outer distribution
 	pdsOuter->AddRef();

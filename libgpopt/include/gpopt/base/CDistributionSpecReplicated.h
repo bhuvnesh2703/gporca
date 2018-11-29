@@ -32,6 +32,8 @@ namespace gpopt
 	class CDistributionSpecReplicated : public CDistributionSpec
 	{
 		private:
+		
+			CDistributionSpec *m_replicated_child_spec;
 
 			// private copy ctor
 			CDistributionSpecReplicated(const CDistributionSpecReplicated &);
@@ -40,7 +42,21 @@ namespace gpopt
 			// ctor
 			CDistributionSpecReplicated()
 			{}
-			
+		
+			virtual
+			void
+			SetChildDistrSpec(CDistributionSpec *pdsChild)
+			{
+				pdsChild->AddRef();
+				m_replicated_child_spec = pdsChild;
+			}
+		
+		virtual
+		CDistributionSpec* GetChildDistrSpec()
+		{
+			return m_replicated_child_spec;
+		}
+		
 			// accessor
 			virtual 
 			EDistributionType Edt() const

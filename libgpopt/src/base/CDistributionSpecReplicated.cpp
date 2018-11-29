@@ -13,6 +13,7 @@
 #include "gpopt/base/CDistributionSpecReplicated.h"
 #include "gpopt/base/CDistributionSpecNonSingleton.h"
 #include "gpopt/operators/CPhysicalMotionBroadcast.h"
+#include "gpopt/operators/CExpressionHandle.h"
 
 #define GPOPT_DISTR_SPEC_COLREF_HASHED      (ULONG(5))
 #define GPOPT_DISTR_SPEC_COLREF_MATCH_NL    (ULONG(20))
@@ -67,7 +68,7 @@ void
 CDistributionSpecReplicated::AppendEnforcers
 	(
 	IMemoryPool *mp,
-	CExpressionHandle &, // exprhdl
+	CExpressionHandle &exprhdl,
 	CReqdPropPlan *
 	#ifdef GPOS_DEBUG
 	prpp
@@ -92,10 +93,11 @@ CDistributionSpecReplicated::AppendEnforcers
 	}
 
 	pexpr->AddRef();
+	CDistributionSpec *pdsInnerChild = exprhdl.Pdpplan(0 /*child_index*/)->Pds();
 	CExpression *pexprMotion = GPOS_NEW(mp) CExpression
 										(
 										mp,
-										GPOS_NEW(mp) CPhysicalMotionBroadcast(mp),
+										GPOS_NEW(mp) CPhysicalMotionBroadcast(mp, pdsInnerChild),
 										pexpr
 										);
 	pdrgpexpr->Append(pexprMotion);

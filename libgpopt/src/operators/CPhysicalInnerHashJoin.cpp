@@ -12,6 +12,7 @@
 #include "gpos/base.h"
 #include "gpopt/base/CUtils.h"
 #include "gpopt/base/CDistributionSpecHashed.h"
+#include "gpopt/base/CDistributionSpecReplicated.h"
 #include "gpopt/operators/CExpressionHandle.h"
 
 #include "gpopt/operators/CPhysicalInnerHashJoin.h"
@@ -253,6 +254,15 @@ CPhysicalInnerHashJoin::PdsDerive
  		 }
  	 }
 
+	if (CDistributionSpec::EdtReplicated == pdsInner->Edt())
+	{
+		CDistributionSpecReplicated *pdsInnerChild = CDistributionSpecReplicated::PdsConvert(pdsInner);
+		CDistributionSpec *pdsDerived = PdsDeriveFromHashedChildren(mp, pdsOuter, pdsInnerChild->GetChildDistrSpec());
+		if (NULL != pdsDerived)
+		{
+			return pdsDerived;
+		}
+	}
  	// otherwise, pass through outer distribution
  	pdsOuter->AddRef();
  	return pdsOuter;

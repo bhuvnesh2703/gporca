@@ -65,12 +65,11 @@ namespace gpopt
 			};
 
 		private:
-
 			// private copy ctor
 			CDistributionSpec(const CDistributionSpec &);
 			
 		public:
-
+		
 			// ctor
 			CDistributionSpec()
 			{}

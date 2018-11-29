@@ -42,6 +42,12 @@ namespace gpopt
 			// ctor
 			explicit
 			CPhysicalMotionBroadcast(IMemoryPool *mp);
+		
+		explicit CPhysicalMotionBroadcast
+		(
+		 IMemoryPool *mp,
+		 CDistributionSpec *pdsChild
+		 );
 			
 			// dtor
 			virtual 

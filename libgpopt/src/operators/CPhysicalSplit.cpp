@@ -365,7 +365,6 @@ CPhysicalSplit::PdsDerive
 		if (pcrOld != new_colref)
 		{
 			pcrsModified->Include(pcrOld);
-			pcrsModified->Include(new_colref);
 		}
 	}
 	

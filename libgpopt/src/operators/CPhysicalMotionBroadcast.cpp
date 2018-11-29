@@ -37,6 +37,19 @@ CPhysicalMotionBroadcast::CPhysicalMotionBroadcast
 	m_pdsReplicated = GPOS_NEW(mp) CDistributionSpecReplicated();
 }
 
+CPhysicalMotionBroadcast::CPhysicalMotionBroadcast
+(
+ IMemoryPool *mp,
+ CDistributionSpec *pdsChild
+ )
+:
+CPhysicalMotion(mp),
+m_pdsReplicated(NULL)
+{
+	m_pdsReplicated = GPOS_NEW(mp) CDistributionSpecReplicated();
+	m_pdsReplicated->SetChildDistrSpec(pdsChild);
+}
+
 
 //---------------------------------------------------------------------------
 //	@function:
