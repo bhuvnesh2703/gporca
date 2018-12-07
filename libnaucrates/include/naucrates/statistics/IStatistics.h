@@ -88,6 +88,7 @@ namespace gpnaucrates
 					EsjtLeftOuterJoin,
 					EsjtLeftSemiJoin,
 					EsjtLeftAntiSemiJoin,
+					EsjtRightOuterJoin,
 					EstiSentinel // should be the last in this enum
 					};
 

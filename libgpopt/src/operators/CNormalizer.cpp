@@ -71,6 +71,7 @@ CNormalizer::FPushThruOuterChild
 	COperator::EOperatorId op_id = pexprLogical->Pop()->Eopid();
 
 	return
+		COperator::EopLogicalRightOuterJoin == op_id ||
 		COperator::EopLogicalLeftOuterJoin == op_id ||
 		COperator::EopLogicalLeftOuterApply == op_id ||
 		COperator::EopLogicalLeftOuterCorrelatedApply == op_id ||

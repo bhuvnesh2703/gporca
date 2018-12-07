@@ -1116,7 +1116,8 @@ CLogical::Maxcard
 	if (NULL != pexprScalar &&
 		( (CUtils::FScalarConstFalse(pexprScalar) &&
 				(COperator::EopLogicalFullOuterJoin != exprhdl.Pop()->Eopid() &&
-						COperator::EopLogicalLeftOuterJoin != exprhdl.Pop()->Eopid()))
+						COperator::EopLogicalLeftOuterJoin != exprhdl.Pop()->Eopid() &&
+				 			COperator::EopLogicalRightOuterJoin != exprhdl.Pop()->Eopid()))
 		|| CDrvdPropRelational::GetRelationalProperties(exprhdl.Pdp())->Ppc()->FContradiction()))
 	{
 		return CMaxCard(0 /*ull*/);

@@ -122,6 +122,7 @@ namespace gpopt
 				EopLogicalInnerJoin,
 				EopLogicalNAryJoin,
 				EopLogicalLeftOuterJoin,
+				EopLogicalRightOuterJoin,
 				EopLogicalLeftSemiJoin,
 				EopLogicalLeftAntiSemiJoin,
 				EopLogicalLeftAntiSemiJoinNotIn,
@@ -234,6 +235,7 @@ namespace gpopt
 				
 				EopPhysicalInnerHashJoin,
 				EopPhysicalLeftOuterHashJoin,
+				EopPhysicalRightOuterHashJoin,
 				EopPhysicalLeftSemiHashJoin,
 				EopPhysicalLeftAntiSemiHashJoin,
 				EopPhysicalLeftAntiSemiHashJoinNotIn,

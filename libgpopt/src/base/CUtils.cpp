@@ -1241,6 +1241,8 @@ CUtils::FPhysicalOuterJoin
 	return 	COperator::EopPhysicalLeftOuterNLJoin == pop->Eopid() ||
 		COperator::EopPhysicalLeftOuterIndexNLJoin == pop->Eopid() ||
 		COperator::EopPhysicalLeftOuterHashJoin == pop->Eopid() ||
+	COperator::EopPhysicalRightOuterHashJoin == pop->Eopid() ||
+
 		COperator::EopPhysicalCorrelatedLeftOuterNLJoin == pop->Eopid();
 }
 

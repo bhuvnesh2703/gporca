@@ -225,6 +225,7 @@ CTranslatorExprToDXL::InitPhysicalTranslators()
 			{COperator::EopPhysicalCorrelatedNotInLeftAntiSemiNLJoin, &gpopt::CTranslatorExprToDXL::PdxlnCorrelatedNLJoin},
 			{COperator::EopPhysicalInnerHashJoin, &gpopt::CTranslatorExprToDXL::PdxlnHashJoin},
 			{COperator::EopPhysicalLeftOuterHashJoin, &gpopt::CTranslatorExprToDXL::PdxlnHashJoin},
+			{COperator::EopPhysicalRightOuterHashJoin, &gpopt::CTranslatorExprToDXL::PdxlnHashJoin},
 			{COperator::EopPhysicalLeftSemiHashJoin, &gpopt::CTranslatorExprToDXL::PdxlnHashJoin},
 			{COperator::EopPhysicalLeftAntiSemiHashJoin, &gpopt::CTranslatorExprToDXL::PdxlnHashJoin},
 			{COperator::EopPhysicalLeftAntiSemiHashJoinNotIn, &gpopt::CTranslatorExprToDXL::PdxlnHashJoin},
@@ -3847,6 +3848,9 @@ CTranslatorExprToDXL::EdxljtHashJoin
 
 		case COperator::EopPhysicalLeftOuterHashJoin:
 			return EdxljtLeft;
+			
+		case COperator::EopPhysicalRightOuterHashJoin:
+			return EdxljtRight;
 
 		case COperator::EopPhysicalLeftSemiHashJoin:
 			return EdxljtIn;

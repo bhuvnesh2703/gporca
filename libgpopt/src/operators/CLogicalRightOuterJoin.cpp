@@ -3,7 +3,7 @@
 //	Copyright (C) 2011 EMC Corp.
 //
 //	@filename:
-//		CLogicalLeftOuterJoin.cpp
+//		CLogicalRightOuterJoin.cpp
 //
 //	@doc:
 //		Implementation of left outer join operator
@@ -15,20 +15,20 @@
 #include "gpopt/operators/CExpression.h"
 #include "gpopt/operators/CExpressionHandle.h"
 
-#include "gpopt/operators/CLogicalLeftOuterJoin.h"
+#include "gpopt/operators/CLogicalRightOuterJoin.h"
 
 using namespace gpopt;
 
 
 //---------------------------------------------------------------------------
 //	@function:
-//		CLogicalLeftOuterJoin::CLogicalLeftOuterJoin
+//		CLogicalRightOuterJoin::CLogicalRightOuterJoin
 //
 //	@doc:
 //		ctor
 //
 //---------------------------------------------------------------------------
-CLogicalLeftOuterJoin::CLogicalLeftOuterJoin
+CLogicalRightOuterJoin::CLogicalRightOuterJoin
 	(
 	IMemoryPool *mp
 	)
@@ -41,14 +41,14 @@ CLogicalLeftOuterJoin::CLogicalLeftOuterJoin
 
 //---------------------------------------------------------------------------
 //	@function:
-//		CLogicalLeftOuterJoin::Maxcard
+//		CLogicalRightOuterJoin::Maxcard
 //
 //	@doc:
 //		Derive max card
 //
 //---------------------------------------------------------------------------
 CMaxCard
-CLogicalLeftOuterJoin::Maxcard
+CLogicalRightOuterJoin::Maxcard
 	(
 	IMemoryPool *, // mp
 	CExpressionHandle &exprhdl
@@ -60,31 +60,21 @@ CLogicalLeftOuterJoin::Maxcard
 
 //---------------------------------------------------------------------------
 //	@function:
-//		CLogicalLeftOuterJoin::PxfsCandidates
+//		CLogicalRightOuterJoin::PxfsCandidates
 //
 //	@doc:
 //		Get candidate xforms
 //
 //---------------------------------------------------------------------------
 CXformSet *
-CLogicalLeftOuterJoin::PxfsCandidates
+CLogicalRightOuterJoin::PxfsCandidates
 	(
 	IMemoryPool *mp
 	) 
 	const
 {
 	CXformSet *xform_set = GPOS_NEW(mp) CXformSet(mp);
-
-	(void) xform_set->ExchangeSet(CXform::ExfPushDownLeftOuterJoin);
-	(void) xform_set->ExchangeSet(CXform::ExfSimplifyLeftOuterJoin);
-	(void) xform_set->ExchangeSet(CXform::ExfLeftOuterJoin2BitmapIndexGetApply);
-	(void) xform_set->ExchangeSet(CXform::ExfLeftOuterJoin2IndexGetApply);
-	(void) xform_set->ExchangeSet(CXform::ExfLeftOuterJoin2NLJoin);
-	(void) xform_set->ExchangeSet(CXform::ExfLeftOuterJoin2HashJoin);
-	(void) xform_set->ExchangeSet(CXform::ExfLeftOuter2InnerUnionAllLeftAntiSemiJoin);
-	(void) xform_set->ExchangeSet(CXform::ExfLeftOuterJoinWithInnerSelect2BitmapIndexGetApply);
-	(void) xform_set->ExchangeSet(CXform::ExfLeftOuterJoinWithInnerSelect2IndexGetApply);
-	(void) xform_set->ExchangeSet(CXform::ExfLeftOuterJoin2RightOuterJoin);
+	(void) xform_set->ExchangeSet(CXform::ExfRightOuterJoin2HashJoin);
 
 	return xform_set;
 }

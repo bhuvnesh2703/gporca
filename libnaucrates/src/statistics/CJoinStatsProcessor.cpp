@@ -479,13 +479,18 @@ CJoinStatsProcessor::DeriveJoinStats
 	COperator::EOperatorId op_id = exprhdl.Pop()->Eopid();
 	GPOS_ASSERT(COperator::EopLogicalLeftOuterJoin == op_id ||
 				COperator::EopLogicalInnerJoin == op_id ||
-				COperator::EopLogicalNAryJoin == op_id);
+				COperator::EopLogicalNAryJoin == op_id ||
+				COperator::EopLogicalRightOuterJoin);
 
 	// we use Inner Join semantics here except in the case of Left Outer Join
 	IStatistics::EStatsJoinType join_type = IStatistics::EsjtInnerJoin;
 	if (COperator::EopLogicalLeftOuterJoin == op_id)
 	{
 		join_type = IStatistics::EsjtLeftOuterJoin;
+	}
+	if (COperator::EopLogicalRightOuterJoin == op_id)
+	{
+		join_type = IStatistics::EsjtRightOuterJoin;
 	}
 
 	// derive stats based on local join condition
