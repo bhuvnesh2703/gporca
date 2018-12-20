@@ -921,67 +921,107 @@ CHistogram::MakeLASJHistogram
 	CBucket *lower_split_bucket = NULL;
 	CBucket *upper_split_bucket = NULL;
 
-	ULONG idx1 = 0; // index into this histogram
-	ULONG idx2 = 0; // index into other histogram
-
+//	ULONG idx1 = 0; // index into this histogram
+//	ULONG idx2 = 0; // index into other histogram
+//
 	CBucket *candidate_bucket = NULL;
 
 	const ULONG buckets1 = Buckets();
 	const ULONG buckets2 = histogram->Buckets();
-
-	while (idx1 < buckets1 && idx2 < buckets2)
+	
+	for (ULONG left_bucket_idx = 0; left_bucket_idx < buckets1; left_bucket_idx++)
 	{
-		// bucket from other histogram
-		CBucket *bucket2 = (*histogram->m_histogram_buckets) [idx2];
-
-		// yet to choose a candidate
-		GPOS_ASSERT(NULL == candidate_bucket);
-
-		if (NULL != upper_split_bucket)
+		candidate_bucket = (*m_histogram_buckets)[left_bucket_idx]->MakeBucketCopy(mp);
+		CPoint *candidate_bucket_end = candidate_bucket->GetUpperBound();
+		
+		for (ULONG right_bucket_idx = 0; right_bucket_idx < buckets2; right_bucket_idx++)
 		{
-			candidate_bucket = upper_split_bucket;
+			if (upper_split_bucket != NULL)
+			{
+				GPOS_DELETE(candidate_bucket);
+				candidate_bucket = upper_split_bucket;
+				candidate_bucket_end = candidate_bucket->GetUpperBound();
+			}
+			CBucket *right_bucket = (*histogram->m_histogram_buckets)[right_bucket_idx];
+			CPoint *right_bucket_start = right_bucket->GetLowerBound();
+			
+			if (candidate_bucket_end->IsLessThan(right_bucket_start))
+			{
+				GPOS_DELETE(candidate_bucket);
+				candidate_bucket = NULL;
+				break;
+			}
+			
+			lower_split_bucket = NULL;
+			upper_split_bucket = NULL;
+			
+			candidate_bucket->Difference(mp, right_bucket, &lower_split_bucket, &upper_split_bucket);
+			
+			if (lower_split_bucket != NULL)
+			{
+				new_buckets->Append(lower_split_bucket);
+			}
 		}
-		else
+		if (candidate_bucket != NULL)
 		{
-			candidate_bucket = (*m_histogram_buckets)[idx1]->MakeBucketCopy(mp); // candidate bucket in result histogram
-			idx1++;
+			GPOS_DELETE(candidate_bucket);
+			candidate_bucket = NULL;
 		}
-
-		lower_split_bucket = NULL;
-		upper_split_bucket = NULL;
-
-		candidate_bucket->Difference(mp, bucket2, &lower_split_bucket, &upper_split_bucket);
-
-		if (NULL != lower_split_bucket)
-		{
-			new_buckets->Append(lower_split_bucket);
-		}
-
-		// need to find a new candidate
-		GPOS_DELETE(candidate_bucket);
-		candidate_bucket = NULL;
-
-		idx2++;
 	}
 
-	candidate_bucket = upper_split_bucket;
+//	while (idx1 < buckets1 && idx2 < buckets2)
+//	{
+//		// bucket from other histogram
+//		CBucket *bucket2 = (*histogram->m_histogram_buckets) [idx2];
+//
+//		// yet to choose a candidate
+//		GPOS_ASSERT(NULL == candidate_bucket);
+//
+//		if (NULL != upper_split_bucket)
+//		{
+//			candidate_bucket = upper_split_bucket;
+//		}
+//		else
+//		{
+//			candidate_bucket = (*m_histogram_buckets)[idx1]->MakeBucketCopy(mp); // candidate bucket in result histogram
+//			idx1++;
+//		}
+//
+//		lower_split_bucket = NULL;
+//		upper_split_bucket = NULL;
+//
+//		candidate_bucket->Difference(mp, bucket2, &lower_split_bucket, &upper_split_bucket);
+//
+//		if (NULL != lower_split_bucket)
+//		{
+//			new_buckets->Append(lower_split_bucket);
+//		}
+//
+//		// need to find a new candidate
+//		GPOS_DELETE(candidate_bucket);
+//		candidate_bucket = NULL;
+//
+//		idx2++;
+//	}
 
-	// if we looked at all the buckets from the other histogram, then add remaining buckets from
-	// this histogram
-	if (idx2 == buckets2)
-	{
-		// candidate is part of the result
-		if (NULL != candidate_bucket)
-		{
-			new_buckets->Append(candidate_bucket);
-		}
-
-		CStatisticsUtils::AddRemainingBuckets(mp, m_histogram_buckets, new_buckets, &idx1);
-	}
-	else
-	{
-		GPOS_DELETE(candidate_bucket);
-	}
+//	candidate_bucket = upper_split_bucket;
+//
+//	// if we looked at all the buckets from the other histogram, then add remaining buckets from
+//	// this histogram
+//	if (idx2 == buckets2)
+//	{
+//		// candidate is part of the result
+//		if (NULL != candidate_bucket)
+//		{
+//			new_buckets->Append(candidate_bucket);
+//		}
+//
+//		CStatisticsUtils::AddRemainingBuckets(mp, m_histogram_buckets, new_buckets, &idx1);
+//	}
+//	else
+//	{
+//		GPOS_DELETE(candidate_bucket);
+//	}
 
 	CDouble null_freq = CLeftAntiSemiJoinStatsProcessor::NullFreqLASJ(stats_cmp_type, this, histogram);
 
