@@ -109,14 +109,14 @@ namespace gpnaucrates
 			// IDF filter
 			CHistogram *MakeHistogramIDFFilter(IMemoryPool *mp, CPoint *point) const;
 
+			// generate histogram based on NDV
+			CHistogram *MakeNDVBasedJoinHistogramEqualityFilter(IMemoryPool *mp, const CHistogram *histogram) const;
+
 			// INDF filter
 			CHistogram *MakeHistogramINDFFilter(IMemoryPool *mp, CPoint *point) const;
 
 			// equality join
 			CHistogram *MakeJoinHistogramEqualityFilter(IMemoryPool *mp, const CHistogram *histogram) const;
-
-			// generate histogram based on NDV
-			CHistogram *MakeNDVBasedJoinHistogramEqualityFilter(IMemoryPool *mp, const CHistogram *histogram) const;
 
 			// construct a new histogram for an INDF join predicate
 			CHistogram *MakeJoinHistogramINDFFilter(IMemoryPool *mp, const CHistogram *histogram) const;
