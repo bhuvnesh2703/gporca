@@ -1,0 +1,1 @@
+Select RANK() OVER(ORDER BY abs(sum(a.usd_eq_gamma)) DESC) as RANK, a.UNDERLIER_TICK||'.'||a.UNDERLIER_EXCH as MdSymbol, sum(a.usd_eq_gamma)/1000 as Gamma From CDWUSER.U_EQ_MSR a Where a.COB_DATE ='2018-02-28' And a.CCC_RISK_MANAGER_LOGIN = 'freemric' And a.ACCOUNT like '077%' GRoup by a.UNDERLIER_TICK||'.'||a.UNDERLIER_EXCH HAVING abs(sum(a.usd_eq_gamma))>0

@@ -1,0 +1,10 @@
+export to query1.del of del lobfile query_set1 modified by LOBSINSEPFILES 
+select rr.REPORT_RUN_NAME, c.REPORT_COMPONENT_NAME, t.REPORT_TEMPLATE_NAME, p.WORKSHEET, p.PIVOT_TABLE, p.SQL
+from report.report_run rr, report.REPORT_PIVOT_TABLE_EXECUTION p, report.REPORT_COMPONENT c, report.REPORT_TEMPLATE t
+where rr.REPORT_RUN_ID = p.REPORT_RUN_ID
+and rr.REPORT_COMPONENT_ID = c.REPORT_COMPONENT_ID
+and c.REPORT_TEMPLATE_ID = t.REPORT_TEMPLATE_ID
+and rr.ENV = 'UDB'
+and rr.COB_DATE = '2018-02-28'
+and p.DSN like 'NYPG%';
+

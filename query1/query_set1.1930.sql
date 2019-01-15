@@ -1,0 +1,5 @@
+SELECT COB_DATE, CCC_PRODUCT_LINE , COUNTRY_CD_OF_RISK, case when TERM_NEW <= 0.25 then 0.25 when TERM_NEW = 0.75 then 1 else TERM_NEW end as TERM_NEW, case when CURRENCY_OF_MEASURE in ('EUR','GBP','USD','NOK','SEK') then CURRENCY_OF_MEASURE else 'Others' end as currency_group, SUM (USD_IR_UNIFIED_PV01) AS usd_pv01, sum(a.USD_PCA1) as equivalent, sum(a.USD_PCA2) as steepner, case when round(TERM_NEW,0) <=1 then '0-1yr'
+when round(TERM_NEW,0) <=5 then '2-5yr'
+when round(TERM_NEW,0) <=12 then '7-12yr'
+when round(TERM_NEW,0) <=30 then '15-30yr'
+else '40yr+' end as term_group, case when PRODUCT_TYPE_CODE in ('AGN','BOND','BONDFUT','BONDFUTOPT','CRDINDEX','DEFSWAP','GVTBOND') then 'Gvt' else 'Swap' end as Gvt_Swap FROM CDWUSER.U_DM_IR a WHERE COB_DATE IN ('2018-02-28','2018-02-27') AND CCC_PL_REPORTING_REGION = 'EMEA' AND CCC_BUSINESS_AREA = 'LIQUID FLOW RATES' GROUP BY COB_DATE, CCC_PRODUCT_LINE , COUNTRY_CD_OF_RISK, TERM_NEW, case when CURRENCY_OF_MEASURE in ('EUR','GBP','USD','NOK','SEK') then CURRENCY_OF_MEASURE else 'Others' end, case when PRODUCT_TYPE_CODE in ('AGN','BOND','BONDFUT','BONDFUTOPT','CRDINDEX','DEFSWAP','GVTBOND') then 'Gvt' else 'Swap' end

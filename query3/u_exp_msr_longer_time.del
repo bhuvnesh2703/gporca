@@ -1,0 +1,50 @@
+"Monthly CRA Report","pivots","CRA_LOAN","NYPG_OERW","u_exp_msr_longer_time.001.lob",
+"Wednesday Weekly Automated Stress Testing Platinum","Platinum_View_Pivots","CVA_Rates","NYPG_OERW_OPT","u_exp_msr_longer_time.002.lob",2260
+"MRD-CR-Consolidated UK Group Report Weekly","PivotCredit","SPG","NYPG_OERW","u_exp_msr_longer_time.003.lob",2144
+"LEMRC_deck_Greeks_monthly","GREEKS_Pivot","GreeksNewPivot","NYPG_MRDW","u_exp_msr_longer_time.004.lob",1168
+"LEMRC_deck_Greeks_monthly","GREEKS_Pivot","GREEKSMSCGI","NYPG_MRDW","u_exp_msr_longer_time.005.lob",1165
+"Daily LE Dashboard Report","PivotTables","LEGreeks","NYPG_OERW_OPT","u_exp_msr_longer_time.006.lob",756
+"EMEA CC DSP Monitor Report","Pivots","Historical","NYPG_OERW_OPT","u_exp_msr_longer_time.007.lob",745
+"UKG CC DSP Monitor Report","Pivots","Historical","NYPG_OERW_OPT","u_exp_msr_longer_time.008.lob",724
+"Monthly DVA REPORT","Data","s01timeseries","NYPG_OERW","u_exp_msr_longer_time.009.lob",679
+"Monthly SPG Detailed Risk Report","Limit_Pivot","P9","NYPG_OERW","u_exp_msr_longer_time.010.lob",673
+"0201(G) MSCO Monthly NY LE Report","0201","GDL_HIST","NYPG_OERW","u_exp_msr_longer_time.011.lob",645
+"Monthly DVA REPORT Excluding FRNs","Data","s01timeseries","NYPG_OERW","u_exp_msr_longer_time.012.lob",614
+"MRU SPG Detailed Risk Report","Limit_Pivot","P9","NYPG_OERW","u_exp_msr_longer_time.013.lob",568
+"0201(G) MSCO Monthly NY LE Report","0201","GDL_HIST","NYPG_OERW","u_exp_msr_longer_time.014.lob",523
+"Monthly Treasury FX Risk Report","pv01_hist","PV01sprd_DW_hist_10ccy","NYPG_OERW","u_exp_msr_longer_time.015.lob",517
+"0201(G) MSCO Monthly NY LE Report","0201","GDL_HIST","NYPG_OERW","u_exp_msr_longer_time.016.lob",497
+"0302(G) MSIP Capital LE Report - Wednesday Weekly","Data_CAPITAL","CVA_LE_Merge","NYPG_OERW","u_exp_msr_longer_time.017.lob",456
+"Daily Treasury FX Risk Report","pv01_hist","PV01sprd_DW_hist_10ccy","NYPG_OERW","u_exp_msr_longer_time.018.lob",397
+"Daily SPG Detailed Risk Report","Limit_Pivot","P9","NYPG_OERW","u_exp_msr_longer_time.019.lob",396
+"MRD-EMEA-Platinum Interest Rates Weekly","PIVOTS2","Platinum_TimeSeries","NYPG_OERW","u_exp_msr_longer_time.020.lob",394
+"0302(G) MSIP Capital LE Report - Monthly","Data_CAPITAL","CVA_LE_Merge","NYPG_OERW","u_exp_msr_longer_time.021.lob",382
+"Daily 0302(G) MSIP VaR Compare Report - 1YR VaR Parallel","Data_Exposures","EQ_Delta","NYPG_OERW","u_exp_msr_longer_time.022.lob",366
+"Daily LE Dashboard Report","PivotTables","MSCSTradingEQ","NYPG_OERW","u_exp_msr_longer_time.023.lob",364
+"EQ_ETP_Report","Pivots","EQSlidesIndex","NYPG_OERW","u_exp_msr_longer_time.024.lob",364
+"MRD-UK Group-Platinum Interest Rates Weekly","PIVOTS2","Platinum_TimeSeries","NYPG_OERW","u_exp_msr_longer_time.025.lob",361
+"Daily 0302(G) MSIP VaR Compare Report","Data_Exposures","EQ_Delta","NYPG_OERW","u_exp_msr_longer_time.026.lob",356
+"Weekly Treasury FX Risk Report","pv01_hist","PV01sprd_DW_hist_10ccy","NYPG_OERW","u_exp_msr_longer_time.027.lob",353
+"Monthly Treasury FX Risk Report","pv01_hist","PV01sprd_DW_hist","NYPG_OERW","u_exp_msr_longer_time.028.lob",347
+"0517(G) MSBIL Capital LE Report - Monthly","Data_CAPITAL","CVA_LE_Merge","NYPG_OERW","u_exp_msr_longer_time.029.lob",329
+"MRD-Platinum Interest Rates Daily","PIVOTS2","Platinum_TimeSeries","NYPG_OERW","u_exp_msr_longer_time.030.lob",318
+"Monthly 0302(G) MSIP VaR Compare Report","Data_Exposures","EQ_Delta","NYPG_OERW","u_exp_msr_longer_time.031.lob",309
+"MRD-EMEA-Platinum Interest Rates Daily","PIVOTS2","Platinum_TimeSeries","NYPG_OERW","u_exp_msr_longer_time.032.lob",305
+"EQ Risks Across Businesses in UK Group","Pivot","GreeksRegional","NYPG_OERW","u_exp_msr_longer_time.033.lob",284
+"Early Daily Treasury FX Risk Report","pv01_hist","PV01sprd_DW_hist","NYPG_OERW","u_exp_msr_longer_time.034.lob",284
+"0302(G) MSIP Capital LE Report - Daily 1YR VaR Parallel","Data_CAPITAL","CVA_LE_Merge","NYPG_OERW","u_exp_msr_longer_time.035.lob",281
+"MSCO_MSIP_EQSplit_Report_Daily_Without_Stressed_VaR","Pivots","index","NYPG_OERW","u_exp_msr_longer_time.036.lob",254
+"MRD-Platinum Interest Rates MRU","PIVOTS2","Platinum_TimeSeries","NYPG_OERW","u_exp_msr_longer_time.037.lob",252
+"Wednesday Weekly 0302(G) MSIP VaR Compare Report","Data_Exposures","EQ_Delta","NYPG_OERW","u_exp_msr_longer_time.038.lob",251
+"MRD-UK Group-Platinum Interest Rates Daily","PIVOTS2","Platinum_TimeSeries","NYPG_OERW","u_exp_msr_longer_time.039.lob",246
+"Monthly EQ Risk by Location","EQPivot","EQTopVegaIndex","NYPG_OERW","u_exp_msr_longer_time.040.lob",239
+"Early Daily Treasury FX Risk Report","pv01_hist","PV01sprd_DW_hist_10ccy","NYPG_OERW","u_exp_msr_longer_time.041.lob",236
+"EQ Risks Across Businesses in UK Group","Pivot","DeltaAssetConcentration","NYPG_OERW","u_exp_msr_longer_time.042.lob",234
+"MRD-Platinum Interest Rates Weekly","PIVOTS2","Platinum_TimeSeries","NYPG_OERW","u_exp_msr_longer_time.043.lob",231
+"MSIP_FID_PV10","EMEA RC","EMEARC","NYPG_OERW_OPT","u_exp_msr_longer_time.044.lob",228
+"EQ_ETP_Report","Pivots","EQSlidesIndex","NYPG_OERW","u_exp_msr_longer_time.045.lob",226
+"Weekly Treasury FX Risk Report","pv01_hist","PV01sprd_DW_hist","NYPG_OERW","u_exp_msr_longer_time.046.lob",226
+"MRU SPG Detailed Risk Report","Limit_Pivot","P8","NYPG_OERW","u_exp_msr_longer_time.047.lob",201
+"MSPBNA Commentary","MV_DUMMY","F5","NYPG_MRDW","u_exp_msr_longer_time.048.lob",200
+"Monthly EQ Risk by Location","EQPivot","EQTop10VegaSNExposure","NYPG_OERW","u_exp_msr_longer_time.049.lob",192
+"MSBNA Market Risk Banking Report","Pivots","RELATIONSHIP_LENDING","NYPG_OERW","u_exp_msr_longer_time.050.lob",190

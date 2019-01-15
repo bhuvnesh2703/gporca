@@ -1,0 +1,20 @@
+With CRMPH7(ApprovedPH7) as (Values
+('CR_INDEX SINGLE NAME DEFAULT SWAP'), ('CR_SINGLE NAME DEFAULT SWAP'), ('CR_LINEAR BASKET SWAP'), ('CR_TRANCHED INDEX DEFAULT SWAP')
+, ('CR_BESPOKE BASKET DEFAULT SWAPS'), ('CR_OFF THE RUN TRANCHED INDEX DEFAULT SWAP') )
+Select
+COB_DATE,
+a.PRODUCT_HIERARCHY_LEVEL7,
+Case When ApprovedPH7 is null Then 'N' Else 'Y' End as IS_CRM_APPROVED_PH7,
+sum(a.USD_DEFAULT_PNL) LGD
+from cdwuser.U_CR_MSR a
+Left Join CRMPH7 b
+on (a.PRODUCT_HIERARCHY_LEVEL7 = b.ApprovedPH7)
+where
+    A.COB_DATE in ('2018-02-28','2018-02-27')
+    and CCC_BUSINESS_AREA = 'DSP - CREDIT'
+    and CRM_FL = 'Y'
+group by
+COB_DATE,
+a.PRODUCT_HIERARCHY_LEVEL7,
+Case When ApprovedPH7 is null Then 'N' Else 'Y' End
+having sum(a.USD_DEFAULT_PNL) is not null

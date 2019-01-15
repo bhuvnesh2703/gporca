@@ -1,0 +1,1 @@
+select a.cob_date ,sum(coalesce(a.USD_NOTIONAL,0)) as USD_NOTIONAL From cdwuser.U_DM_EQ a where (a.COB_DATE = '2018-02-28' or a.COB_DATE = '2018-02-21') and a.IS_UK_GROUP = 'Y' AND a.CCC_DIVISION='INSTITUTIONAL EQUITY DIVISION'  AND  a.CCC_BANKING_TRADING <> 'BANKING' AND a.PRODUCT_TYPE_CODE in ('CRDBSKT') Group by a.cob_date

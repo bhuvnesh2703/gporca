@@ -1,0 +1,1 @@
+select raw.cob_date, raw.book, raw.source_scn_name, sum(raw.raw_pnl) as IRPV01 from cdwuser.u_raw_scenario_pnl raw where raw.cob_date > ('2018-01-29') and raw.bu_risk_system LIKE 'C1_SCENARIOS_EVE_NY' and upper(raw.source_scn_name) ='PARALLEL IR 1.0 BPS' and raw.book in ('TDEBT', 'TDCLH') group by raw.cob_date, raw.book, raw.source_scn_name

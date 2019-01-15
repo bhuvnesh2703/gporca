@@ -1,0 +1,1 @@
+Select sum(usd_ir_unified_pv01) as IR_PV01, cob_date, CURRENCY_OF_MEASURE, term_new from cdwuser.U_DM_IR where COB_DATE >= '2017-12-30' and ccc_business_area IN ('FXEM MACRO TRADING','EM CREDIT TRADING') AND CCC_PL_REPORTING_REGION in ('EMEA') and usd_ir_unified_pv01 <> 0 and CURRENCY_OF_MEASURE in ('RUB','RU1','RBX') group by cob_date, CURRENCY_OF_MEASURE, term_new

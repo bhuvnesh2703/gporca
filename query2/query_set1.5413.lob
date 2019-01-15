@@ -1,0 +1,35 @@
+SELECT
+a.COB_DATE,
+a.CCAR_ASSET_PRODUCT_CATEGORY, 
+spg_desc,
+CASE WHEN VINTAGE in ('04-1','04-2','04-3','04-4','05-1','05-2','05-3','05-4','06-1','06-2','06-3','06-4','07-1','07-2','07-3','07-4','08-1','08-2','08-3','08-4','09-1','09-2','09-3','09-4','10-1','10-2','10-3','10-4','11-1','11-2','11-3','11-4','PRE04','N/A') then '1.0'
+else '2.0' end
+as GROUPED_INDEX_VINTAGE,
+CASE WHEN INSURER_RATING = 'AAA' then 'Senior' else 'Mezz' end
+as GROUPED_INDEX_RATING,
+SUM(USD_EXPOSURE/1000) AS EXPOSURE
+ 
+FROM cdwuser.U_EXP_MSR A 
+WHERE
+    a.COB_DATE IN 
+('2018-02-28', 
+'2018-01-31', 
+'2018-01-31', 
+'2017-12-29', 
+'2017-12-29') 
+ and CCAR_ASSET_PRODUCT_CATEGORY like 'Securitized%'
+ and NOT (CCC_PRODUCT_LINE in ('CRE LENDING','WAREHOUSE','CREL BANK HFI','CRE LENDING SEC/HFS') and CCC_BANKING_TRADING = 'BANKING') 
+ and spg_desc not in ('RMBS SERVICING RIGHTS') 
+ and not (ccc_business_area in ('COMMERCIAL RE (PTG)') and CCC_BANKING_TRADING = 'BANKING')
+and ccc_business_area not in ('LENDING','NON-JV BANKING','US BANKS-CRA PORTFOLIO')
+AND EXP_ASSET_TYPE IN ('OT','CR','IR') 
+ AND a.FEED_SOURCE_NAME NOT IN ('CORISK','ER1') 
+ AND (CCAR_ASSET_PRODUCT_CATEGORY LIKE 'Securitized: %' OR CCAR_ASSET_PRODUCT_CATEGORY LIKE 'Agencies: %') 
+ AND CCC_BUSINESS_AREA = 'SECURITIZED PRODUCTS GRP'
+GROUP BY 
+a.COB_DATE,
+a.CCAR_ASSET_PRODUCT_CATEGORY, 
+spg_desc,
+CASE WHEN VINTAGE in ('04-1','04-2','04-3','04-4','05-1','05-2','05-3','05-4','06-1','06-2','06-3','06-4','07-1','07-2','07-3','07-4','08-1','08-2','08-3','08-4','09-1','09-2','09-3','09-4','10-1','10-2','10-3','10-4','11-1','11-2','11-3','11-4','PRE04','N/A') then '1.0'
+else '2.0' end,
+CASE WHEN INSURER_RATING = 'AAA' then 'Senior' else 'Mezz' end

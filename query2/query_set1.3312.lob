@@ -1,0 +1,1 @@
+select a.cob_date, a.LIMIT_NAME, a.LIMIT_VALUE from cdwuser.U_FLOW_LIMITS a WHERE cob_date in ('2018-02-27') and a.SET_ON in ('MEXICO-LEGAL ENTITY LIMITS 1')

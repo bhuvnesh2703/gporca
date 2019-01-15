@@ -1,0 +1,1 @@
+SELECT ticket ,COB_DATE ,USD_MARKET_VALUE FROM cdwuser.u_exp_msr a WHERE ccc_taps_company = '6635' and ccc_hierarchy_level8 = 'HFI HEDGES' and product_type_code = 'SWAPTION' AND a.USD_MARKET_VALUE IS NOT NULL AND a.cob_date >= '12/29/2017' AND a.cob_date <= '02/28/2018'

@@ -1,0 +1,2 @@
+2019-01-14 14:37 [INFO] Execution started. Please refer to log file name: gp_stats_check_20190114143707.log for details in current working directory.
+2019-01-14 14:37 [ERROR] Input file query_set1.193.sql does not have EXPLAIN VERBOSE clause, please add and rerun. Exiting !!

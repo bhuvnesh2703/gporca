@@ -1,0 +1,25 @@
+"MRD-EMEA-Platinum Interest Rates Weekly","PIVOTS2","Platinum_TimeSeries","NYPG_OERW","platinum_longer_time.001.lob",394
+"MRD-UK Group-Platinum Interest Rates Weekly","PIVOTS2","Platinum_TimeSeries","NYPG_OERW","platinum_longer_time.002.lob",361
+"Daily Corporate Credit Summary Report","Page 9","P3","NYPG_OERW","platinum_longer_time.003.lob",328
+"MRD-Platinum Interest Rates Daily","PIVOTS2","Platinum_TimeSeries","NYPG_OERW","platinum_longer_time.004.lob",318
+"MRD-EMEA-Platinum Interest Rates Daily","PIVOTS2","Platinum_TimeSeries","NYPG_OERW","platinum_longer_time.005.lob",305
+"MRD-Platinum Interest Rates MRU","PIVOTS2","Platinum_TimeSeries","NYPG_OERW","platinum_longer_time.006.lob",252
+"MRD-UK Group-Platinum Interest Rates Daily","PIVOTS2","Platinum_TimeSeries","NYPG_OERW","platinum_longer_time.007.lob",246
+"MRD-Platinum Interest Rates Weekly","PIVOTS2","Platinum_TimeSeries","NYPG_OERW","platinum_longer_time.008.lob",231
+"Daily Treasury Limit Summary Report","PV01 Pivot","PV01_Pivot_hist","NYPG_OERW","platinum_longer_time.009.lob",226
+"Modular EQ Report","pivot","eq_exotics_corporate_com","NYPG_OERW_OPT","platinum_longer_time.010.lob",225
+"Early Treasury Limit Summary Report","Data","FX_MTM_Usage","NYPG_OERW","platinum_longer_time.011.lob",210
+"MRD-0302(G) MSIP-Fixed Income Division Dashboard Wednesday Weekly","IR_VEGA","IR_VEGA","NYPG_OERW","platinum_longer_time.012.lob",207
+"Weekly Treasury IR Basis Shocks Report","Debt_IE","Debt_Stack","NYPG_OERW","platinum_longer_time.013.lob",200
+"MSPBNA Market Risk Report","MSPBNA_Pivots","IR_Tangent_PV01","NYPG_OERW","platinum_longer_time.014.lob",193
+"Daily MSBNA Large Shocks Report","SPG_Pivots","GE1","NYPG_OERW","platinum_longer_time.015.lob",190
+"Daily Treasury Non-Bank Liquidity Report","Data","AFS_Securities_Lending","NYPG_OERW","platinum_longer_time.016.lob",190
+"Monthly Treasury Non-Bank Liquidity Report","Data","AFS_Securities_Lending","NYPG_OERW","platinum_longer_time.017.lob",189
+"MSPBNA Commentary","MSPBNA_Pivots","IR_Tangent_PV01","NYPG_OERW","platinum_longer_time.018.lob",187
+"Daily Israel Dashboard","FX delta Limits","FX_Limits","NYPG_OERW","platinum_longer_time.019.lob",185
+"MRD-0302(G) MSIP-Fixed Income Division Dashboard Monthly","CBPV10","CBPV10","NYPG_OERW","platinum_longer_time.020.lob",182
+"Daily Treasury Limit Summary Report","Data","FX_MTM_Usage","NYPG_OERW","platinum_longer_time.021.lob",180
+"MRD-0302(G) MSIP-Fixed Income Division Dashboard Daily","CBPV10","CBPV10","NYPG_OERW","platinum_longer_time.022.lob",179
+"Daily MSPBNA Large Shocks Report","MSPBNA_Pivots","CREDIT_AFS","NYPG_OERW","platinum_longer_time.023.lob",167
+"Daily MSPBNA Large Shocks Report","MSPBNA_Pivots","IR_Tangent_PV01","NYPG_OERW","platinum_longer_time.024.lob",165
+"MRU Firmwide Exposure and Limits Summary","EQ","EQ","NYPG_OERW","platinum_longer_time.025.lob",165

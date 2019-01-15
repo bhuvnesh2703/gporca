@@ -1,0 +1,9 @@
+2019-01-14 14:41 [INFO] Execution started. Please refer to log file name: gp_stats_check_20190114144105.log for details in current working directory.
+2019-01-14 14:41 [CRITICAL] Execution failed with below error. Exiting !! 
+error 'ERROR:  syntax error at or near "2019"
+LINE 1: EXPLAIN VERBOSE 2019-01-14 14:40 [INFO] Execution started. P...
+                        ^
+' in 'EXPLAIN VERBOSE 2019-01-14 14:40 [INFO] Execution started. Please refer to log file name: gp_stats_check_20190114144034.log for details in current working directory.
+2019-01-14 14:40 [ERROR] 
+Execution terminated by user using CTRL+C
+'

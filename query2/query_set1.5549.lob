@@ -1,0 +1,1 @@
+select distinct book, BU_RISK_SYSTEM from cdwuser.u_exp_trends where cob_date='2018-02-28' and ccc_division = 'TREASURY CAPITAL MARKETS'

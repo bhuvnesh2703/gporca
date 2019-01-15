@@ -1,0 +1,8 @@
+2019-01-14 15:15 [INFO] Execution started. Please refer to log file name: gp_stats_check_20190114151542.log for details in current working directory.
+2019-01-14 15:16 [INFO] Input query will be executed using the legacy planner.
+2019-01-14 15:16 [INFO] Unexpected event, should not non-zero
+2019-01-14 15:16 [INFO] Input query will be executed using the legacy planner.
+2019-01-14 15:16 [INFO] No of tables scanned during user query execution: 1925.
+2019-01-14 15:16 [INFO] Stats check in progress, please wait for completion, as it may take time.
+2019-01-14 15:18 [ERROR] 
+Execution terminated by user using CTRL+C

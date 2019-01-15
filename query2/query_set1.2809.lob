@@ -1,0 +1,1 @@
+SELECT a.cob_date, SUM (a.USD_EQ_Kappa_Pls100BP_TIMEADJ) AS USD_TA_KAPPA FROM cdwuser.u_eq_msr a WHERE a.COB_DATE in ('2018-02-28','2018-01-31') AND a.Account IN ('0S72004WF', '071004WF') AND a.division = 'IED' AND a.ccc_banking_trading = 'TRADING' GROUP BY a.cob_date

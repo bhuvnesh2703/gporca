@@ -1,0 +1,1 @@
+select a.cob_date, 'IED' as business, A.CCC_PL_REPORTING_REGION, sum(coalesce(A.SLIDE_EQ_MIN_10_USD,0)) as SLIDE_EQ_MIN_10_USD, sum(coalesce(A.SLIDE_EQ_PLS_10_USD,0)) as SLIDE_EQ_PLS_10_USD from cdwuser.u_exp_msr a where a.cob_date >= '2018-02-14' and a.cob_date <= '2018-02-28' AND A.CCC_DIVISION IN ('INSTITUTIONAL EQUITY DIVISION') group by a.cob_date, A.CCC_PL_REPORTING_REGION

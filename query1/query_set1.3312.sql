@@ -1,0 +1,1 @@
+select j.cob_date as vardate, j.book, sum(j.USD_PV01SPRD)*1000 as PV01SPRD_BASIC from CDWUSER.U_EXP_TRENDS j where j.cob_date>='2017-09-01' AND j.ccc_division = 'TREASURY CAPITAL MARKETS' and j.book in ('TDET3') and j.USD_PV01SPRD is not null group by j.cob_date, j.BOOK

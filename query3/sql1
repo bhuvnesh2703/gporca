@@ -1,0 +1,194 @@
+export to u_exp_msr_less_time.del of del lobfile u_exp_msr_less_time modified by LOBSINSEPFILES
+select 
+report_run_name,
+WORKSHEET,  
+PIVOT_TABLE, 
+e.dsn,
+e.sql,
+timestampdiff(2,char(timestamp(e.END_TIME) - timestamp(e.START_TIME)))run_time
+from 
+report.REPORT_PIVOT_TABLE_EXECUTION e, 
+report.REPORT_RUN rr, 
+report.REPORT_COMPONENT c, 
+report.REPORT_TEMPLATE t
+where 
+e.REPORT_RUN_ID = rr.REPORT_RUN_ID
+and rr.REPORT_COMPONENT_ID = c.REPORT_COMPONENT_ID
+and c.REPORT_TEMPLATE_ID = t.REPORT_TEMPLATE_ID
+and rr.COB_DATE = '2018-02-28'
+and rr.ENV = 'UDB'
+and (lower(CAST(e.SQL as VARCHAR(20000))) like '%cdwuser.u_exp_msr%' )
+order by 6 asc
+fetch first 50 rows only with ur ;
+export to u_exp_msr_longer_time.del of del lobfile u_exp_msr_longer_time modified by LOBSINSEPFILES
+
+select 
+report_run_name,
+WORKSHEET,  
+PIVOT_TABLE, 
+e.dsn,
+e.sql,
+timestampdiff(2,char(timestamp(e.END_TIME) - timestamp(e.START_TIME)))run_time
+from 
+report.REPORT_PIVOT_TABLE_EXECUTION e, 
+report.REPORT_RUN rr, 
+report.REPORT_COMPONENT c, 
+report.REPORT_TEMPLATE t
+where 
+e.REPORT_RUN_ID = rr.REPORT_RUN_ID
+and rr.REPORT_COMPONENT_ID = c.REPORT_COMPONENT_ID
+and c.REPORT_TEMPLATE_ID = t.REPORT_TEMPLATE_ID
+and rr.COB_DATE = '2018-02-28'
+and rr.ENV = 'UDB'
+and (lower(CAST(e.SQL as VARCHAR(20000))) like '%cdwuser.u_exp_msr%' )
+order by 6 desc
+fetch first 50 rows only with ur 
+
+;
+
+--- U_EXP_TRENDS queries taking less time --
+export to u_exp_trends_less_time.del of del lobfile u_exp_trends_less_time modified by LOBSINSEPFILES
+select 
+report_run_name,
+WORKSHEET,  
+PIVOT_TABLE, 
+e.dsn,
+e.sql,
+timestampdiff(2,char(timestamp(e.END_TIME) - timestamp(e.START_TIME)))run_time
+from 
+report.REPORT_PIVOT_TABLE_EXECUTION e, 
+report.REPORT_RUN rr, 
+report.REPORT_COMPONENT c, 
+report.REPORT_TEMPLATE t
+where 
+e.REPORT_RUN_ID = rr.REPORT_RUN_ID
+and rr.REPORT_COMPONENT_ID = c.REPORT_COMPONENT_ID
+and c.REPORT_TEMPLATE_ID = t.REPORT_TEMPLATE_ID
+and rr.COB_DATE = '2018-02-28'
+and rr.ENV = 'UDB'
+and (lower(CAST(e.SQL as VARCHAR(20000))) like '%cdwuser.u_exp_trends%' )
+order by 6 asc
+fetch first 25 rows only with ur 
+;
+--- U_EXP_TRENDS queries taking long time --
+export to u_exp_trends_longer_time.del of del lobfile u_exp_trends_longer_time modified by LOBSINSEPFILES
+select 
+report_run_name,
+WORKSHEET,  
+PIVOT_TABLE, 
+e.dsn,
+e.sql,
+timestampdiff(2,char(timestamp(e.END_TIME) - timestamp(e.START_TIME)))run_time
+from 
+report.REPORT_PIVOT_TABLE_EXECUTION e, 
+report.REPORT_RUN rr, 
+report.REPORT_COMPONENT c, 
+report.REPORT_TEMPLATE t
+where 
+e.REPORT_RUN_ID = rr.REPORT_RUN_ID
+and rr.REPORT_COMPONENT_ID = c.REPORT_COMPONENT_ID
+and c.REPORT_TEMPLATE_ID = t.REPORT_TEMPLATE_ID
+and rr.COB_DATE = '2018-02-28'
+and rr.ENV = 'UDB'
+and (lower(CAST(e.SQL as VARCHAR(20000))) like '%cdwuser.u_exp_trends%' )
+order by 6 desc
+fetch first 25 rows only with ur 
+;
+--- Platinum queries taking less time --
+
+export to platinum_less_time.del of del lobfile platinum_less_time modified by LOBSINSEPFILES
+select 
+report_run_name,
+WORKSHEET,  
+PIVOT_TABLE, 
+e.dsn,
+e.sql,
+timestampdiff(2,char(timestamp(e.END_TIME) - timestamp(e.START_TIME)))run_time
+from 
+report.REPORT_PIVOT_TABLE_EXECUTION e, 
+report.REPORT_RUN rr, 
+report.REPORT_COMPONENT c, 
+report.REPORT_TEMPLATE t
+where 
+e.REPORT_RUN_ID = rr.REPORT_RUN_ID
+and rr.REPORT_COMPONENT_ID = c.REPORT_COMPONENT_ID
+and c.REPORT_TEMPLATE_ID = t.REPORT_TEMPLATE_ID
+and rr.COB_DATE = '2018-02-28'
+and rr.ENV = 'UDB'
+and (lower(CAST(e.SQL as VARCHAR(20000))) like '%cdwuser.u_dm%' )
+order by 6 asc
+fetch first 25 rows only with ur 
+;
+--- Platinum queries taking long time --
+export to platinum_longer_time.del of del lobfile platinum_longer_time modified by LOBSINSEPFILES
+select 
+report_run_name,
+WORKSHEET,  
+PIVOT_TABLE, 
+e.dsn,
+e.sql,
+timestampdiff(2,char(timestamp(e.END_TIME) - timestamp(e.START_TIME)))run_time
+from 
+report.REPORT_PIVOT_TABLE_EXECUTION e, 
+report.REPORT_RUN rr, 
+report.REPORT_COMPONENT c, 
+report.REPORT_TEMPLATE t
+where 
+e.REPORT_RUN_ID = rr.REPORT_RUN_ID
+and rr.REPORT_COMPONENT_ID = c.REPORT_COMPONENT_ID
+and c.REPORT_TEMPLATE_ID = t.REPORT_TEMPLATE_ID
+and rr.COB_DATE = '2018-02-28'
+and rr.ENV = 'UDB'
+and (lower(CAST(e.SQL as VARCHAR(20000))) like '%cdwuser.u_dm%' )
+order by 6 desc
+fetch first 25 rows only with ur 
+;
+-- CAPITAL Queries
+
+export to capital.del of del lobfile capital modified by LOBSINSEPFILES
+select 
+report_run_name,
+WORKSHEET,  
+PIVOT_TABLE, 
+e.dsn,
+e.sql,
+timestampdiff(2,char(timestamp(e.END_TIME) - timestamp(e.START_TIME)))run_time
+from 
+report.REPORT_PIVOT_TABLE_EXECUTION e, 
+report.REPORT_RUN rr, 
+report.REPORT_COMPONENT c, 
+report.REPORT_TEMPLATE t
+where 
+e.REPORT_RUN_ID = rr.REPORT_RUN_ID
+and rr.REPORT_COMPONENT_ID = c.REPORT_COMPONENT_ID
+and c.REPORT_TEMPLATE_ID = t.REPORT_TEMPLATE_ID
+and rr.COB_DATE = '2018-02-28'
+--and rr.ENV = 'UDB'
+and (lower(CAST(e.SQL as VARCHAR(20000))) like '%cdwuser.u_capital%' )
+order by 6 desc
+fetch first 50 rows only with ur 
+;
+-- PNL queries --
+
+export to pnl.del of del lobfile pnl modified by LOBSINSEPFILES
+select 
+report_run_name,
+WORKSHEET,  
+PIVOT_TABLE, 
+e.dsn,
+e.sql,
+timestampdiff( 2,char(timestamp(e.END_TIME) - timestamp(e.START_TIME)) ) run_time
+from 
+report.REPORT_PIVOT_TABLE_EXECUTION e, 
+report.REPORT_RUN rr, 
+report.REPORT_COMPONENT c, 
+report.REPORT_TEMPLATE t
+where 
+e.REPORT_RUN_ID = rr.REPORT_RUN_ID
+and rr.REPORT_COMPONENT_ID = c.REPORT_COMPONENT_ID
+and c.REPORT_TEMPLATE_ID = t.REPORT_TEMPLATE_ID
+and rr.COB_DATE = '2018-02-28'
+and ( lower(CAST(e.SQL as VARCHAR(20000))) like '%cdwuser.u_pct_pnl%' )
+order by 6 desc
+fetch first 10 rows only with ur
+;

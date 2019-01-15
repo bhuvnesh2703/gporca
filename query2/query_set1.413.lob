@@ -1,0 +1,1 @@
+SELECT a.COB_DATE ,a.PRODUCT_TYPE_CODE ,a.account ,sum(a.USD_DELTA) as Delta from cdwuser.u_ied_view a WHERE a.COB_DATE IN ('2018-02-28') and a.ccc_banking_trading = 'TRADING' AND A.CCC_DIVISION = 'INSTITUTIONAL EQUITY DIVISION' and account in ('07100AHB','07100CAJ') and a.PRODUCT_TYPE_CODE not in ('CASH') group by a.COB_DATE, a.account, a.PRODUCT_TYPE_CODE;

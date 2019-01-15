@@ -1,0 +1,7 @@
+2019-01-14 14:37 [INFO] Execution started. Please refer to log file name: gp_stats_check_20190114143724.log for details in current working directory.
+2019-01-14 14:37 [ERROR] could not connect to server: Connection refused
+	Is the server running on host "localhost" (::1) and accepting
+	TCP/IP connections on port 5432?
+could not connect to server: Connection refused
+	Is the server running on host "localhost" (127.0.0.1) and accepting
+	TCP/IP connections on port 5432?. Connection to database mrvdb at port 5432 failed. Exiting !! 

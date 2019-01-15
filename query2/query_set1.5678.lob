@@ -1,0 +1,1 @@
+select distinct a.cob_date, a.debt_profile_mapping, a.book from cdwuser.U_DM_TREASURY a WHERE cob_date in ('2018-02-28') AND A.DATASET_TYPE = 'LRV' AND A.EXPIRATION_DATE > A.COB_DATE and a.debt_profile_mapping is NULL

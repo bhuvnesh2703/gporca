@@ -1,0 +1,13 @@
+2019-01-14 15:12 [INFO] Execution started. Please refer to log file name: gp_stats_check_20190114151202.log for details in current working directory.
+2019-01-14 15:12 [INFO] Input query will be executed using the legacy planner.
+2019-01-14 15:12 [INFO] No of tables scanned during user query execution: 2.
+2019-01-14 15:12 [INFO] Stats check in progress, please wait for completion, as it may take time.
+2019-01-14 15:12 [INFO] Stat check summary
+-----------------------------------------------------------------------------------------------------------------
+| Table Name     | Record Count     | Estimated Count     | Variation     | Comments - based on variation %     |
+-----------------------------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------------------------
+
+2019-01-14 15:12 [INFO] Differences between record count and estimated count higher than 5% variation suggests outdated stats
+2019-01-14 15:12 [INFO] Stats check for below tables is not required, as they are either view or top level partition
+2019-01-14 15:12 [INFO] Execution finished successfully !!

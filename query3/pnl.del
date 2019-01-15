@@ -1,0 +1,10 @@
+"EQ Perf Analysis","Pivot","StrategiesShort","NYPG_OERW","pnl.001.lob",242
+"Daily Equities PnL Monitor GP","Breakdown","Breakdown","NYPG_OERW","pnl.002.lob",111
+"EQ Perf Analysis","Pivot","BAShort","NYPG_OERW","pnl.003.lob",57
+"EQ Perf Analysis","Pivot","GlobalShort","NYPG_OERW","pnl.004.lob",53
+"EQ Perf Analysis","Pivot","RegionShort","NYPG_OERW","pnl.005.lob",49
+"Daily Equities PnL Monitor GP","Drawdown","DrawdownbyTrader","NYPG_OERW","pnl.006.lob",48
+"Monthly DVA REPORT Excluding FRNs","Data","PNL4","NYPG_OERW","pnl.007.lob",34
+"Monthly DVA REPORT Excluding FRNs","Data","PNL","NYPG_OERW","pnl.008.lob",32
+"Daily Equities PnL Monitor GP","VaR Breach","99VaRBreachTrader","NYPG_OERW","pnl.009.lob",25
+"Daily Equities PnL Monitor GP","VaR Breach","99VaRBreachProductLine","NYPG_OERW","pnl.010.lob",22

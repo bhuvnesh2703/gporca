@@ -1,0 +1,10 @@
+SELECT cob_date, stress_scenario, CCC_PL_Reporting_Region, Product_Type, Product_Subtype, CASE WHEN ccc_business_area = 'SECURITIZED PRODUCTS GRP' THEN 'CORE' ELSE 'NON CORE' END AS core_flag, sum(scenario_pnl) as scenario_pnl FROM DWUSER.U_MODULAR_SCENARIOS Where COB_DATE IN ( '2018-02-28','2018-02-21' ) AND run_profile = 'SPG_MOD_SCN_RUN' AND is_included = 'YES' AND condition_name = 'SPG_SDENT_RPX_slides' AND CCC_LEGAL_ENTITY_CODE In ('7800','4068','8962','8961','8959','8941','8790','8789','8772','8757',
+'8627','8564','8537','8524','8441','8292','8290','8284','8275','8253','8237','8179','8174',
+'7716','7705','7704','7458','7435','7416','7281','7280','7043','7016','6899','6893','6838',
+'6837','6590','6589','6384','6383','6376','6374','6367','6325','6316','6262','6158','6157',
+'6120','6114','6036','5869','5856','5656','5614','5357','5310','5274','5254','5181','5180',
+'5148','5121','5104','5103','4884','4880','4876','4863','4859','4858','4857','4590','4564',
+'4562','4545','4543','4536','4391','4267','4241','4092','4086','4067','4044','4043','1718',
+'1709','1498','1480','1472','1438','1433','1344','1322','1317','1314','1313','1311','1308',
+'0993','0856','0853','0726','0721','0715','0713','0621','0620','0517','0347','0342','0328',
+'0319','0314','0313','0302') GROUP BY COB_DATE, stress_scenario, CCC_PL_Reporting_Region, Product_Type, Product_Subtype, CASE WHEN ccc_business_area = 'SECURITIZED PRODUCTS GRP' THEN 'CORE' ELSE 'NON CORE' END

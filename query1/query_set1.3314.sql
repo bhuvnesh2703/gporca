@@ -1,0 +1,1 @@
+select k.cob_date as vardate, k.book, sum(k.usd_ir_unified_pv01) as PV01 from CDWUSER.U_EXP_TRENDS k where k.cob_date>='2017-09-01' AND k.ccc_division = 'TREASURY CAPITAL MARKETS' and k.book in ('TDET3','TDET6','TRPFD') group by k.cob_date, k.book

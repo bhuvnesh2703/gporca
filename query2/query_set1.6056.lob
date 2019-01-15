@@ -1,0 +1,1 @@
+select a.cob_date ,sum(coalesce(a.USD_EQ_KAPPA,0)) + sum(coalesce(a.USD_CM_KAPPA,0)) as USD_CM_VEGA From cdwuser.U_DM_EQ a where (a.COB_DATE = '2018-02-28' or a.COB_DATE = '2018-02-21') and a.CCC_PL_REPORTING_REGION = 'EMEA' AND a.CCC_DIVISION='INSTITUTIONAL EQUITY DIVISION'  AND  a.CCC_BANKING_TRADING<>'BANKING' AND a.PRODUCT_TYPE_CODE in ('COMM')  Group by a.cob_date

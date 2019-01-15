@@ -1,0 +1,1 @@
+select  underlier_product_description,  sum(coalesce(slide_pal_stk_jtd_usd,0)) as slide_pal_stk_jtd_usd  from  cdwuser.u_eq_ext_msr a  where a.COB_DATE = '2018-02-28' and a.LE_GROUP = 'UK' AND ccc_division = 'INSTITUTIONAL EQUITY DIVISION' and ccc_book_detail = 'MSBNA_EML_EUROPE'  group by  underlier_product_description

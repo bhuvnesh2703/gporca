@@ -1,0 +1,13 @@
+2019-01-14 14:41 [INFO] Execution started. Please refer to log file name: gp_stats_check_20190114144103.log for details in current working directory.
+2019-01-14 14:41 [CRITICAL] Execution failed with below error. Exiting !! 
+error 'ERROR:  syntax error at or near "2019"
+LINE 1: EXPLAIN VERBOSE 2019-01-14 14:37 [INFO] Execution started. P...
+                        ^
+' in 'EXPLAIN VERBOSE 2019-01-14 14:37 [INFO] Execution started. Please refer to log file name: gp_stats_check_20190114143738.log for details in current working directory.
+2019-01-14 14:37 [ERROR] could not connect to server: Connection refused
+	Is the server running on host "localhost" (::1) and accepting
+	TCP/IP connections on port 5432?
+could not connect to server: Connection refused
+	Is the server running on host "localhost" (127.0.0.1) and accepting
+	TCP/IP connections on port 5432?. Connection to database mrvdb at port 5432 failed. Exiting !! 
+'

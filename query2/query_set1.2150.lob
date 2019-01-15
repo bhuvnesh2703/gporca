@@ -1,0 +1,1 @@
+select a.QUARTER, a.YEAR, max(cal_date) as COB_DATE from cdwuser.U_DATE a where cal_date <= '2018-01-31' and WORKDAY = 'Y' group by a.QUARTER, a.year order by max(cal_date) desc fetch first 10 rows only

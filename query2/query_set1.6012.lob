@@ -1,0 +1,1 @@
+SELECT Cob_Date ,vega_term_bucket ,sum(e.USD_EQ_PARTIAL_KAPPA )AS Vega FROM cdwuser.U_DM_EQ e WHERE e.ccc_division = 'INSTITUTIONAL EQUITY DIVISION' AND Silo_Src = 'IED' and (e.COB_DATE = '2018-02-28' or e.COB_DATE = '2018-02-27') and e.CCC_PL_REPORTING_REGION = 'EMEA' AND e.CCC_BANKING_TRADING = 'TRADING' group by cob_date, vega_term_bucket
