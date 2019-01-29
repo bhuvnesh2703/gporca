@@ -107,10 +107,12 @@ CDefaultComparator::Equals
 	)
 	const
 {
-	if (!CUtils::FConstrainableType(datum1->MDId()) ||
-			!CUtils::FConstrainableType(datum2->MDId()))
+	BOOL is_text = (datum1->MDId()->Equals(&CMDIdGPDB::m_mdid_text) &&
+					datum2->MDId()->Equals(&CMDIdGPDB::m_mdid_text));
+	
+	if (!is_text && (!CUtils::FConstrainableType(datum1->MDId()) ||
+					 !CUtils::FConstrainableType(datum2->MDId())))
 	{
-
 		return false;
 	}
 	if (FUseBuiltinIntEvaluators() && CUtils::FIntType(datum1->MDId()) &&

@@ -2908,9 +2908,9 @@ CDXLOperatorFactory::GetDatumVal
 		{CMDIdGPDB::m_mdid_bool.Oid(), &CDXLOperatorFactory::GetDatumBool},
 		{CMDIdGPDB::m_mdid_oid.Oid(), &CDXLOperatorFactory::GetDatumOid},
 		// types with long int mapping
-		{CMDIdGPDB::m_mdid_bpchar.Oid(), &CDXLOperatorFactory::GetDatumStatsLintMappable},
-		{CMDIdGPDB::m_mdid_varchar.Oid(), &CDXLOperatorFactory::GetDatumStatsLintMappable},
-		{CMDIdGPDB::m_mdid_text.Oid(), &CDXLOperatorFactory::GetDatumStatsLintMappable},
+//		{CMDIdGPDB::m_mdid_bpchar.Oid(), &CDXLOperatorFactory::GetDatumStatsLintMappable},
+//		{CMDIdGPDB::m_mdid_varchar.Oid(), &CDXLOperatorFactory::GetDatumStatsLintMappable},
+//		{CMDIdGPDB::m_mdid_text.Oid(), &CDXLOperatorFactory::GetDatumStatsLintMappable},
 		{CMDIdGPDB::m_mdid_cash.Oid(), &CDXLOperatorFactory::GetDatumStatsLintMappable},
 		// non-integer numeric types
 		{CMDIdGPDB::m_mdid_numeric.Oid(), &CDXLOperatorFactory::GetDatumStatsDoubleMappable},
