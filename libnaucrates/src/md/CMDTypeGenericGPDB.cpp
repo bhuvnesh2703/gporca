@@ -423,9 +423,9 @@ CMDTypeGenericGPDB::CreateDXLDatumVal
 			return CMDTypeGenericGPDB::CreateDXLDatumStatsDoubleMappable(mp, mdid, type_modifier, is_passed_by_value, is_null, pba,
 																	length, lValue, dValue);
 		// has lint mapping
-		case GPDB_CHAR:
-		case GPDB_VARCHAR:
-		case GPDB_TEXT:
+//		case GPDB_CHAR:
+//		case GPDB_VARCHAR:
+//		case GPDB_TEXT:
 		case GPDB_CASH:
 			return CMDTypeGenericGPDB::CreateDXLDatumStatsIntMappable(mp, mdid, type_modifier, is_passed_by_value, is_null, pba, length, lValue, dValue);
 		// time-related types
@@ -559,10 +559,11 @@ CMDTypeGenericGPDB::HasByte2IntMapping
 	const IMDId *mdid
 	)
 {
-	return mdid->Equals(&CMDIdGPDB::m_mdid_bpchar)
-			|| mdid->Equals(&CMDIdGPDB::m_mdid_varchar)
-			|| mdid->Equals(&CMDIdGPDB::m_mdid_text)
-			|| mdid->Equals(&CMDIdGPDB::m_mdid_cash);
+	return mdid->Equals(&CMDIdGPDB::m_mdid_cash);
+//	return mdid->Equals(&CMDIdGPDB::m_mdid_bpchar)
+//			|| mdid->Equals(&CMDIdGPDB::m_mdid_varchar)
+//			|| mdid->Equals(&CMDIdGPDB::m_mdid_text)
+//			|| mdid->Equals(&CMDIdGPDB::m_mdid_cash);
 }
 
 //---------------------------------------------------------------------------

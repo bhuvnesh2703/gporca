@@ -338,7 +338,8 @@ CDatumGenericGPDB::SupportsBinaryComp
 		)
 	const
 {
-	return ((MDId()->Equals(&CMDIdGPDB::m_mdid_bpchar)
+//	return this->MDId()->Sysid().Equals(datum_other->MDId()->Sysid());
+	return (!(MDId()->Equals(&CMDIdGPDB::m_mdid_bpchar)
 			|| MDId()->Equals(&CMDIdGPDB::m_mdid_varchar)
 			|| MDId()->Equals(&CMDIdGPDB::m_mdid_text))
 			&& (this->MDId()->Sysid().Equals(datum_other->MDId()->Sysid())));

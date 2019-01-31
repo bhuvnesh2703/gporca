@@ -11,6 +11,8 @@
 
 #include "naucrates/base/IDatumStatisticsMappable.h"
 #include "naucrates/md/CMDTypeGenericGPDB.h"
+#include "gpopt/base/COptCtxt.h"
+#include "gpopt/base/CDefaultComparator.h"
 
 using namespace gpnaucrates;
 using namespace gpmd;
@@ -40,6 +42,9 @@ IDatumStatisticsMappable::StatsAreEqual
 #endif // GPOS_DEBUG
 	BOOL is_lint_comparison = this->IsDatumMappableToLINT() && datum_cast->IsDatumMappableToLINT();
 	BOOL is_binary_comparison = this->SupportsBinaryComp(datum) && datum_cast->SupportsBinaryComp(this);
+	BOOL is_text_comparison = ((MDId()->Equals(&CMDIdGPDB::m_mdid_bpchar)
+								 			|| MDId()->Equals(&CMDIdGPDB::m_mdid_varchar)
+								 || MDId()->Equals(&CMDIdGPDB::m_mdid_text)));
 
 	GPOS_ASSERT(is_double_comparison || is_lint_comparison || is_binary_comparison);
 
@@ -64,6 +69,16 @@ IDatumStatisticsMappable::StatsAreEqual
 		LINT l1 = this->GetLINTMapping();
 		LINT l2 = datum_cast->GetLINTMapping();
 		return l1 == l2;
+	}
+	
+	if (is_text_comparison)
+	{
+		CAutoMemoryPool amp;
+		
+		const IDatum *this_datum = dynamic_cast<const IDatum *>(this);
+		IMemoryPool *mp = COptCtxt::PoctxtFromTLS()->Pmp();
+		CDefaultComparator *cmp = GPOS_NEW(mp) CDefaultComparator(COptCtxt::PoctxtFromTLS()->Pceeval());
+		return cmp->Equals(this_datum, datum_cast);
 	}
 
 	GPOS_ASSERT(is_double_comparison);
