@@ -13,6 +13,7 @@
 #include "naucrates/md/CMDTypeGenericGPDB.h"
 #include "gpopt/base/COptCtxt.h"
 #include "gpopt/base/CDefaultComparator.h"
+#include "gpopt/base/CUtils.h"
 
 using namespace gpnaucrates;
 using namespace gpmd;
@@ -284,8 +285,9 @@ IDatumStatisticsMappable::StatsAreComparable
 	BOOL is_text = this->MDId()->Equals(&CMDIdGPDB::m_mdid_bpchar)
 					|| this->MDId()->Equals(&CMDIdGPDB::m_mdid_varchar)
 	|| this->MDId()->Equals(&CMDIdGPDB::m_mdid_text);
+	BOOL is_casted_comparision = CUtils::FCmpOrCastedCmpExists(this->MDId(), datum_cast->MDId(), IMDType::EcmptEq);
 
-	return is_double_comparison || is_lint_comparison || is_binary_comparison || (is_text && is_types_match);
+	return is_double_comparison || is_lint_comparison || is_binary_comparison || (is_text && is_casted_comparision);
 }
 
 //EOF
