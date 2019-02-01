@@ -46,7 +46,7 @@ IDatumStatisticsMappable::StatsAreEqual
 								 			|| MDId()->Equals(&CMDIdGPDB::m_mdid_varchar)
 								 || MDId()->Equals(&CMDIdGPDB::m_mdid_text)));
 
-	GPOS_ASSERT(is_double_comparison || is_lint_comparison || is_binary_comparison);
+	GPOS_ASSERT(is_double_comparison || is_lint_comparison || is_binary_comparison || is_text_comparison);
 
 	if (this->IsNull())
 	{
@@ -113,8 +113,12 @@ IDatumStatisticsMappable::StatsAreLessThan
 #endif // GPOS_DEBUG
 	BOOL is_lint_comparison = this->IsDatumMappableToLINT() && datum_cast->IsDatumMappableToLINT();
 	BOOL is_binary_comparison = this->SupportsBinaryComp(datum) && datum_cast->SupportsBinaryComp(this);
+	BOOL is_text_comparison = ((MDId()->Equals(&CMDIdGPDB::m_mdid_bpchar)
+								|| MDId()->Equals(&CMDIdGPDB::m_mdid_varchar)
+								|| MDId()->Equals(&CMDIdGPDB::m_mdid_text)));
 
-	GPOS_ASSERT(is_double_comparison || is_lint_comparison || is_binary_comparison);
+
+	GPOS_ASSERT(is_double_comparison || is_lint_comparison || is_binary_comparison || is_text_comparison);
 
 	if (this->IsNull())
 	{
@@ -138,6 +142,19 @@ IDatumStatisticsMappable::StatsAreLessThan
 		LINT l2 = datum_cast->GetLINTMapping();
 		return l1 < l2;
 	}
+	
+	if (is_text_comparison)
+	{
+		CAutoMemoryPool amp;
+		
+		const IDatum *this_datum = dynamic_cast<const IDatum *>(this);
+		IMemoryPool *mp = COptCtxt::PoctxtFromTLS()->Pmp();
+		CDefaultComparator *cmp = GPOS_NEW(mp) CDefaultComparator(COptCtxt::PoctxtFromTLS()->Pceeval());
+		BOOL is_less_than = cmp->IsLessThan(this_datum, datum_cast);
+		GPOS_DELETE(cmp);
+		return is_less_than;
+	}
+
 
 	GPOS_ASSERT(is_double_comparison);
 
@@ -264,8 +281,11 @@ IDatumStatisticsMappable::StatsAreComparable
 	BOOL is_double_comparison = this->IsDatumMappableToDouble() && datum_cast->IsDatumMappableToDouble();
 	BOOL is_lint_comparison = this->IsDatumMappableToLINT() && datum_cast->IsDatumMappableToLINT();
 	BOOL is_binary_comparison = this->SupportsBinaryComp(datum_cast) && datum_cast->SupportsBinaryComp(this);
+	BOOL is_text = this->MDId()->Equals(&CMDIdGPDB::m_mdid_bpchar)
+					|| this->MDId()->Equals(&CMDIdGPDB::m_mdid_varchar)
+	|| this->MDId()->Equals(&CMDIdGPDB::m_mdid_text);
 
-	return is_double_comparison || is_lint_comparison || is_binary_comparison;
+	return is_double_comparison || is_lint_comparison || is_binary_comparison || (is_text && is_types_match);
 }
 
 //EOF

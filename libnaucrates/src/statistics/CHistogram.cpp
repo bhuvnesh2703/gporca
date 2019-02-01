@@ -1057,6 +1057,24 @@ CHistogram::SupportsFilter
 	}
 }
 
+BOOL
+CHistogram::SupportsTextFilter
+(
+ CStatsPred::EStatsCmpType stats_cmp_type
+ )
+{
+	// is the scalar comparison type one of =, <>
+	switch (stats_cmp_type)
+	{
+		case CStatsPred::EstatscmptEq:
+		case CStatsPred::EstatscmptNEq:
+			return true;
+		default:
+			return false;
+	}
+}
+
+
 // is comparison type supported for join?
 BOOL
 CHistogram::JoinPredCmpTypeIsSupported

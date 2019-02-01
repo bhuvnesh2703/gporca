@@ -294,7 +294,11 @@ CStatsPredUtils::GetPredStats
 	GPOS_ASSERT(NULL != scalar_const_op);
 
 	IDatum *datum = scalar_const_op->GetDatum();
-	if (!CHistogram::SupportsFilter(stats_cmp_type) || !IMDType::StatsAreComparable(col_ref->RetrieveType(), datum))
+	BOOL is_text = datum->MDId()->Equals(&CMDIdGPDB::m_mdid_bpchar)
+	|| datum->MDId()->Equals(&CMDIdGPDB::m_mdid_varchar)
+	|| datum->MDId()->Equals(&CMDIdGPDB::m_mdid_text);
+	
+	if (!CHistogram::SupportsFilter(stats_cmp_type) || (is_text &&  !CHistogram::SupportsTextFilter(stats_cmp_type)) || !IMDType::StatsAreComparable(col_ref->RetrieveType(), datum))
 	{
 		// case 1: unsupported predicate for stats calculations
 		// example: SELECT 1 FROM pg_catalog.pg_class c WHERE c.relname ~ '^(t36)$';
