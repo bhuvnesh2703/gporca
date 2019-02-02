@@ -19,6 +19,8 @@
 #include "naucrates/md/CMDIdGPDB.h"
 
 #include "naucrates/statistics/CScaleFactorUtils.h"
+#include "gpopt/base/CUtils.h"
+#include "gpopt/base/CDefaultComparator.h"
 
 using namespace gpnaucrates;
 using namespace gpmd;
@@ -389,10 +391,34 @@ CDatumGenericGPDB::StatsAreEqual
 		return IsNull() && datum->IsNull();
 	}
 
+
+	
+	BOOL is_text = this->MDId()->Equals(&CMDIdGPDB::m_mdid_bpchar)
+	|| this->MDId()->Equals(&CMDIdGPDB::m_mdid_varchar)
+	|| this->MDId()->Equals(&CMDIdGPDB::m_mdid_text);
+	
+	BOOL is_casted_comparision = false;
+	if (is_text)
+	{
+		is_casted_comparision = CUtils::FCmpOrCastedCmpExists(this->MDId(), datum->MDId(), IMDType::EcmptEq);
+	}
+	
+	if (is_casted_comparision)
+	{
+		CAutoMemoryPool amp;
+		
+		const IDatum *this_datum = dynamic_cast<const IDatum *>(this);
+		IMemoryPool *mp = COptCtxt::PoctxtFromTLS()->Pmp();
+		CDefaultComparator *cmp = GPOS_NEW(mp) CDefaultComparator(COptCtxt::PoctxtFromTLS()->Pceeval());
+		BOOL result = cmp->Equals(this_datum, datum);
+		GPOS_DELETE(cmp);
+		return result;
+	}
+	
 	// fall back to memcmp
 	const CDatumGenericGPDB *datum_generic_gpdb
-				= dynamic_cast<const CDatumGenericGPDB *> (datum);
-
+	= dynamic_cast<const CDatumGenericGPDB *> (datum);
+	
 	ULONG size = this->Size();
 	if (size == datum_generic_gpdb->Size())
 	{
@@ -400,7 +426,7 @@ CDatumGenericGPDB::StatsAreEqual
 		const BYTE *s2 = datum_generic_gpdb->m_bytearray_value;
 		return (clib::Memcmp(s1, s2, size) == 0);
 	}
-
+	
 	return false;
 }
 
