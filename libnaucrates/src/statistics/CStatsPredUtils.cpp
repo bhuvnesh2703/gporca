@@ -294,16 +294,19 @@ CStatsPredUtils::GetPredStats
 	GPOS_ASSERT(NULL != scalar_const_op);
 
 	IDatum *datum = scalar_const_op->GetDatum();
-	BOOL is_text = datum->MDId()->Equals(&CMDIdGPDB::m_mdid_bpchar)
-	|| datum->MDId()->Equals(&CMDIdGPDB::m_mdid_varchar)
-	|| datum->MDId()->Equals(&CMDIdGPDB::m_mdid_text);
-	
-	if (!CHistogram::SupportsFilter(stats_cmp_type) || (is_text &&  !CHistogram::SupportsTextFilter(stats_cmp_type)) || !IMDType::StatsAreComparable(col_ref->RetrieveType(), datum))
+	if (!CHistogram::SupportsFilter(stats_cmp_type) || !IMDType::StatsAreComparable(col_ref->RetrieveType(), datum))
 	{
 		// case 1: unsupported predicate for stats calculations
 		// example: SELECT 1 FROM pg_catalog.pg_class c WHERE c.relname ~ '^(t36)$';
 		// case 2: unsupported stats comparison between the column and datum
 
+		return GPOS_NEW(mp) CStatsPredUnsupported(col_ref->Id(), stats_cmp_type);
+	}
+	
+	// for text type comparision, only = or != is supported
+	BOOL is_text_related_type = IsTextRelatedType(datum->MDId()) || IsTextRelatedType(col_ref->RetrieveType()->MDId());
+	if (is_text_related_type && !CHistogram::SupportsTextFilter(stats_cmp_type))
+	{
 		return GPOS_NEW(mp) CStatsPredUnsupported(col_ref->Id(), stats_cmp_type);
 	}
 
@@ -1295,6 +1298,17 @@ CStatsPredUtils::IsUnsupportedPredOnDefinedCol
 {
 	return ((CStatsPred::EsptUnsupported == pred_stats->GetPredStatsType()) &&
 			(gpos::ulong_max == pred_stats->GetColId()));
+}
+
+BOOL
+CStatsPredUtils::IsTextRelatedType
+	(
+	IMDId *mdid
+	)
+{
+	return mdid->Equals(&CMDIdGPDB::m_mdid_bpchar)
+	|| mdid->Equals(&CMDIdGPDB::m_mdid_varchar)
+	|| mdid->Equals(&CMDIdGPDB::m_mdid_text);
 }
 
 

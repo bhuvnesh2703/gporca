@@ -202,6 +202,9 @@ namespace gpopt
 			static
 			BOOL IsUnsupportedPredOnDefinedCol(CStatsPred *pred_stats);
 
+			static
+			BOOL IsTextRelatedType(IMDId *mdid);
+
 	}; // class CStatsPredUtils
 }
 

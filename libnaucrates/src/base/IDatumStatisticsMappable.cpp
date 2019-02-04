@@ -43,11 +43,8 @@ IDatumStatisticsMappable::StatsAreEqual
 #endif // GPOS_DEBUG
 	BOOL is_lint_comparison = this->IsDatumMappableToLINT() && datum_cast->IsDatumMappableToLINT();
 	BOOL is_binary_comparison = this->SupportsBinaryComp(datum) && datum_cast->SupportsBinaryComp(this);
-	BOOL is_text_comparison = ((MDId()->Equals(&CMDIdGPDB::m_mdid_bpchar)
-								 			|| MDId()->Equals(&CMDIdGPDB::m_mdid_varchar)
-								 || MDId()->Equals(&CMDIdGPDB::m_mdid_text)));
 
-	GPOS_ASSERT(is_double_comparison || is_lint_comparison || is_binary_comparison || is_text_comparison);
+	GPOS_ASSERT(is_double_comparison || is_lint_comparison || is_binary_comparison);
 
 	if (this->IsNull())
 	{
@@ -70,16 +67,6 @@ IDatumStatisticsMappable::StatsAreEqual
 		LINT l1 = this->GetLINTMapping();
 		LINT l2 = datum_cast->GetLINTMapping();
 		return l1 == l2;
-	}
-	
-	if (is_text_comparison)
-	{
-		CAutoMemoryPool amp;
-		
-		const IDatum *this_datum = dynamic_cast<const IDatum *>(this);
-		IMemoryPool *mp = COptCtxt::PoctxtFromTLS()->Pmp();
-		CDefaultComparator *cmp = GPOS_NEW(mp) CDefaultComparator(COptCtxt::PoctxtFromTLS()->Pceeval());
-		return cmp->Equals(this_datum, datum_cast);
 	}
 
 	GPOS_ASSERT(is_double_comparison);
@@ -114,12 +101,10 @@ IDatumStatisticsMappable::StatsAreLessThan
 #endif // GPOS_DEBUG
 	BOOL is_lint_comparison = this->IsDatumMappableToLINT() && datum_cast->IsDatumMappableToLINT();
 	BOOL is_binary_comparison = this->SupportsBinaryComp(datum) && datum_cast->SupportsBinaryComp(this);
-	BOOL is_text_comparison = ((MDId()->Equals(&CMDIdGPDB::m_mdid_bpchar)
-								|| MDId()->Equals(&CMDIdGPDB::m_mdid_varchar)
-								|| MDId()->Equals(&CMDIdGPDB::m_mdid_text)));
+	BOOL is_text_comparision = CMDTypeGenericGPDB::IsTextComparisionSupported(this->MDId(), datum->MDId(), IMDType::EcmptL);
 
 
-	GPOS_ASSERT(is_double_comparison || is_lint_comparison || is_binary_comparison || is_text_comparison);
+	GPOS_ASSERT(is_double_comparison || is_lint_comparison || is_binary_comparison || is_text_comparision);
 
 	if (this->IsNull())
 	{
@@ -144,16 +129,16 @@ IDatumStatisticsMappable::StatsAreLessThan
 		return l1 < l2;
 	}
 	
-	if (is_text_comparison)
+	if (is_text_comparision)
 	{
 		CAutoMemoryPool amp;
 		
 		const IDatum *this_datum = dynamic_cast<const IDatum *>(this);
 		IMemoryPool *mp = COptCtxt::PoctxtFromTLS()->Pmp();
-		CDefaultComparator *cmp = GPOS_NEW(mp) CDefaultComparator(COptCtxt::PoctxtFromTLS()->Pceeval());
-		BOOL is_less_than = cmp->IsLessThan(this_datum, datum_cast);
-		GPOS_DELETE(cmp);
-		return is_less_than;
+		CDefaultComparator *default_comparator = GPOS_NEW(mp) CDefaultComparator(COptCtxt::PoctxtFromTLS()->Pceeval());
+		BOOL is_equal = default_comparator->IsLessThan(this_datum, datum);
+		GPOS_DELETE(default_comparator);
+		return is_equal;
 	}
 
 
@@ -274,6 +259,8 @@ IDatumStatisticsMappable::StatsAreComparable
 	BOOL is_types_match = this->MDId()->Equals(datum_cast->MDId());
 	BOOL is_time_comparison = CMDTypeGenericGPDB::IsTimeRelatedType(this->MDId())
 			&& CMDTypeGenericGPDB::IsTimeRelatedType(datum_cast->MDId());
+	BOOL is_text_comparison_supported = CMDTypeGenericGPDB::IsTextComparisionSupported(this->MDId(), datum_cast->MDId(), IMDType::EcmptEq);
+
 	// the statistics for different time related types can't be directly compared, eg: timestamp vs timestamp with time zone.
 	// to prevent inaccurate statistics, mark as non-comparable
 	if (is_time_comparison && !is_types_match)
@@ -282,17 +269,8 @@ IDatumStatisticsMappable::StatsAreComparable
 	BOOL is_double_comparison = this->IsDatumMappableToDouble() && datum_cast->IsDatumMappableToDouble();
 	BOOL is_lint_comparison = this->IsDatumMappableToLINT() && datum_cast->IsDatumMappableToLINT();
 	BOOL is_binary_comparison = this->SupportsBinaryComp(datum_cast) && datum_cast->SupportsBinaryComp(this);
-	BOOL is_text = this->MDId()->Equals(&CMDIdGPDB::m_mdid_bpchar)
-					|| this->MDId()->Equals(&CMDIdGPDB::m_mdid_varchar)
-	|| this->MDId()->Equals(&CMDIdGPDB::m_mdid_text);
-	
-	BOOL is_casted_comparision = false;
-	if (is_text && !is_types_match)
-	{
-		is_casted_comparision = CUtils::FCmpOrCastedCmpExists(this->MDId(), datum_cast->MDId(), IMDType::EcmptEq);
-	}
 
-	return is_double_comparison || is_lint_comparison || is_binary_comparison || (is_text && is_types_match) || (is_casted_comparision);
+	return is_double_comparison || is_lint_comparison || is_binary_comparison || is_text_comparison_supported;
 }
 
 //EOF

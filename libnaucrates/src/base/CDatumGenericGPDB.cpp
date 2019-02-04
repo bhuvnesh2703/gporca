@@ -325,6 +325,12 @@ CDatumGenericGPDB::IsDatumMappableToLINT() const
 
 }
 
+BOOL
+CDatumGenericGPDB::IsTextRelatedType() const
+{
+	return CMDTypeGenericGPDB::IsTextRelatedType(this->MDId());
+}
+
 //---------------------------------------------------------------------------
 //	@function:
 //		CDatumGenericGPDB::SupportsBinaryComp
@@ -340,13 +346,9 @@ CDatumGenericGPDB::SupportsBinaryComp
 		)
 	const
 {
-//	return this->MDId()->Sysid().Equals(datum_other->MDId()->Sysid());
-	return (!(MDId()->Equals(&CMDIdGPDB::m_mdid_bpchar)
-			|| MDId()->Equals(&CMDIdGPDB::m_mdid_varchar)
-			|| MDId()->Equals(&CMDIdGPDB::m_mdid_text))
+	return (!IsTextRelatedType()
 			&& (this->MDId()->Sysid().Equals(datum_other->MDId()->Sysid())));
 }
-
 //---------------------------------------------------------------------------
 //	@function:
 //		CDatumGenericGPDB::MakeCopyOfValue
@@ -390,35 +392,24 @@ CDatumGenericGPDB::StatsAreEqual
 	{
 		return IsNull() && datum->IsNull();
 	}
-
-
 	
-	BOOL is_text = this->MDId()->Equals(&CMDIdGPDB::m_mdid_bpchar)
-	|| this->MDId()->Equals(&CMDIdGPDB::m_mdid_varchar)
-	|| this->MDId()->Equals(&CMDIdGPDB::m_mdid_text);
-	
-	BOOL is_casted_comparision = false;
-	if (is_text)
-	{
-		is_casted_comparision = CUtils::FCmpOrCastedCmpExists(this->MDId(), datum->MDId(), IMDType::EcmptEq);
-	}
-	
-	if (is_casted_comparision)
+	BOOL is_text_comparision = CMDTypeGenericGPDB::IsTextComparisionSupported(this->MDId(), datum->MDId(), IMDType::EcmptEq);
+	if (is_text_comparision)
 	{
 		CAutoMemoryPool amp;
 		
 		const IDatum *this_datum = dynamic_cast<const IDatum *>(this);
 		IMemoryPool *mp = COptCtxt::PoctxtFromTLS()->Pmp();
-		CDefaultComparator *cmp = GPOS_NEW(mp) CDefaultComparator(COptCtxt::PoctxtFromTLS()->Pceeval());
-		BOOL result = cmp->Equals(this_datum, datum);
-		GPOS_DELETE(cmp);
-		return result;
+		CDefaultComparator *default_comparator = GPOS_NEW(mp) CDefaultComparator(COptCtxt::PoctxtFromTLS()->Pceeval());
+		BOOL is_equal = default_comparator->Equals(this_datum, datum);
+		GPOS_DELETE(default_comparator);
+		return is_equal;
 	}
 	
 	// fall back to memcmp
 	const CDatumGenericGPDB *datum_generic_gpdb
-	= dynamic_cast<const CDatumGenericGPDB *> (datum);
-	
+				= dynamic_cast<const CDatumGenericGPDB *> (datum);
+
 	ULONG size = this->Size();
 	if (size == datum_generic_gpdb->Size())
 	{
@@ -426,7 +417,7 @@ CDatumGenericGPDB::StatsAreEqual
 		const BYTE *s2 = datum_generic_gpdb->m_bytearray_value;
 		return (clib::Memcmp(s1, s2, size) == 0);
 	}
-	
+
 	return false;
 }
 
@@ -514,31 +505,17 @@ CDatumGenericGPDB::MakePaddedDatum
 
 		// create a new datum
 		this->MDId()->AddRef();
-		CDatumGenericGPDB *datum_new;
-		if (IsDatumMappableToLINT())
-			datum_new = GPOS_NEW(m_mp) CDatumGenericGPDB
-														(
-														mp,
-														this->MDId(),
-														this->TypeModifier(),
-														dest,
-														adjusted_col_width,
-														this->IsNull(),
-														this->GetLINTMapping(),
-														0 /* dValue */
-														);
-		else
-			datum_new = GPOS_NEW(m_mp) CDatumGenericGPDB
-			(
-			 mp,
-			 this->MDId(),
-			 this->TypeModifier(),
-			 dest,
-			 adjusted_col_width,
-			 this->IsNull(),
-			 0,
-			 0 /* dValue */
-			 );
+		CDatumGenericGPDB *datum_new = GPOS_NEW(m_mp) CDatumGenericGPDB
+													(
+													mp,
+													this->MDId(),
+													this->TypeModifier(),
+													dest,
+													adjusted_col_width,
+													this->IsNull(),
+													IsDatumMappableToLINT()? this->GetLINTMapping(): 0,
+													0 /* dValue */
+													);
 
 		// clean up the input byte array as the constructor creates a copy
 		GPOS_DELETE_ARRAY(dest);

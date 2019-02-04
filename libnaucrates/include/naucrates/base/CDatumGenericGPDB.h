@@ -201,6 +201,9 @@ class CDatumGenericGPDB : public IDatumGeneric
 		static
 		const CDouble DefaultCdbRolloffSelectivity;
 
+		virtual
+		BOOL IsTextRelatedType() const;
+
 	}; // class CDatumGenericGPDB
 }
 

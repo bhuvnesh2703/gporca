@@ -341,6 +341,13 @@ namespace gpmd
 			// is this a network-related type
 			static
 			BOOL IsNetworkRelatedType(const IMDId *mdid);
+		
+			// is this a text-related type
+			static
+			BOOL IsTextRelatedType(const IMDId *mdid);
+
+			static
+			BOOL IsTextComparisionSupported(IMDId *mdid1,  IMDId *mdid2, IMDType::ECmpType cmp_type);
 
 	};
 }

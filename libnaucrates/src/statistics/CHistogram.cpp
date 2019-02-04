@@ -1059,9 +1059,9 @@ CHistogram::SupportsFilter
 
 BOOL
 CHistogram::SupportsTextFilter
-(
- CStatsPred::EStatsCmpType stats_cmp_type
- )
+	(
+	CStatsPred::EStatsCmpType stats_cmp_type
+	)
 {
 	// is the scalar comparison type one of =, <>
 	switch (stats_cmp_type)
