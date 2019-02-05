@@ -305,7 +305,7 @@ CStatsPredUtils::GetPredStats
 	
 	// for text type comparision, only = or != is supported
 	BOOL is_text_related_type = IsTextRelatedType(datum->MDId()) || IsTextRelatedType(col_ref->RetrieveType()->MDId());
-	if (is_text_related_type && !CHistogram::SupportsTextFilter(stats_cmp_type))
+	if (GPOS_FTRACE(EopttraceEnableTextCardEstimation) && is_text_related_type && !CHistogram::SupportsTextFilter(stats_cmp_type))
 	{
 		return GPOS_NEW(mp) CStatsPredUnsupported(col_ref->Id(), stats_cmp_type);
 	}

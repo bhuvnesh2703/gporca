@@ -259,7 +259,7 @@ IDatumStatisticsMappable::StatsAreComparable
 	BOOL is_types_match = this->MDId()->Equals(datum_cast->MDId());
 	BOOL is_time_comparison = CMDTypeGenericGPDB::IsTimeRelatedType(this->MDId())
 			&& CMDTypeGenericGPDB::IsTimeRelatedType(datum_cast->MDId());
-	BOOL is_text_comparison_supported = CMDTypeGenericGPDB::IsTextComparisionSupported(this->MDId(), datum_cast->MDId(), IMDType::EcmptEq);
+	BOOL is_text_comparison_supported = GPOS_FTRACE(EopttraceEnableTextCardEstimation) && CMDTypeGenericGPDB::IsTextComparisionSupported(this->MDId(), datum_cast->MDId(), IMDType::EcmptEq);
 
 	// the statistics for different time related types can't be directly compared, eg: timestamp vs timestamp with time zone.
 	// to prevent inaccurate statistics, mark as non-comparable

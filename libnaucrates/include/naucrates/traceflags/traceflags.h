@@ -208,6 +208,9 @@ namespace gpos
 
 		// is nestloop params enabled, it is only enabled in GPDB 6.x onwards.
 		EopttraceIndexedNLJOuterRefAsParams = 106000,
+		
+		// is nestloop params enabled, it is only enabled in GPDB 6.x onwards.
+		EopttraceEnableTextCardEstimation = 106001,
 
 		// max
 		EopttraceSentinel = 199999

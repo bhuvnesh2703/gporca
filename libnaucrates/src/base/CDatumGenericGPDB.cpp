@@ -342,7 +342,7 @@ CDatumGenericGPDB::IsTextRelatedType() const
 BOOL
 CDatumGenericGPDB::SupportsBinaryComp
 		(
-				const IDatum *datum_other
+			const IDatum *datum_other
 		)
 	const
 {
