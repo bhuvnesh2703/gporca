@@ -641,7 +641,7 @@ CMDTypeGenericGPDB::DebugPrint
 {
 	CGPDBTypeHelper<CMDTypeGenericGPDB>::DebugPrint(os, this);
 }
-
+#endif // GPOS_DEBUG
 BOOL
 CMDTypeGenericGPDB::IsTextComparisionSupported
 	(
@@ -667,7 +667,7 @@ CMDTypeGenericGPDB::IsTextRelatedType
 	|| mdid->Equals(&CMDIdGPDB::m_mdid_bpchar)
 	|| mdid->Equals(&CMDIdGPDB::m_mdid_text);
 }
-#endif // GPOS_DEBUG
+
 
 // EOF
 
