@@ -342,12 +342,11 @@ CDatumGenericGPDB::IsTextRelatedType() const
 BOOL
 CDatumGenericGPDB::SupportsBinaryComp
 		(
-			const IDatum *datum_other
+			const IDatum *//datum_other
 		)
 	const
 {
-	return (!IsTextRelatedType()
-			&& (this->MDId()->Sysid().Equals(datum_other->MDId()->Sysid())));
+	return false;
 }
 //---------------------------------------------------------------------------
 //	@function:
