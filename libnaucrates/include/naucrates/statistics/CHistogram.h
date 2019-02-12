@@ -175,6 +175,8 @@ namespace gpnaucrates
 			static
 			BOOL DoNDVBasedCardEstimation(const CHistogram *histogram);
 
+			BOOL IsHistogramForTextRelatedTypes() const;
+
 		public:
 
 			// ctors
