@@ -218,6 +218,7 @@ namespace gpopt
 				ExfEagerAgg,
 				ExfExpandNAryJoinDynamicProg,
 				ExfExpandNAryJoinDynamicProgramming,
+				ExfExpandNAryJoinDynamicProgrammingMinCard,
 				ExfInvalid,
 				ExfSentinel = ExfInvalid
 			};
