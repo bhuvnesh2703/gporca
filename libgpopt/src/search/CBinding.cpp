@@ -168,16 +168,20 @@ CBinding::PexprExtract
 	}
 
 	CExpressionArray *pdrgpexpr = NULL;
+	// for tree pattern, if it's marked to not extract all the different
+	// child combination below Subquery operator, and one of them has
+	// already been processedy i.e pexprLast != NULL.
+	// return early, marking no further binding
 	if (popPattern->Eopid() == COperator::EopPatternTree)
 	{
-		CPatternTree *ppatternTree = dynamic_cast<CPatternTree *>(popPattern);
-		if (ppatternTree->AllowSubqueries() && NULL != pexprLast)
+		CPatternTree *pattern_op = CPatternTree::PopConvert(popPattern);
+		if (!pattern_op->ExhaustSubqueryChilds() && NULL != pexprLast)
 		{
-			if ((pexprLast->Pop()->Eopid() == COperator::EopScalarSubqueryAny && pgexpr->Pop()->Eopid() ==
-				 COperator::EopScalarSubqueryAny) ||
-				(pexprLast->Pop()->Eopid() == COperator::EopScalarSubquery && pgexpr->Pop()->Eopid() ==
-				 COperator::EopScalarSubquery)
-				)
+			if (Matches(pexprLast, pgexpr, COperator::EopScalarSubqueryAny) ||
+				Matches(pexprLast, pgexpr, COperator::EopScalarSubquery) ||
+				Matches(pexprLast, pgexpr, COperator::EopScalarSubqueryAll) ||
+				Matches(pexprLast, pgexpr, COperator::EopScalarSubqueryExists) ||
+				Matches(pexprLast, pgexpr, COperator::EopScalarSubqueryNotExists))
 			{
 				return NULL;
 			}
@@ -314,19 +318,6 @@ CBinding::FAdvanceChildCursors
 			}
 			else
 			{
-//				if (pexprNewChild->Pop()->Eopid() == COperator::EopScalarSubqueryAny)
-//				{
-//					COperator *popPattern = pexprPatternChild->Pop();
-//					if (popPattern->Eopid() == COperator::EopPatternTree)
-//					{
-//						CPatternTree *popPatternTree = CPatternTree::PopConvert(popPattern);
-//						if (!popPatternTree->AllowSubqueries() && pexprLastChild != NULL)
-//						{
-//							return false;
-//						}
-//					}
-//				}
-
 				// advancing current cursor has succeeded
 				fCursorAdvanced =  true;
 			}
@@ -468,5 +459,14 @@ CBinding::PexprExtract
 	return NULL;
 }
 
-
+BOOL
+CBinding::Matches
+	(
+	CExpression *pexpr,
+	CGroupExpression *pgexpr,
+	COperator::EOperatorId op_id
+	)
+{
+	return (pexpr->Pop()->Eopid() == op_id && pgexpr->Pop()->Eopid() == op_id);
+}
 // EOF

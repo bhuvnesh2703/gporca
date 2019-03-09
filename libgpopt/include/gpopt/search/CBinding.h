@@ -108,6 +108,13 @@ namespace gpopt
 				CGroupExpression *pgexpr,
 				CExpressionArray *pdrgpexprChildren
 				);
+
+			BOOL Matches
+				(
+				CExpression *pexpr,
+				CGroupExpression *pgexpr,
+				COperator::EOperatorId op_id
+				);
 			
 			// private copy ctor
 			CBinding(const CBinding &);
@@ -130,7 +137,6 @@ namespace gpopt
 				CExpression *pexprPatetrn,
 				CExpression *pexprLast
 				);
-
 	}; // class CBinding
 	
 }
