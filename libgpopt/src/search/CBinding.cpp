@@ -168,6 +168,21 @@ CBinding::PexprExtract
 	}
 
 	CExpressionArray *pdrgpexpr = NULL;
+	if (popPattern->Eopid() == COperator::EopPatternTree)
+	{
+		CPatternTree *ppatternTree = dynamic_cast<CPatternTree *>(popPattern);
+		if (ppatternTree->AllowSubqueries() && NULL != pexprLast)
+		{
+			if ((pexprLast->Pop()->Eopid() == COperator::EopScalarSubqueryAny && pgexpr->Pop()->Eopid() ==
+				 COperator::EopScalarSubqueryAny) ||
+				(pexprLast->Pop()->Eopid() == COperator::EopScalarSubquery && pgexpr->Pop()->Eopid() ==
+				 COperator::EopScalarSubquery)
+				)
+			{
+				return NULL;
+			}
+		}
+	}
 	ULONG arity = pgexpr->Arity();
 	if (0 == arity && NULL != pexprLast)
 	{
@@ -289,6 +304,7 @@ CBinding::FAdvanceChildCursors
 
 			// advance current cursor
 			pexprNewChild = PexprExtract(mp, pgroup, pexprPatternChild, pexprLastChild);
+			
 
 			if (NULL == pexprNewChild)
 			{
@@ -298,6 +314,19 @@ CBinding::FAdvanceChildCursors
 			}
 			else
 			{
+//				if (pexprNewChild->Pop()->Eopid() == COperator::EopScalarSubqueryAny)
+//				{
+//					COperator *popPattern = pexprPatternChild->Pop();
+//					if (popPattern->Eopid() == COperator::EopPatternTree)
+//					{
+//						CPatternTree *popPatternTree = CPatternTree::PopConvert(popPattern);
+//						if (!popPatternTree->AllowSubqueries() && pexprLastChild != NULL)
+//						{
+//							return false;
+//						}
+//					}
+//				}
+
 				// advancing current cursor has succeeded
 				fCursorAdvanced =  true;
 			}

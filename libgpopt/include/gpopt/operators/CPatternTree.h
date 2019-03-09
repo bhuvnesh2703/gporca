@@ -31,19 +31,32 @@ namespace gpopt
 
 		private:
 
+			const BOOL m_allow_subqueries;
 			// private copy ctor
 			CPatternTree(const CPatternTree &);
 
 		public:
 		
+			explicit
+			CPatternTree
+			(
+			 IMemoryPool *mp
+			 )
+			:
+			CPattern(mp),
+			m_allow_subqueries(false)
+			{}
+		
 			// ctor
 			explicit
 			CPatternTree
 				(
-				IMemoryPool *mp
+				IMemoryPool *mp,
+				BOOL allow_subqueries
 				)
 				: 
-				CPattern(mp)
+				CPattern(mp),
+				m_allow_subqueries(allow_subqueries)
 			{}
 
 			// dtor
@@ -69,7 +82,26 @@ namespace gpopt
 			const CHAR *SzId() const
 			{
 				return "CPatternTree";
-			}		
+			}
+		
+			virtual
+			BOOL AllowSubqueries()
+			{
+				return m_allow_subqueries;
+			}
+		
+			static
+			CPatternTree *PopConvert
+			(
+			 COperator *pop
+			 )
+			{
+				GPOS_ASSERT(NULL != pop);
+				GPOS_ASSERT(pop->FPattern());
+				
+				return dynamic_cast<CPatternTree*>(pop);
+			}
+		
 
 	}; // class CPatternTree
 

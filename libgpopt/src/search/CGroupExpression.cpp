@@ -881,9 +881,26 @@ CGroupExpression::Transform
 	CXformContext *pxfctxt = GPOS_NEW(mp) CXformContext(mp);
 
 	CExpression *pexprPattern = pxform->PexprPattern();
+	if (pxform->Exfid() == CXform::ExfInnerJoinWithInnerSelect2IndexGetApply)
+	{
+		CGroupExpression *pgroupExpr = exprhdl.Pgexpr();
+		CGroup *pgroup1 = (*pgroupExpr)[0];
+		CGroup *pgroup2 = (*pgroupExpr)[1];
+		CGroup *pgroup3 = (*pgroupExpr)[2];
+		if (pgroup1->Id() == 0 && pgroup2->Id() == 7 && pgroup3->Id() == 9)
+		{
+			GPOS_ASSERT(pgroup1);
+		}
+	}
+	
 	CExpression *pexpr = binding.PexprExtract(mp, this, pexprPattern , NULL);
+	CAutoTrace at(mp);
+	ULONG counter = 0;
 	while (NULL != pexpr)
 	{
+
+		at.Os() << "XformId: " << pxform->SzId() << " Counter: " << ++counter << std::endl;
+		at.Os() << (*pexpr) << std::endl;
 		ULONG ulNumResults = pxfres->Pdrgpexpr()->Size();
 		pxform->Transform(pxfctxt, pxfres, pexpr);
 		ulNumResults = pxfres->Pdrgpexpr()->Size() - ulNumResults;
