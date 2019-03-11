@@ -31,34 +31,19 @@ namespace gpopt
 
 		private:
 
-			// should we extract all the aternatives below subquery
-			const BOOL m_exhaust_subquery_childs;
-
 			// private copy ctor
 			CPatternTree(const CPatternTree &);
 
 		public:
 		
-			explicit
-			CPatternTree
-			(
-			 IMemoryPool *mp
-			 )
-			:
-			CPattern(mp),
-			m_exhaust_subquery_childs(true)
-			{}
-
 			// ctor
 			explicit
 			CPatternTree
 				(
-				IMemoryPool *mp,
-				BOOL exhaust_subquery_childs
+				IMemoryPool *mp
 				)
 				: 
-				CPattern(mp),
-				m_exhaust_subquery_childs(exhaust_subquery_childs)
+				CPattern(mp)
 			{}
 
 			// dtor
@@ -84,25 +69,7 @@ namespace gpopt
 			const CHAR *SzId() const
 			{
 				return "CPatternTree";
-			}
-
-			virtual
-			BOOL ExhaustSubqueryChilds()
-			{
-				return m_exhaust_subquery_childs;
-			}
-
-			static
-			CPatternTree *PopConvert
-				(
-				COperator *pop
-				)
-			{
-				GPOS_ASSERT(NULL != pop);
-				GPOS_ASSERT(pop->FPattern());
-
-				return dynamic_cast<CPatternTree*>(pop);
-			}
+			}		
 
 	}; // class CPatternTree
 

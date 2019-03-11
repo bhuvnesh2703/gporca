@@ -229,6 +229,13 @@ namespace gpopt
 			{
 				return default_type_modifier;
 			}
+
+			//
+			virtual
+			BOOL ExploreAllBindings()
+			{
+				return true;
+			}
 			
 	}; // class CScalar
 

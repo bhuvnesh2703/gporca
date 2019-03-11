@@ -135,6 +135,12 @@ namespace gpopt
 			virtual 
 			IOstream &OsPrint(IOstream &os) const;
 
+			virtual
+			BOOL ExploreAllBindings()
+			{
+				return false;
+			}
+
 	}; // class CScalarSubquery
 }
 

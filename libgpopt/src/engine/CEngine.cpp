@@ -359,7 +359,8 @@ CEngine::InsertXformResult
 	CXformResult *pxfres,
 	CXform::EXformId exfidOrigin,
 	CGroupExpression *pgexprOrigin,
-	ULONG ulXformTime // time consumed by transformation in msec
+	ULONG ulXformTime, // time consumed by transformation in msec
+	ULONG ulNumberOfTimes
 	)
 {
 	GPOS_ASSERT(NULL != pxfres);
@@ -370,7 +371,7 @@ CEngine::InsertXformResult
 	if (GPOS_FTRACE(EopttracePrintOptimizationStatistics) && 0 < pxfres->Pdrgpexpr()->Size())
 	{
 		(void) m_xforms->ExchangeSet(exfidOrigin);
-		(void) ExchangeAddUlongPtrWithInt(&(*m_pdrgpulpXformCalls)[m_ulCurrSearchStage][exfidOrigin], 1);
+		(*m_pdrgpulpXformCalls)[m_ulCurrSearchStage][exfidOrigin] += ulNumberOfTimes;
 
 		{
 			CAutoMutex am(m_mutexOptStats);
@@ -744,8 +745,9 @@ CEngine::ApplyTransformations
 		// transform group expression, and insert results to memo
 		CXformResult *pxfres = GPOS_NEW(m_mp) CXformResult(m_mp);
 		ULONG ulElapsedTime = 0;
-		pgexpr->Transform(m_mp, pmpLocal, pxform, pxfres, &ulElapsedTime);
-		InsertXformResult(pgexpr->Pgroup(), pxfres, pxform->Exfid(), pgexpr, ulElapsedTime);
+		ULONG ulNumberOfTimes = 0;
+		pgexpr->Transform(m_mp, pmpLocal, pxform, pxfres, &ulElapsedTime, &ulNumberOfTimes);
+		InsertXformResult(pgexpr->Pgroup(), pxfres, pxform->Exfid(), pgexpr, ulElapsedTime, ulNumberOfTimes);
 		pxfres->Release();
 
 		if (PssCurrent()->FTimedOut())

@@ -167,26 +167,23 @@ CBinding::PexprExtract
 		return GPOS_NEW(mp) CExpression(mp, pgexpr->Pop(), pgexpr);
 	}
 
-	CExpressionArray *pdrgpexpr = NULL;
-	// for tree pattern, if it's marked to not extract all the different
-	// child combination below Subquery operator, and one of them has
-	// already been processedy i.e pexprLast != NULL.
-	// return early, marking no further binding
-	if (popPattern->Eopid() == COperator::EopPatternTree)
+	if (NULL != pexprLast && pexprLast->Pgexpr()->Pgroup()->FScalar())
 	{
-		CPatternTree *pattern_op = CPatternTree::PopConvert(popPattern);
-		if (!pattern_op->ExhaustSubqueryChilds() && NULL != pexprLast)
+		CScalar *popScalarLast = CScalar::PopConvert(pexprLast->Pop());
+		
+#ifdef GPOS_DEBUG
+		GPOS_ASSERT(pexprLast->Pop()->Eopid() == pgexpr->Pop()->Eopid());
+#endif
+		
+		// if the scalar is a subquery, we do not want to extract all the
+		// different child combinations, we only need one
+		if (!popScalarLast->ExploreAllBindings())
 		{
-			if (Matches(pexprLast, pgexpr, COperator::EopScalarSubqueryAny) ||
-				Matches(pexprLast, pgexpr, COperator::EopScalarSubquery) ||
-				Matches(pexprLast, pgexpr, COperator::EopScalarSubqueryAll) ||
-				Matches(pexprLast, pgexpr, COperator::EopScalarSubqueryExists) ||
-				Matches(pexprLast, pgexpr, COperator::EopScalarSubqueryNotExists))
-			{
-				return NULL;
-			}
+			return NULL;
 		}
 	}
+
+	CExpressionArray *pdrgpexpr = NULL;
 	ULONG arity = pgexpr->Arity();
 	if (0 == arity && NULL != pexprLast)
 	{
@@ -308,7 +305,6 @@ CBinding::FAdvanceChildCursors
 
 			// advance current cursor
 			pexprNewChild = PexprExtract(mp, pgroup, pexprPatternChild, pexprLastChild);
-			
 
 			if (NULL == pexprNewChild)
 			{
@@ -459,14 +455,5 @@ CBinding::PexprExtract
 	return NULL;
 }
 
-BOOL
-CBinding::Matches
-	(
-	CExpression *pexpr,
-	CGroupExpression *pgexpr,
-	COperator::EOperatorId op_id
-	)
-{
-	return (pexpr->Pop()->Eopid() == op_id && pgexpr->Pop()->Eopid() == op_id);
-}
+
 // EOF

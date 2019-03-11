@@ -140,7 +140,7 @@ namespace gpopt
 						mp,
 						GPOS_NEW(mp) CLogicalSelect(mp),
 						GPOS_NEW(mp) CExpression(mp, GPOS_NEW(mp) TGet(mp)), // Get below Select
-						GPOS_NEW(mp) CExpression(mp, GPOS_NEW(mp) CPatternTree(mp, false /*don't enumerate all subquery alternatives*/))  // predicate
+						GPOS_NEW(mp) CExpression(mp, GPOS_NEW(mp) CPatternTree(mp))  // predicate
 						)
 					:
 					GPOS_NEW(mp) CExpression(mp, GPOS_NEW(mp) TGet(mp)), // inner child with Get operator,
