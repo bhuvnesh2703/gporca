@@ -390,7 +390,8 @@ namespace gpopt
 				IMemoryPool *pmpLocal,
 				CXform *pxform,
 				CXformResult *pxfres,
-				ULONG *pulElapsedTime
+				ULONG *pulElapsedTime,
+				ULONG *pulNumberOfTimes
 				);
 
 			// set group expression state
