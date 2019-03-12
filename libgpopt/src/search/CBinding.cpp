@@ -167,20 +167,17 @@ CBinding::PexprExtract
 		return GPOS_NEW(mp) CExpression(mp, pgexpr->Pop(), pgexpr);
 	}
 
-	if (NULL != pexprLast && pexprLast->Pgexpr()->Pgroup()->FScalar())
+	// for a scalar operator, there is only one group expression in it's
+	// group. so, if it's been extracted once, there is no need to explore
+	// all the child bindings
+	if (NULL != pexprLast && pgexpr->Pgroup()->FScalar())
 	{
-		CScalar *popScalarLast = CScalar::PopConvert(pexprLast->Pop());
-		
 #ifdef GPOS_DEBUG
+		// the last operator and the current group expression will be same
+		// for a scalar operator, as there is only one group expression
 		GPOS_ASSERT(pexprLast->Pop()->Eopid() == pgexpr->Pop()->Eopid());
 #endif
-		
-		// if the scalar is a subquery, we do not want to extract all the
-		// different child combinations, we only need one
-		if (!popScalarLast->ExploreAllBindings())
-		{
-			return NULL;
-		}
+		return NULL;
 	}
 
 	CExpressionArray *pdrgpexpr = NULL;

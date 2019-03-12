@@ -91,12 +91,6 @@ namespace gpopt
 				return dynamic_cast<CScalarSubqueryExistential*>(pop);
 			}
 
-			virtual
-			BOOL ExploreAllBindings()
-			{
-				return false;
-			}
-
 	}; // class CScalarSubqueryExistential
 }
 
