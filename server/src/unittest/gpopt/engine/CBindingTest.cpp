@@ -19,7 +19,6 @@
 static
 const CHAR *szQueryFile= "../data/dxl/minidump/ExtractOneBindingFromScalarGroups.mdp";
 
-// TODO
 GPOS_RESULT
 CBindingTest::EresUnittest()
 {
@@ -31,8 +30,44 @@ CBindingTest::EresUnittest()
 	return CUnittest::EresExecute(rgut, GPOS_ARRAY_SIZE(rgut));
 }
 
+// For the Operator CLogicalSelect, there are 2 different alternatives for Scalar condition
+// i.e 1. CScalarSubqueryAny(=)["b" (19)]
+//     2. CScalarCmp (>)
+// For the Xform, CXformInnerJoinWithInnerSelect2IndexGetApply (and other equivalent xforms),
+// the Pattern is as below:
+// +--TJoin
+//    |--CPatternLeaf
+//    |--CLogicalSelect
+//    |  |--TGet
+//    |  +--CPatternTree
+//    +--CPatternTree
+// If we look at the pattern for the scalar condition of CLogicalSelect, it's defined as CPatternTree.
+// For the test query, the inner child of join i.e CLogicalSelect, can have 2 different representation
+// for the scalar condition as denoted below by Alternative 1 and 2.
+// Anything below the Scalar operators (CScalarSubqueryAny, CScalarCmp) is irrelevant in determining the
+// indexes which can be used for CLogicalGet "t3". Also, there could be several bindings below the scalar
+// operator, for instance, a Union Operation can also be performed using Agg (Global) on Union ALL, and 
+// the Global Agg could further have Global and Local alternatives.
+// We should extract the Scalar Group Expression only once, but for all the alternatives for the CLogicalSelect
+// Group expression. In the case of the test query used, there are 2 alternatives, so the test expects that 
+// there should be 2 bindings for the pattern defined by CXformInnerJoinWithInnerSelect2IndexGetApply.
 
-// TODO
+// Alternative: 1
+// +--CLogicalSelect
+//    |--CLogicalGet "t3"
+//    +--CScalarSubqueryAny(=)
+//       |--CLogicalUnion
+//       |  |--CLogicalGet "t4"
+//       |  +--CLogicalGet "t5"
+//       +--CScalarIdent
+//
+// Alternative: 2 (CScalarSubqueryAny transformed to CScalarCmp > CScalarSubquery)
+// +--CLogicalSelect
+//    |--CLogicalGet "t3"
+//    +--CScalarCmp (>)
+//       |--CScalarSubquery
+//       ...... (Subtree - removed as its not relevant)
+
 GPOS_RESULT
 CBindingTest::EresUnittest_Basic()
 {
@@ -67,22 +102,16 @@ CBindingTest::EresUnittest_Basic()
 	GPOS_ASSERT(NULL != optimizer_config);
 
 	// setup opt ctx
-	CAutoOptCtxt aoc
-	(
-	 mp,
-	 &mda,
-	 NULL,  /* pceeval */
-	 CTestUtils::GetCostModel(mp)
-	 );
+	CAutoOptCtxt aoc(mp, &mda, NULL /* pceeval */, CTestUtils::GetCostModel(mp));
 	
 	// translate DXL Tree -> Expr Tree
 	CTranslatorDXLToExpr *pdxltr = GPOS_NEW(mp) CTranslatorDXLToExpr(mp, &mda);
 	CExpression *pexprTranslated =	pdxltr->PexprTranslateQuery
-	(
-	 pdxlmd->GetQueryDXLRoot(),
-	 pdxlmd->PdrgpdxlnQueryOutput(),
-	 pdxlmd->GetCTEProducerDXLArray()
-	 );
+	                                     (
+	                                     pdxlmd->GetQueryDXLRoot(),
+	                                     pdxlmd->PdrgpdxlnQueryOutput(),
+	                                     pdxlmd->GetCTEProducerDXLArray()
+	                                     );
 	
 	gpdxl::ULongPtrArray *pdrgul = pdxltr->PdrgpulOutputColRefs();
 	gpmd::CMDNameArray *pdrgpmdname = pdxltr->Pdrgpmdname();
@@ -99,7 +128,8 @@ CBindingTest::EresUnittest_Basic()
 	GPOS_ASSERT(NULL != pexprPlan);
 
 	UlongPtrArray *number_of_bindings = eng.GetNumberOfBindings();
-	ULONG bindings_for_xform = (ULONG) (*number_of_bindings)[0][CXform::ExfInnerJoinWithInnerSelect2IndexGetApply];
+	ULONG search_stage = 0;
+	ULONG bindings_for_xform = (ULONG) (*number_of_bindings)[search_stage][CXform::ExfInnerJoinWithInnerSelect2IndexGetApply];
 
 	GPOS_RESULT eres = GPOS_FAILED;
 
@@ -111,6 +141,9 @@ CBindingTest::EresUnittest_Basic()
 	pdrgpmdp->Release();
 	GPOS_DELETE(pqc);
 	GPOS_DELETE(pdxlmd);
+	GPOS_DELETE(pdxltr);
+	pexprTranslated->Release();
+	pmdp->Release();
 
 	return eres;
 }

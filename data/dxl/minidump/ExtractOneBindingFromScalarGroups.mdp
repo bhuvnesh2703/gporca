@@ -1,5 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <dxl:DXLMessage xmlns:dxl="http://greenplum.com/dxl/2010/12/">
+<dxl:Comment><![CDATA[
+        create table t1 (a int, b int);
+        create table t3 (a int, b int);
+        create table t4 (a int, b int);
+        create table t5 (a int, b int);
+        create index t3idx on t3(b);
+        explain select t1.b from 
+                      t1, 
+                     (select t3.b from t3 where t3.b in (select b from t4 union select b from t5)) tt2 
+        where t1.b = tt2.b;
+		]]> 
+</dxl:Comment>	
+
   <dxl:Thread Id="0">
     <dxl:OptimizerConfig>
       <dxl:EnumeratorConfig Id="0" PlanSamples="0" CostThreshold="0"/>
@@ -12,7 +25,7 @@
         </dxl:CostParams>
       </dxl:CostModelConfig>
       <dxl:Hint MinNumOfPartsToRequireSortOnInsert="2147483647" JoinArityForAssociativityCommutativity="18" ArrayExpansionThreshold="100" JoinOrderDynamicProgThreshold="10" BroadcastThreshold="100000" EnforceConstraintsOnDML="false"/>
-      <dxl:TraceFlags Value="101012,102074,102120,103001,103014,103015,103022,103027,103029,104003,104004,104005,105000"/>
+      <dxl:TraceFlags Value="101012,102074,102090,102120,103001,103014,103015,103022,103027,103029,104003,104004,104005,105000"/>
     </dxl:OptimizerConfig>
     <dxl:Metadata SystemIds="0.GPDB">
       <dxl:RelationStatistics Mdid="2.32774.1.0" Name="t3" Rows="0.000000" EmptyRelation="true"/>
