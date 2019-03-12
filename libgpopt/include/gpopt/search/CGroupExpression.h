@@ -391,7 +391,7 @@ namespace gpopt
 				CXform *pxform,
 				CXformResult *pxfres,
 				ULONG *pulElapsedTime,
-				ULONG *pulNumberOfTimes
+				ULONG *pulNumberOfBindings
 				);
 
 			// set group expression state
