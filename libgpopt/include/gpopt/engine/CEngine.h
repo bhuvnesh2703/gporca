@@ -448,6 +448,8 @@ namespace gpopt
 			static
 			CGroupExpression *PgexprFirst(CGroup *pgroup);
 
+			UlongPtrArray *GetNumberOfBindings();
+
 	}; // class CEngine
 
 	// shorthand for printing

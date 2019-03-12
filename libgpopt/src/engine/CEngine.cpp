@@ -2521,6 +2521,12 @@ CEngine::FCheckReqdProps
 	return FCheckReqdPartPropagation(popPhysical, prpp->Pepp());
 }
 
+UlongPtrArray *
+CEngine::GetNumberOfBindings()
+{
+	return m_pdrgpulpXformBindings;
+}
+
 #ifdef GPOS_DEBUG
 //---------------------------------------------------------------------------
 //	@function:
