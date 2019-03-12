@@ -837,7 +837,7 @@ CGroupExpression::Transform
 	CXform *pxform,
 	CXformResult *pxfres,
 	ULONG *pulElapsedTime, // output: elapsed time in millisecond
-	ULONG *pulNumberOfTimes
+	ULONG *pulNumberOfBindings
 	)
 {
 	GPOS_ASSERT(NULL != pulElapsedTime);
@@ -883,19 +883,9 @@ CGroupExpression::Transform
 
 	CExpression *pexprPattern = pxform->PexprPattern();
 	CExpression *pexpr = binding.PexprExtract(mp, this, pexprPattern , NULL);
-//	if (pxform->Exfid() == CXform::ExfInnerJoinWithInnerSelect2IndexGetApply)
-//	{
-//		CGroup *pgroup1 = (*this)[0];
-//		CGroup *pgroup2 = (*this)[1];
-//		CGroup *pgroup3 = (*this)[2];
-//		if (pgroup1->Id() == 0 && pgroup2->Id() == 7 && pgroup3->Id() == 9)
-//		{
-//			GPOS_ASSERT(pgroup1);
-//		}
-//	}
 	while (NULL != pexpr)
 	{
-		++(*pulNumberOfTimes);
+		++(*pulNumberOfBindings);
 		ULONG ulNumResults = pxfres->Pdrgpexpr()->Size();
 		pxform->Transform(pxfctxt, pxfres, pexpr);
 		ulNumResults = pxfres->Pdrgpexpr()->Size() - ulNumResults;

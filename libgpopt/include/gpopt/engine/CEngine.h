@@ -288,7 +288,7 @@ namespace gpopt
 				CXform::EXformId exfidOrigin,
 				CGroupExpression *pgexprOrigin,
 				ULONG ulXformTime,
-				ULONG ulNumberOfTimes
+				ULONG ulNumberOfBindings
 				);
 
 			// add enforcers to the memo

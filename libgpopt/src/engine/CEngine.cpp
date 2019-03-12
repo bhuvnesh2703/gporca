@@ -372,7 +372,7 @@ CEngine::InsertXformResult
 	CXform::EXformId exfidOrigin,
 	CGroupExpression *pgexprOrigin,
 	ULONG ulXformTime, // time consumed by transformation in msec
-	ULONG ulNumberOfTimes
+	ULONG ulNumberOfBindings
 	)
 {
 	GPOS_ASSERT(NULL != pxfres);
@@ -389,7 +389,7 @@ CEngine::InsertXformResult
 			CAutoMutex am(m_mutexOptStats);
 			am.Lock();
 			(*m_pdrgpulpXformTimes)[m_ulCurrSearchStage][exfidOrigin] += ulXformTime;
-			(*m_pdrgpulpXformBindings)[m_ulCurrSearchStage][exfidOrigin] += ulNumberOfTimes;
+			(*m_pdrgpulpXformBindings)[m_ulCurrSearchStage][exfidOrigin] += ulNumberOfBindings;
 			(*m_pdrgpulpXformResults)[m_ulCurrSearchStage][exfidOrigin] += pxfres->Pdrgpexpr()->Size();
 		}
 	}
