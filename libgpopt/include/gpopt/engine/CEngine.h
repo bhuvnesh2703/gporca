@@ -77,6 +77,12 @@ namespace gpopt
 			// time consumed by each xform
 			UlongPtrArray *m_pdrgpulpXformTimes;
 
+			// number of calls to each xform
+			UlongPtrArray *m_pdrgpulpXformBindings;
+
+			// number of calls to each xform
+			UlongPtrArray *m_pdrgpulpXformResults;
+
 			// mutex for locking shared data structures when updating optimization statistics
 			CMutex m_mutexOptStats;
 

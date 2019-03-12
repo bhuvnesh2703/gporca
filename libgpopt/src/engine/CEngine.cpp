@@ -83,13 +83,17 @@ CEngine::CEngine
 	m_pexprEnforcerPattern(NULL),
 	m_xforms(NULL),
 	m_pdrgpulpXformCalls(NULL),
-	m_pdrgpulpXformTimes(NULL)
+	m_pdrgpulpXformTimes(NULL),
+	m_pdrgpulpXformBindings(NULL),
+	m_pdrgpulpXformResults(NULL)
 {
 	m_pmemo = GPOS_NEW(mp) CMemo(mp);
 	m_pexprEnforcerPattern = GPOS_NEW(mp) CExpression(mp, GPOS_NEW(mp) CPatternLeaf(mp));
 	m_xforms = GPOS_NEW(mp) CXformSet(mp);
 	m_pdrgpulpXformCalls = GPOS_NEW(mp) UlongPtrArray(mp);
 	m_pdrgpulpXformTimes = GPOS_NEW(mp) UlongPtrArray(mp);
+	m_pdrgpulpXformBindings = GPOS_NEW(mp) UlongPtrArray(mp);
+	m_pdrgpulpXformResults = GPOS_NEW(mp) UlongPtrArray(mp);
 }
 
 
@@ -111,6 +115,8 @@ CEngine::~CEngine()
 	CRefCount::SafeRelease(m_xforms);
 	m_pdrgpulpXformCalls->Release();
 	m_pdrgpulpXformTimes->Release();
+	m_pdrgpulpXformBindings->Release();
+	m_pdrgpulpXformResults->Release();
 	m_pexprEnforcerPattern->Release();
 	CRefCount::SafeRelease(m_search_stage_array);
 #endif // GPOS_DEBUG
@@ -178,13 +184,19 @@ CEngine::Init
 		{
 			ULONG_PTR *pulpXformCalls = GPOS_NEW_ARRAY(m_mp, ULONG_PTR, CXform::ExfSentinel);
 			ULONG_PTR *pulpXformTimes = GPOS_NEW_ARRAY(m_mp, ULONG_PTR, CXform::ExfSentinel);
+			ULONG_PTR *pulpXformBindings = GPOS_NEW_ARRAY(m_mp, ULONG_PTR, CXform::ExfSentinel);
+			ULONG_PTR *pulpXformResults = GPOS_NEW_ARRAY(m_mp, ULONG_PTR, CXform::ExfSentinel);
 			for (ULONG ulXform = 0; ulXform < CXform::ExfSentinel; ulXform++)
 			{
 				pulpXformCalls[ulXform] = 0;
 				pulpXformTimes[ulXform] = 0;
+				pulpXformBindings[ulXform] = 0;
+				pulpXformResults[ulXform] = 0;
 			}
 			m_pdrgpulpXformCalls->Append(pulpXformCalls);
 			m_pdrgpulpXformTimes->Append(pulpXformTimes);
+			m_pdrgpulpXformBindings->Append(pulpXformBindings);
+			m_pdrgpulpXformResults->Append(pulpXformResults);
 		}
 	}
 
@@ -371,12 +383,14 @@ CEngine::InsertXformResult
 	if (GPOS_FTRACE(EopttracePrintOptimizationStatistics) && 0 < pxfres->Pdrgpexpr()->Size())
 	{
 		(void) m_xforms->ExchangeSet(exfidOrigin);
-		(*m_pdrgpulpXformCalls)[m_ulCurrSearchStage][exfidOrigin] += ulNumberOfTimes;
+		(void) ExchangeAddUlongPtrWithInt(&(*m_pdrgpulpXformCalls)[m_ulCurrSearchStage][exfidOrigin], 1);
 
 		{
 			CAutoMutex am(m_mutexOptStats);
 			am.Lock();
 			(*m_pdrgpulpXformTimes)[m_ulCurrSearchStage][exfidOrigin] += ulXformTime;
+			(*m_pdrgpulpXformBindings)[m_ulCurrSearchStage][exfidOrigin] += ulNumberOfTimes;
+			(*m_pdrgpulpXformResults)[m_ulCurrSearchStage][exfidOrigin] += pxfres->Pdrgpexpr()->Size();
 		}
 	}
 
@@ -1576,9 +1590,13 @@ CEngine::PrintActivatedXforms
 			CXform *pxform = CXformFactory::Pxff()->Pxf(xsi.TBit());
 			ULONG ulCalls = (ULONG) (*m_pdrgpulpXformCalls)[m_ulCurrSearchStage][pxform->Exfid()];
 			ULONG ulTime = (ULONG) (*m_pdrgpulpXformTimes)[m_ulCurrSearchStage][pxform->Exfid()];
+			ULONG ulBindings = (ULONG) (*m_pdrgpulpXformBindings)[m_ulCurrSearchStage][pxform->Exfid()];
+			ULONG ulResults = (ULONG) (*m_pdrgpulpXformResults)[m_ulCurrSearchStage][pxform->Exfid()];
 			os
 				<< pxform->SzId() << ": "
 				<< ulCalls << " calls, "
+				<< ulBindings << " total bindings, "
+				<< ulResults << " alternatives generated, "
 				<< ulTime << "ms"<< std::endl;
 		}
 		os << "[OPT]: <End Xforms - stage " << m_ulCurrSearchStage << ">" << std::endl;
