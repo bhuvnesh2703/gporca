@@ -2226,7 +2226,7 @@ CPredicateUtils::FCheckPredicateImplication
 		CExpression *pexprRight = (*pexprPred)[1];
 		return ((COperator::EopScalarIdent == pexprLeft->Pop()->Eopid() ||
 				 CCastUtils::FBinaryCoercibleCastedScId(pexprLeft)) &&
-				(COperator::EopScalarIdent == pexprRight->Pop()->Eopid() ||CCastUtils::FBinaryCoercibleCastedScId(pexprRight)));
+				(COperator::EopScalarIdent == pexprRight->Pop()->Eopid() || CCastUtils::FBinaryCoercibleCastedScId(pexprRight)));
 	}
 	return false;
 }
