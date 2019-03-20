@@ -2217,11 +2217,18 @@ CPredicateUtils::FCheckPredicateImplication
 	CExpression *pexprPred
 	)
 {
-	// currently restrict testing implication to only equality of column references
-	return COperator::EopScalarCmp == pexprPred->Pop()->Eopid() &&
-		IMDType::EcmptEq == CScalarCmp::PopConvert(pexprPred->Pop())->ParseCmpType() &&
-		COperator::EopScalarIdent == (*pexprPred)[0]->Pop()->Eopid() &&
-		COperator::EopScalarIdent == (*pexprPred)[1]->Pop()->Eopid();
+	// currently restrict testing implication to only equality of column references on scalar
+	// ident and binary coercible casted idents
+	if (COperator::EopScalarCmp == pexprPred->Pop()->Eopid() &&
+		IMDType::EcmptEq == CScalarCmp::PopConvert(pexprPred->Pop())->ParseCmpType())
+	{
+		CExpression *pexprLeft = (*pexprPred)[0];
+		CExpression *pexprRight = (*pexprPred)[1];
+		return ((COperator::EopScalarIdent == pexprLeft->Pop()->Eopid() ||
+				 CCastUtils::FBinaryCoercibleCastedScId(pexprLeft)) &&
+				(COperator::EopScalarIdent == pexprRight->Pop()->Eopid() ||CCastUtils::FBinaryCoercibleCastedScId(pexprRight)));
+	}
+	return false;
 }
 
 // Given a predicate and a list of equivalence classes, return true if that predicate is
