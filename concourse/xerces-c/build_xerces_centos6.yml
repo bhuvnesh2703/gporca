@@ -1,0 +1,15 @@
+platform: linux
+image_resource:
+  type: docker-image
+  source:
+    repository: pivotaldata/gpdb6-centos6-build
+    tag: latest
+inputs:
+  - name: xerces_patch
+outputs:
+  - name: build_centos
+run:
+  path: /usr/bin/python
+  args:
+    - xerces_patch/concourse/xerces-c/build_xerces.py
+    - --output_dir=build_centos/install
