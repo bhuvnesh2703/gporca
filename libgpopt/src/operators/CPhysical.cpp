@@ -1167,6 +1167,18 @@ const
 
 	// get distribution delivered by the physical node
 	CDistributionSpec *pds = CDrvdPropPlan::Pdpplan(exprhdl.Pdp())->Pds();
+	
+//	if (exprhdl.Pgexpr() != NULL)
+//	{
+//		ULONG id1 = (*exprhdl.Pgexpr())[0]->Id();
+//		ULONG id2 = (*exprhdl.Pgexpr())[1]->Id();
+//		if (id1 == 14 && id2 == 2)
+//		{
+//			ped->PdsRequired()->DbgPrint();
+//			pds->DbgPrint();
+//			GPOS_ASSERT(id1);
+//		}
+//	}
 	if (ped->FCompatible(pds))
 	{
 		// required distribution is already provided

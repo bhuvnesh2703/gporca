@@ -72,15 +72,17 @@ CPhysicalInnerHashJoin::PdshashedCreateMatching
 	GPOS_ASSERT(NULL != pdshashed);
 
  	CDistributionSpecHashed *pdshashedMatching = PdshashedMatching(mp, pdshashed, ulSourceChild);
- 	pdshashed->Pdrgpexpr()->AddRef();
-
-	// return a hashed distribution equivalent to created matching distribution
- 	return GPOS_NEW(mp) CDistributionSpecHashed
- 			 (
- 			 pdshashed->Pdrgpexpr(),
- 			 pdshashed->FNullsColocated(),
- 			 pdshashedMatching // matching distribution spec is equivalent to passed distribution spec
- 			 );
+	pdshashedMatching->Pdrgpexpr()->AddRef();
+	pdshashed->AddRef();
+	
+	CDistributionSpecHashed *pdsHashedMatchingEquivalents = GPOS_NEW(mp) CDistributionSpecHashed
+	(
+	pdshashedMatching->Pdrgpexpr(),
+	pdshashedMatching->FNullsColocated(),
+	pdshashed // matching distribution spec is equivalent to passed distribution spec
+	);
+	pdshashedMatching->Release();
+	return pdsHashedMatchingEquivalents;
 }
 
 
@@ -108,8 +110,7 @@ CPhysicalInnerHashJoin::PdsDeriveFromHashedChildren
 	CDistributionSpecHashed *pdshashedOuter = CDistributionSpecHashed::PdsConvert(pdsOuter);
  	CDistributionSpecHashed *pdshashedInner = CDistributionSpecHashed::PdsConvert(pdsInner);
 
-	if (CUtils::Contains(PdrgpexprOuterKeys(), pdshashedOuter->Pdrgpexpr()) &&
- 		CUtils::Contains(PdrgpexprInnerKeys(), pdshashedInner->Pdrgpexpr()))
+	if (pdshashedOuter->CoversRequiredCols(PdrgpexprOuterKeys()) && pdshashedInner->CoversRequiredCols(PdrgpexprInnerKeys()))
  	{
  	 	// if both sides are hashed on subsets of hash join keys, join's output can be
  		// seen as distributed on outer spec or (equivalently) on inner spec,
@@ -152,7 +153,7 @@ CPhysicalInnerHashJoin::PdsDeriveFromReplicatedOuter
 	if (CDistributionSpec::EdtHashed == pdsInner->Edt())
 	{
 		CDistributionSpecHashed *pdshashedInner = CDistributionSpecHashed::PdsConvert(pdsInner);
-		if (CUtils::Contains(PdrgpexprInnerKeys(), pdshashedInner->Pdrgpexpr()))
+		if (pdshashedInner->CoversRequiredCols(PdrgpexprInnerKeys()))
 		{
 			// inner child is hashed on a subset of inner hashkeys,
 		 	// return a hashed distribution equivalent to a matching outer distribution
@@ -193,14 +194,77 @@ CPhysicalInnerHashJoin::PdsDeriveFromHashedOuter
 	GPOS_ASSERT(CDistributionSpec::EdtHashed == pdsOuter->Edt());
 
 	 CDistributionSpecHashed *pdshashedOuter = CDistributionSpecHashed::PdsConvert(pdsOuter);
-	 if (CUtils::Contains(PdrgpexprOuterKeys(), pdshashedOuter->Pdrgpexpr()))
+//	for (ULONG ul = 0; ul < PdrgpexprOuterKeys()->Size(); ul++)
+//	{
+//		CExpression *pexpr = (*PdrgpexprOuterKeys())[ul];
+//		pexpr->DbgPrint();
+//		GPOS_ASSERT(pexpr);
+//	}
+//	for (ULONG ul = 0; ul < PdrgpexprInnerKeys()->Size(); ul++)
+//	{
+//		CExpression *pexpr = (*PdrgpexprInnerKeys())[ul];
+//		pexpr->DbgPrint();
+//		GPOS_ASSERT(pexpr);
+//	}
+	if (pdshashedOuter->CoversRequiredCols(PdrgpexprOuterKeys()))
 	 {
 	 	// outer child is hashed on a subset of outer hashkeys,
 	 	// return a hashed distribution equivalent to a matching outer distribution
 		return PdshashedCreateMatching(mp, pdshashedOuter, 0 /*ulSourceChild*/);
 	 }
+	
+	CDistributionSpecHashed *pds = pdshashedOuter;
+	CDistributionSpecHashed *pdsFinal = NULL;
+	while (pds)
+	{
+		pds->Pdrgpexpr()->AddRef();
+		CDistributionSpecHashed *pdsTemp = GPOS_NEW(mp) CDistributionSpecHashed(pds->Pdrgpexpr(), pds->FNullsColocated());
+		CDistributionSpecHashed *pdsTempEquiv = PdsDeriveEquivInnerSpec(mp, pdsTemp);
+		if (pdsTempEquiv == NULL)
+		{
+			if (pdsFinal != NULL)
+			{
+				pdsTemp->Pdrgpexpr()->AddRef();
+				pdsFinal = GPOS_NEW(mp) CDistributionSpecHashed(pdsTemp->Pdrgpexpr(),
+																pdsTemp->FNullsColocated(),
+																pdsFinal);
+			}
+			else
+			{
+				pdsTemp->Pdrgpexpr()->AddRef();
+				pdsFinal = GPOS_NEW(mp) CDistributionSpecHashed(pdsTemp->Pdrgpexpr(),
+																pdsTemp->FNullsColocated());
+			}
+			pdsTemp->Release();
+			pds = pds->PdshashedEquiv();
+			continue;
+		}
+		CDistributionSpecHashed *pdsTempEquivAndPrevious = NULL;
+		if (pdsFinal == NULL)
+		{
+			pdsTemp->AddRef();
+			pdsTempEquivAndPrevious = pdsTemp;
+		}
+		else
+		{
+			
+			pdsTemp->Pdrgpexpr()->AddRef();
+			pdsTempEquivAndPrevious = GPOS_NEW(mp) CDistributionSpecHashed(pdsTemp->Pdrgpexpr(),
+																		   pdsTemp->FNullsColocated(),
+																		   pdsFinal);
+		}
 
-	 return NULL;
+		pdsTempEquiv->Pdrgpexpr()->AddRef();
+		pdsFinal = GPOS_NEW(mp) CDistributionSpecHashed(pdsTempEquiv->Pdrgpexpr(),
+														pdsTempEquiv->FNullsColocated(),
+														pdsTempEquivAndPrevious);
+		pdsTempEquiv->Release();
+		pdsTemp->Release();
+		pds = pds->PdshashedEquiv();
+	}
+
+//	pdsFinal->DbgPrint();
+	return pdsFinal;
 }
 
 
@@ -223,6 +287,15 @@ CPhysicalInnerHashJoin::PdsDerive
 	CDistributionSpec *pdsOuter = exprhdl.Pdpplan(0 /*child_index*/)->Pds();
  	CDistributionSpec *pdsInner = exprhdl.Pdpplan(1 /*child_index*/)->Pds();
 
+//	if (exprhdl.Pgexpr() != NULL && pdsOuter->Edt() == CDistributionSpec::EdtHashed && pdsInner->Edt() == CDistributionSpec::EdtReplicated)
+//	{
+//		ULONG id1 = (*exprhdl.Pgexpr())[0]->Id();
+//		ULONG id2 = (*exprhdl.Pgexpr())[1]->Id();
+//		if (id1 == 14 && id2 == 2)
+//		{
+//			GPOS_ASSERT(id1);
+//		}
+//	}
  	if (CDistributionSpec::EdtUniversal == pdsOuter->Edt())
  	{
  		// if outer is universal, pass through inner distribution
@@ -258,7 +331,63 @@ CPhysicalInnerHashJoin::PdsDerive
  	return pdsOuter;
 }
 
+CDistributionSpecHashed *
+CPhysicalInnerHashJoin::PdsDeriveEquivInnerSpec
+	(
+	IMemoryPool *mp,
+	CDistributionSpecHashed *pdsOuterHashed
+	)
+	const
+{
+	CExpressionArray *pdsOuterKeys = const_cast<CExpressionArray *>(PdrgpexprOuterKeys());
+	CColRefSet *pcrsDistKeys = GPOS_NEW(mp) CColRefSet(mp);
+	for (ULONG ul = 0; ul < pdsOuterKeys->Size(); ul++)
+	{
+		CExpression *pexprDistKeys = (*pdsOuterKeys)[ul];
+		CColRefSet *pcrsDistKey = CDrvdPropScalar::GetDrvdScalarProps(pexprDistKeys->PdpDerive())->PcrsUsed();
+		pcrsDistKeys->Union(pcrsDistKey);
+	}
 
+	CExpressionArray *pexprResultingInnerKeys = GPOS_NEW(mp) CExpressionArray(mp);
+	CColRefSet *pcrsJoinOuterCols = GPOS_NEW(mp) CColRefSet(mp);
+	for (ULONG ul = 0; ul < PdrgpexprOuterKeys()->Size(); ul++)
+	{
+		CExpression *pexprJoinOuterCol = (*PdrgpexprOuterKeys())[ul];
+		CColRefSet *pcrsJoinOuterCol = CDrvdPropScalar::GetDrvdScalarProps(pexprJoinOuterCol->PdpDerive())->PcrsUsed();
+		CExpression *pexprJoinInnerCol = (*PdrgpexprInnerKeys())[ul];
+		if (pcrsDistKeys->FIntersects(pcrsJoinOuterCol))
+		{
+			pcrsJoinOuterCols->Union(pcrsJoinOuterCol);
+			pexprJoinInnerCol->AddRef();
+			pexprResultingInnerKeys->Append(pexprJoinInnerCol);
+		}
+	}
+	
+	CColRefSet *pdsHashedUsed = pdsOuterHashed->PcrsUsed(mp);
+	CColRefSet *pcrsRemainingDistKeys = GPOS_NEW(mp) CColRefSet(mp, *pdsHashedUsed);
+	pcrsRemainingDistKeys->Difference(pcrsJoinOuterCols);
+	CExpressionArray *pdsHashOuterKeys = pdsOuterHashed->Pdrgpexpr();
+	for (ULONG ul = 0; ul < pdsHashOuterKeys->Size(); ul++)
+	{
+		CExpression *pexprJoinOuterCol = (*pdsHashOuterKeys)[ul];
+		CColRefSet *pcrsJoinOuterCol = CDrvdPropScalar::GetDrvdScalarProps(pexprJoinOuterCol->PdpDerive())->PcrsUsed();
+		if (pcrsRemainingDistKeys->FIntersects(pcrsJoinOuterCol))
+		{
+			pexprJoinOuterCol->AddRef();
+			pexprResultingInnerKeys->Append(pexprJoinOuterCol);
+		}
+	}
+
+	CDistributionSpecHashed *pds = GPOS_NEW(mp) CDistributionSpecHashed(pexprResultingInnerKeys,
+																  pdsOuterHashed->FNullsColocated());
+
+	pcrsJoinOuterCols->Release();
+	pcrsRemainingDistKeys->Release();
+	pcrsDistKeys->Release();
+	pdsHashedUsed->Release();
+
+	return pds;
+}
 //---------------------------------------------------------------------------
 //	@function:
 //		CPhysicalInnerHashJoin::PppsRequired

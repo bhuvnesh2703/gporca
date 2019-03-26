@@ -48,6 +48,7 @@ const CNormalizer::SPushThru CNormalizer::m_rgpt[] =
 	{COperator::EopLogicalLeftAntiSemiApplyNotIn, PushThruJoin},
 	{COperator::EopLogicalLeftAntiSemiCorrelatedApplyNotIn, PushThruJoin},
 	{COperator::EopLogicalLeftSemiJoin, PushThruJoin},
+	{COperator::EopLogicalLeftAntiSemiJoinNotIn, PushThruJoin}
 };
 
 
@@ -810,6 +811,7 @@ CNormalizer::PushThruJoin
 	const ULONG arity = pexprJoin->Arity();
 	BOOL fLASApply = CUtils::FLeftAntiSemiApply(pop);
 	COperator::EOperatorId op_id = pop->Eopid();
+	BOOL fLASNotIn = COperator::EopLogicalLeftAntiSemiJoinNotIn == pop->Eopid();
 	BOOL fOuterJoin =
 		COperator::EopLogicalLeftOuterJoin == op_id ||
 		COperator::EopLogicalLeftOuterApply == op_id ||
@@ -839,7 +841,7 @@ CNormalizer::PushThruJoin
 	{
 		CExpression *pexprChild = (*pexprJoin)[ul];
 		CExpression *pexprNewChild = NULL;
-		if (fLASApply)
+		if (fLASApply || fLASNotIn)
 		{
 			// do not push anti-semi-apply predicates to any of the children
 			pexprNewChild = PexprNormalize(mp, pexprChild);
@@ -871,7 +873,24 @@ CNormalizer::PushThruJoin
 
 	// create a new join expression
 	pop->AddRef();
-	*ppexprResult = GPOS_NEW(mp) CExpression(mp, pop, pdrgpexprChildren);
+	CExpression *pexprJoinWithInferredPred = GPOS_NEW(mp) CExpression(mp, pop, pdrgpexprChildren);
+	CExpression *pexprJoinWithoutInferredPred = NULL;
+	
+	if (CUtils::CanRemoveInferredPredicates(pop->Eopid()))
+	{
+		CExpression *pexprScalarWithInferredPred = (*pexprJoinWithInferredPred)[2];
+		//TODO: check if subquery check is required
+		BOOL has_subquery = CDrvdPropScalar::GetDrvdScalarProps(pexprScalarWithInferredPred->PdpDerive())->FHasSubquery();
+		if (!has_subquery)
+		{
+			pexprJoinWithoutInferredPred = CUtils::GetJoinWithoutInferredPreds(mp, pexprJoinWithInferredPred);
+			pexprJoinWithInferredPred->Release();
+			*ppexprResult = pexprJoinWithoutInferredPred;
+			return;
+		}
+	}
+	
+	*ppexprResult = pexprJoinWithInferredPred;
 }
 
 //---------------------------------------------------------------------------
