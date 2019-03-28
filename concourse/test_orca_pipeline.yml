@@ -16,7 +16,7 @@ resources:
 - name: orca_main_src
   type: git
   source:
-    branch: master
+    branch: orca_centos
     paths: null
     uri: https://github.com/greenplum-db/gporca
 - name: xerces_patch
@@ -47,13 +47,13 @@ resources:
 - name: gpdb_main_src
   type: git
   source:
-    branch: master
+    branch: refactor-orca-pipeline
     ignore_paths:
     - README.md
     - LICENSE
     - COPYRIGHT
     - .gitignore
-    uri: https://github.com/greenplum-db/gpdb
+    uri: https://github.com/bhuvnesh2703/gpdb
 - name: gpdb_tarball
   type: s3
   source:
@@ -130,10 +130,13 @@ jobs:
       passed:
       - clone_repos_to_test
   - task: untar_build_and_test_release
-    file: orca_main_src/concourse/untar_build_and_test_centos5_release.yml
+    file: orca_main_src/concourse/untar_build_and_test_centos.yml
+    params:
+      build_type: RelWithDebInfo
+      outputDirectory: build_and_test
   - put: bin_orca_centos5_release
     params:
-      from: package_tarball_release/bin_orca_centos5_release.tar.gz
+      from: package_tarball/bin_orca_centos5_release.tar.gz
 - name: orca_centos5_debug
   max_in_flight: 2
   plan:
@@ -153,11 +156,14 @@ jobs:
       passed:
       - clone_repos_to_test
   - task: untar_build_and_test_debug
-    file: orca_main_src/concourse/untar_build_and_test_centos5_debug.yml
+    file: orca_main_src/concourse/untar_build_and_test_centos.yml
+    params:
+      build_type: DEBUG
+      outputDirectory: build_and_test
   - aggregate:
     - put: bin_orca_centos5_debug
       params:
-        from: package_tarball_debug/bin_orca_centos5_debug.tar.gz
+        from: package_tarball/bin_orca_centos5_debug.tar.gz
 - name: clone_repos_to_test
   plan:
   - aggregate:
@@ -188,7 +194,6 @@ jobs:
       passed:
       - orca_centos5_release
       resource: bin_orca_centos5_release
-      version: every
     - get: bin_orca_centos5_debug
       passed:
       - orca_centos5_debug
@@ -202,6 +207,10 @@ jobs:
     - get: gpdb_main_src
   - task: build_with_orca
     file: gpdb_main_src/concourse/tasks/untar_build_with_orca.yml
+    params:
+      ACTION: build
+      MODE: orca
+      CONFIGURE_OPTION: --disable-gpcloud --enable-debug-extensions
   - put: bin_gpdb_centos6
     params:
       from: package_tarball/bin_gpdb.tar.gz
@@ -234,7 +243,12 @@ jobs:
       passed:
       - build_gpdb
   - task: icg_with_orca
-    file: gpdb_main_src/concourse/tasks/untar_test_with_orca.yml
+    file: gpdb_main_src/concourse/tasks/untar_build_with_orca.yml
+    params:
+      MODE: orca
+      ACTION: test
+      BLDWRAP_POSTGRES_CONF_ADDONS: statement_mem=250MB
+      CONFIGURE_OPTION: --disable-gpcloud --enable-debug-extensions
     on_failure:
       aggregate:
       - put: regression_diffs
@@ -273,7 +287,13 @@ jobs:
       passed:
       - build_gpdb
   - task: icg_with_planner
-    file: gpdb_main_src/concourse/tasks/untar_test_with_planner.yml
+    file: gpdb_main_src/concourse/tasks/untar_build_with_orca.yml
+    params:
+      MODE: planner
+      ACTION: test
+      BLDWRAP_POSTGRES_CONF_ADDONS: statement_mem=250MB
+      CONFIGURE_OPTION: --disable-gpcloud --enable-debug-extensions
+
     on_failure:
       aggregate:
       - put: regression_diffs
