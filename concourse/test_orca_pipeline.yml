@@ -129,6 +129,9 @@ jobs:
     - get: orca_tarball
       passed:
       - clone_repos_to_test
+    - get: gpdb_tarball
+      passed:
+      - clone_repos_to_test
   - task: untar_build_and_test_release
     file: orca_main_src/concourse/untar_build_and_test_centos.yml
     params:
@@ -203,7 +206,7 @@ jobs:
       resource: bin_xerces_centos5
     - get: gpdb_tarball
       passed:
-      - clone_repos_to_test
+      - orca_centos5_release
     - get: gpdb_main_src
   - task: build_with_orca
     file: gpdb_main_src/concourse/tasks/untar_build_with_orca.yml
