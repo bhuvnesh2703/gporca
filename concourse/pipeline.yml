@@ -415,8 +415,16 @@ jobs:
         submodules: none
   - task: build_with_orca
     file: gpdb_src/concourse/tasks/build_with_orca.yml
+    params:
+      MODE: "--mode=orca"
+      OUTPUTDIR: "--output_dir=bin_gpdb/install"
+      ACTION: "--action=build"
+      CONFIGURE_OPTION: "--configure-option=--disable-gpcloud --enable-debug-extensions"
+      BIN_TO_INSTALL: "bin_orca bin_xerces"
   - task: package_tarball
     file: gpdb_src/concourse/tasks/package_tarball.yml
+      src_root: bin_gpdb/install
+      dst_tarball: package_tarball/bin_gpdb.tar.gz
   - put: bin_gpdb_centos6
     params:
       file: package_tarball/bin_gpdb.tar.gz
