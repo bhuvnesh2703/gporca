@@ -423,6 +423,7 @@ jobs:
       BIN_TO_INSTALL: "bin_orca bin_xerces"
   - task: package_tarball
     file: gpdb_src/concourse/tasks/package_tarball.yml
+    params:
       src_root: bin_gpdb/install
       dst_tarball: package_tarball/bin_gpdb.tar.gz
   - put: bin_gpdb_centos6
