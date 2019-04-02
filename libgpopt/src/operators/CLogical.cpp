@@ -761,6 +761,7 @@ CLogical::PpcDeriveConstraintFromPredicatesLOJ
 		{
 			CPropConstraint *ppc = NULL;
 			CExpression *pexprChild = (*exprhdl.Pexpr())[ul];
+			// recurse down in the childs to get the property constraint
 			if (pexprChild->Arity() > 1)
 			{
 				CExpressionHandle exprhdlChild(mp);
