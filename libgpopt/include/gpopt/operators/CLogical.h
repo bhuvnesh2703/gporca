@@ -380,6 +380,14 @@ namespace gpopt
 			// derive constraint property when expression has relational children and predicates
 			static
 			CPropConstraint *PpcDeriveConstraintFromPredicates(IMemoryPool *mp, CExpressionHandle &exprhdl);
+		
+		static
+		CPropConstraint *
+		PpcDeriveConstraintFromPredicatesLOJ
+		(
+		 IMemoryPool *mp,
+		 CExpressionHandle &exprhdl
+		 );
 
 
 	}; // class CLogical

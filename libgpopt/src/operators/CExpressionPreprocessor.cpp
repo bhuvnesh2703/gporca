@@ -1375,7 +1375,7 @@ CExpressionPreprocessor::PexprWithImpliedPredsOnLOJInnerChild
 	// merge children constraints with constraints derived from join's predicate
 	CExpressionHandle exprhdl(mp);
 	exprhdl.Attach(pexprLOJ);
-	CPropConstraint *ppc = CLogical::PpcDeriveConstraintFromPredicates(mp, exprhdl);
+	CPropConstraint *ppc = CLogical::PpcDeriveConstraintFromPredicatesLOJ(mp, exprhdl);
 
 	// use the computed constraint to derive a scalar predicate on the inner child
 	CColRefSet *pcrsInnerOutput = CDrvdPropRelational::GetRelationalProperties(pexprInner->PdpDerive())->PcrsOutput();

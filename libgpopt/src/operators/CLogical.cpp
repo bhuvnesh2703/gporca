@@ -717,6 +717,90 @@ CLogical::PpcDeriveConstraintFromPredicates
 	return GPOS_NEW(mp) CPropConstraint(mp, pdrgpcrs, pcnstrNew);
 }
 
+
+CPropConstraint *
+CLogical::PpcDeriveConstraintFromPredicatesLOJ
+(
+ IMemoryPool *mp,
+ CExpressionHandle &exprhdl
+ )
+{
+	CColRefSetArray *pdrgpcrs = GPOS_NEW(mp) CColRefSetArray(mp);
+	
+	CConstraintArray *pdrgpcnstr = GPOS_NEW(mp) CConstraintArray(mp);
+	
+	// collect constraint properties from relational children
+	// and predicates from scalar children
+	const ULONG arity = exprhdl.Arity();
+	for (ULONG ul = 0; ul < arity; ul++)
+	{
+		if (exprhdl.FScalarChild(ul))
+		{
+			CExpression *pexprScalar = exprhdl.PexprScalarChild(ul);
+			
+			// make sure it is a predicate... boolop, cmp, nulltest
+			if (NULL == pexprScalar || !CUtils::FPredicate(pexprScalar))
+			{
+				continue;
+			}
+			
+			CColRefSetArray *pdrgpcrsChild = NULL;
+			CConstraint *pcnstr = CConstraint::PcnstrFromScalarExpr(mp, pexprScalar, &pdrgpcrsChild);
+			if (NULL != pcnstr)
+			{
+				pdrgpcnstr->Append(pcnstr);
+				
+				// merge with the equivalence classes we have so far
+				CColRefSetArray *pdrgpcrsMerged = CUtils::PdrgpcrsMergeEquivClasses(mp, pdrgpcrs, pdrgpcrsChild);
+				pdrgpcrs->Release();
+				pdrgpcrs = pdrgpcrsMerged;
+			}
+			CRefCount::SafeRelease(pdrgpcrsChild);
+		}
+		else
+		{
+			CPropConstraint *ppc = NULL;
+			CExpression *pexprChild = (*exprhdl.Pexpr())[ul];
+			if (pexprChild->Arity() > 1)
+			{
+				CExpressionHandle exprhdlChild(mp);
+				exprhdlChild.Attach(pexprChild);
+				ppc = PpcDeriveConstraintFromPredicatesLOJ(mp, exprhdlChild);
+			}
+			else
+			{
+				CDrvdPropRelational *pdprel = exprhdl.GetRelationalProperties(ul);
+				ppc = pdprel->Ppc();
+			}
+
+			
+			// equivalence classes coming from child
+			CColRefSetArray *pdrgpcrsChild = ppc->PdrgpcrsEquivClasses();
+			
+			// merge with the equivalence classes we have so far
+			CColRefSetArray *pdrgpcrsMerged = CUtils::PdrgpcrsMergeEquivClasses(mp, pdrgpcrs, pdrgpcrsChild);
+			pdrgpcrs->Release();
+			pdrgpcrs = pdrgpcrsMerged;
+			
+			// constraint coming from child
+			CConstraint *pcnstr = ppc->Pcnstr();
+			if (NULL != pcnstr)
+			{
+				pcnstr->AddRef();
+				pdrgpcnstr->Append(pcnstr);
+			}
+			
+			if (pexprChild->Arity() > 1)
+			{
+				ppc->Release();
+			}
+		}
+	}
+	
+	CConstraint *pcnstrNew = CConstraint::PcnstrConjunction(mp, pdrgpcnstr);
+	
+	return GPOS_NEW(mp) CPropConstraint(mp, pdrgpcrs, pcnstrNew);
+}
 //---------------------------------------------------------------------------
 //	@function:
 //		CLogical::PpcDeriveConstraintFromTable
