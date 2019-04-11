@@ -1,5 +1,76 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <dxl:DXLMessage xmlns:dxl="http://greenplum.com/dxl/2010/12/">
+<!--
+
+create table r (r1 int, r2 int, r3 int);
+create table s (s1 int, s2 int, s3 int);
+create table t (t1 int, t2 int, t3 int);
+
+explain select * from r,s, t where r1 = s1 and s2 = t1 and (r2 = s2 or r2 <> s3);
+
+Previous:
+ Gather Motion 3:1  (slice2; segments: 3)  (cost=0.00..1293.00 rows=1 width=36)
+   ->  Hash Join  (cost=0.00..1293.00 rows=1 width=36)
+         Hash Cond: s.s2 = t.t1
+         ->  Redistribute Motion 3:3  (slice1; segments: 3)  (cost=0.00..862.00 rows=1 width=24)
+               Hash Key: s.s2
+               ->  Hash Join  (cost=0.00..862.00 rows=1 width=24)
+                     Hash Cond: r.r1 = s.s1
+                     Join Filter: r.r2 = s.s2 OR r.r2 <> s.s3
+                     ->  Table Scan on r  (cost=0.00..431.00 rows=1 width=12)
+                     ->  Hash  (cost=431.00..431.00 rows=1 width=12)
+                           ->  Table Scan on s  (cost=0.00..431.00 rows=1 width=12)
+         ->  Hash  (cost=431.00..431.00 rows=1 width=12)
+               ->  Table Scan on t  (cost=0.00..431.00 rows=1 width=12)
+ Optimizer status: PQO version 3.33.0
+ 
+  Gather Motion 3:1  (slice2; segments: 3)  (cost=0.00..4.36 rows=1 width=36)
+   ->  Hash Join  (cost=0.00..3.34 rows=1 width=36)
+         Hash Cond: s.s2 = t.t1
+         ->  Hash Join  (cost=0.00..1.16 rows=1 width=24)
+               Hash Cond: r.r1 = s.s1
+               Join Filter: r.r2 = s.s2 OR r.r2 <> s.s3
+               ->  Table Scan on r  (cost=0.00..0.01 rows=1 width=12)
+               ->  Hash  (cost=0.01..0.01 rows=1 width=12)
+                     ->  Table Scan on s  (cost=0.00..0.01 rows=1 width=12)
+         ->  Hash  (cost=1.05..1.05 rows=1 width=12)
+               ->  Broadcast Motion 3:3  (slice1; segments: 3)  (cost=0.00..1.05 rows=1 width=12)
+                     ->  Table Scan on t  (cost=0.00..0.01 rows=1 width=12)
+ optimizer_cost_model=legacy;
+ Optimizer status: PQO version 3.33.0
+
+
+After:
+ Gather Motion 3:1  (slice2; segments: 3)  (cost=0.00..1293.00 rows=1 width=36)
+   ->  Hash Join  (cost=0.00..1293.00 rows=1 width=36)
+         Hash Cond: s.s2 = t.t1
+         ->  Redistribute Motion 3:3  (slice1; segments: 3)  (cost=0.00..862.00 rows=1 width=24)
+               Hash Key: s.s2
+               ->  Hash Join  (cost=0.00..862.00 rows=1 width=24)
+                     Hash Cond: r.r1 = s.s1
+                     Join Filter: r.r2 = s.s2 OR r.r2 <> s.s3
+                     ->  Table Scan on r  (cost=0.00..431.00 rows=1 width=12)
+                     ->  Hash  (cost=431.00..431.00 rows=1 width=12)
+                           ->  Table Scan on s  (cost=0.00..431.00 rows=1 width=12)
+         ->  Hash  (cost=431.00..431.00 rows=1 width=12)
+               ->  Table Scan on t  (cost=0.00..431.00 rows=1 width=12)
+ Optimizer status: PQO version 3.33.0
+ 
+ Gather Motion 3:1  (slice2; segments: 3)  (cost=0.00..4.32 rows=1 width=36)
+   ->  Hash Join  (cost=0.00..3.31 rows=1 width=36)
+         Hash Cond: r.r1 = s.s1
+         Join Filter: r.r2 = s.s2 OR r.r2 <> s.s3
+         ->  Table Scan on r  (cost=0.00..0.01 rows=1 width=12)
+         ->  Hash  (cost=2.20..2.20 rows=1 width=24)
+               ->  Hash Join  (cost=0.00..2.20 rows=1 width=24)
+                     Hash Cond: s.s2 = t.t1
+                     ->  Table Scan on s  (cost=0.00..0.01 rows=1 width=12)
+                     ->  Hash  (cost=1.05..1.05 rows=1 width=12)
+                           ->  Broadcast Motion 3:3  (slice1; segments: 3)  (cost=0.00..1.05 rows=1 width=12)
+                                 ->  Table Scan on t  (cost=0.00..0.01 rows=1 width=12)
+ optimizer_cost_model=legacy;
+ Optimizer status: PQO version 3.33.0
+-->
   <dxl:Thread Id="0">
     <dxl:OptimizerConfig>
       <dxl:EnumeratorConfig Id="0" PlanSamples="0" CostThreshold="0"/>
