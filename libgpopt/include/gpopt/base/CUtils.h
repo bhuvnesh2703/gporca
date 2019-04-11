@@ -1085,6 +1085,12 @@ namespace gpopt
 				CExpression *pexprToMatch,
 				CExpressionArray *pdrgpexpr // array of predicates to inspect
 				);
+		
+		static
+		CExpression *GetJoinWithoutInferredPreds(IMemoryPool *mp, CExpression *pexprJoin);
+		
+		static
+		BOOL CanRemoveInferredPredicates(COperator::EOperatorId op_id);
 	}; // class CUtils
 
 	// hash set from expressions

@@ -195,6 +195,9 @@ namespace gpopt
 
 				return pdsHashed;
 			}
+		
+		virtual
+		BOOL CoversRequiredCols(const CExpressionArray *dist_cols_expr_array) const;
 
 	}; // class CDistributionSpecHashed
 

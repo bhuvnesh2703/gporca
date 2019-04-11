@@ -871,7 +871,24 @@ CNormalizer::PushThruJoin
 
 	// create a new join expression
 	pop->AddRef();
-	*ppexprResult = GPOS_NEW(mp) CExpression(mp, pop, pdrgpexprChildren);
+	CExpression *pexprJoinWithInferredPred = GPOS_NEW(mp) CExpression(mp, pop, pdrgpexprChildren);
+	CExpression *pexprJoinWithoutInferredPred = NULL;
+	
+	if (CUtils::CanRemoveInferredPredicates(pop->Eopid()))
+	{
+		CExpression *pexprScalarWithInferredPred = (*pexprJoinWithInferredPred)[2];
+		//TODO: check if subquery check is required
+		BOOL has_subquery = CDrvdPropScalar::GetDrvdScalarProps(pexprScalarWithInferredPred->PdpDerive())->FHasSubquery();
+		if (!has_subquery)
+		{
+			pexprJoinWithoutInferredPred = CUtils::GetJoinWithoutInferredPreds(mp, pexprJoinWithInferredPred);
+			pexprJoinWithInferredPred->Release();
+			*ppexprResult = pexprJoinWithoutInferredPred;
+			return;
+		}
+	}
+	
+	*ppexprResult = pexprJoinWithInferredPred;
 }
 
 //---------------------------------------------------------------------------

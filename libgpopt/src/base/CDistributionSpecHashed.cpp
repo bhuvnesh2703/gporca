@@ -539,5 +539,21 @@ CDistributionSpecHashed::OsPrint
 	return os;
 }
 
+BOOL
+CDistributionSpecHashed::CoversRequiredCols
+(
+ const CExpressionArray *dist_cols_expr_array
+ )
+const
+{
+	BOOL covers = false;
+	const CDistributionSpecHashed *pds = this;
+	while (pds && !covers)
+	{
+		covers = CUtils::Contains(dist_cols_expr_array, pds->Pdrgpexpr());
+		pds = pds->PdshashedEquiv();
+	}
+	return covers;
+}
 // EOF
 

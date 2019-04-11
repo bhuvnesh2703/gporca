@@ -619,11 +619,15 @@ CPhysicalJoin::AddHashKeys
 		GPOS_ASSERT(pcrsInner->ContainsAll(pcrsPredOuter));
 		pexprKeyInner = pexprPredOuter;
 	}
-	pexprKeyOuter->AddRef();
-	pexprKeyInner->AddRef();
+	CExpression *pexprOuterKeyWithoutBCC = CCastUtils::PexprWithoutBinaryCoercibleCasts(pexprKeyOuter);
+	CExpression *pexprInnerKeyWithoutBCC = CCastUtils::PexprWithoutBinaryCoercibleCasts(pexprKeyInner);
+	
+	pexprOuterKeyWithoutBCC->AddRef();
+	
+	pexprInnerKeyWithoutBCC->AddRef();
 
-	pdrgpexprOuter->Append(pexprKeyOuter);
-	pdrgpexprInner->Append(pexprKeyInner);
+	pdrgpexprOuter->Append(pexprOuterKeyWithoutBCC);
+	pdrgpexprInner->Append(pexprInnerKeyWithoutBCC);
 
 	GPOS_ASSERT(pdrgpexprInner->Size() == pdrgpexprOuter->Size());
 }
