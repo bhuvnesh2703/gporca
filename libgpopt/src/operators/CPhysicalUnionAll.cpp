@@ -721,11 +721,17 @@ const
 	ULongPtrArray *pdrgpulChild = NULL;
 	for (ULONG ulChild = 1; fSuccess && ulChild < arity; ulChild++)
 	{
-		pdrgpulChild = PdrgpulMap(mp, CDistributionSpecHashed::PdsConvert(exprhdl.Pdpplan(ulChild)->Pds())->Pdrgpexpr(), ulChild);
-
-		// match mapped column positions of current child with outer child
-		fSuccess = (NULL != pdrgpulChild) && Equals(pdrgpulOuter, pdrgpulChild);
-		CRefCount::SafeRelease(pdrgpulChild);
+		CDistributionSpecHashed *pdsChildSpec = CDistributionSpecHashed::PdsConvert(exprhdl.Pdpplan(ulChild)->Pds());
+		GPOS_ASSERT(NULL != pdsChildSpec);
+		CDistributionSpecHashed *pdsChildTemp = pdsChildSpec;
+		while (pdsChildTemp)
+		{
+			pdrgpulChild = PdrgpulMap(mp, CDistributionSpecHashed::PdsConvert(pdsChildTemp)->Pdrgpexpr(), ulChild);
+			// match mapped column positions of current child with outer child
+			fSuccess = (NULL != pdrgpulChild) && Equals(pdrgpulOuter, pdrgpulChild);
+			CRefCount::SafeRelease(pdrgpulChild);
+			pdsChildTemp = pdsChildTemp->PdshashedEquiv();
+		}
 	}
 
 	CDistributionSpecHashed *pdsOutput = NULL;
