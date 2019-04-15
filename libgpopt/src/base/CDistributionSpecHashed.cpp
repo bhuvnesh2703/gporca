@@ -555,5 +555,51 @@ const
 	}
 	return covers;
 }
+
+CColRefSet *
+CDistributionSpecHashed::PcrsUsedEquivSpecsInclusive
+	(
+	IMemoryPool *mp
+	)
+	const
+{
+	const CDistributionSpecHashed *pdsTemp = this;
+	CColRefSet *pdsAllCols = GPOS_NEW(mp) CColRefSet(mp);
+	while (pdsTemp)
+	{
+		CColRefSet *pcrsHashed = pdsTemp->PcrsUsed(mp);
+		pdsAllCols->Include(pcrsHashed);
+		pdsTemp = pdsTemp->PdshashedEquiv();
+		pcrsHashed->Release();
+	}
+	return pdsAllCols;
+}
+
+CDistributionSpecHashed *
+CDistributionSpecHashed::GetHashedEquivSpecs
+	(
+	IMemoryPool *mp,
+	CExpressionArrays *equiv_dist_keys,
+	CColRefSetArray *dist_key_colrefsets
+	)
+{
+	CDistributionSpecHashed *pdsLast = this;
+	pdsLast->AddRef();
+	CColRefSet *pdsAllCols = this->PcrsUsedEquivSpecsInclusive(mp);
+	for (ULONG id = 0; id < equiv_dist_keys->Size(); id++)
+	{
+		CExpressionArray *pexprArray = (*equiv_dist_keys)[id];
+		CColRefSet *pequivColRefSet = (*dist_key_colrefsets)[id];
+		if (pdsAllCols->ContainsAll(pequivColRefSet))
+			continue;
+		pexprArray->AddRef();
+		CDistributionSpecHashed *pdsHashed = GPOS_NEW(mp) CDistributionSpecHashed(pexprArray,
+																				  this->FNullsColocated(),
+																				  pdsLast);
+		pdsLast = pdsHashed;
+	}
+	pdsAllCols->Release();
+	return pdsLast;
+}
 // EOF
 

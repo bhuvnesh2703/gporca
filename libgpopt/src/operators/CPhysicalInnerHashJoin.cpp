@@ -15,6 +15,9 @@
 #include "gpopt/operators/CExpressionHandle.h"
 
 #include "gpopt/operators/CPhysicalInnerHashJoin.h"
+#include "gpopt/operators/CPredicateUtils.h"
+#include "gpopt/base/CColRefSetIter.h"
+#include "gpopt/operators/CScalarIdent.h"
 
 using namespace gpopt;
 
@@ -141,7 +144,8 @@ CPhysicalInnerHashJoin::PdsDeriveFromReplicatedOuter
 	pdsOuter
 #endif // GPOS_DEBUG
 	,
-	CDistributionSpec *pdsInner
+	CDistributionSpec *pdsInner,
+	CExpressionHandle &exprhdl
 	)
 	const
 {
@@ -163,57 +167,7 @@ CPhysicalInnerHashJoin::PdsDeriveFromReplicatedOuter
 	}
 	
 	
-	CDistributionSpecHashed *pds = pdshashedInner;
-	CDistributionSpecHashed *pdsFinal = NULL;
-	CExpressionArray *pdsSource = const_cast<CExpressionArray *>(PdrgpexprInnerKeys());
-	CExpressionArray *pdsTarget = const_cast<CExpressionArray *>(PdrgpexprOuterKeys());
-	while (pds)
-	{
-		pds->Pdrgpexpr()->AddRef();
-		CDistributionSpecHashed *pdsTemp = GPOS_NEW(mp) CDistributionSpecHashed(pds->Pdrgpexpr(), pds->FNullsColocated());
-		CDistributionSpecHashed *pdsTempEquiv = PdsDeriveEquivInnerSpec(mp, pdsTemp, pdsSource, pdsTarget);
-		if (pdsTempEquiv == NULL)
-		{
-			if (pdsFinal != NULL)
-			{
-				pdsTemp->Pdrgpexpr()->AddRef();
-				pdsFinal = GPOS_NEW(mp) CDistributionSpecHashed(pdsTemp->Pdrgpexpr(),
-																pdsTemp->FNullsColocated(),
-																pdsFinal);
-			}
-			else
-			{
-				pdsTemp->Pdrgpexpr()->AddRef();
-				pdsFinal = GPOS_NEW(mp) CDistributionSpecHashed(pdsTemp->Pdrgpexpr(),
-																pdsTemp->FNullsColocated());
-			}
-			pdsTemp->Release();
-			pds = pds->PdshashedEquiv();
-			continue;
-		}
-		CDistributionSpecHashed *pdsTempEquivAndPrevious = NULL;
-		if (pdsFinal == NULL)
-		{
-			pdsTemp->AddRef();
-			pdsTempEquivAndPrevious = pdsTemp;
-		}
-		else
-		{
-			
-			pdsTemp->Pdrgpexpr()->AddRef();
-			pdsTempEquivAndPrevious = GPOS_NEW(mp) CDistributionSpecHashed(pdsTemp->Pdrgpexpr(),
-																		   pdsTemp->FNullsColocated(),
-																		   pdsFinal);
-		}
-		pdsTempEquiv->Pdrgpexpr()->AddRef();
-		pdsFinal = GPOS_NEW(mp) CDistributionSpecHashed(pdsTempEquiv->Pdrgpexpr(),
-														pdsTempEquiv->FNullsColocated(),
-														pdsTempEquivAndPrevious);
-		pdsTempEquiv->Release();
-		pdsTemp->Release();
-		pds = pds->PdshashedEquiv();
-	}
-	return pdsFinal;
+	return CreateEquivHashSpec(mp, pdshashedInner, exprhdl);
 }
 
 
@@ -232,9 +186,10 @@ CPhysicalInnerHashJoin::PdsDeriveFromHashedOuter
 	IMemoryPool *mp,
 	CDistributionSpec *pdsOuter,
 	CDistributionSpec *
-#ifdef GPOS_DEBUG
-	pdsInner
-#endif // GPOS_DEBUG
+//#ifdef GPOS_DEBUG
+	pdsInner,
+//#endif // GPOS_DEBUG
+	CExpressionHandle &exprhdl
 	)
 	const
 {
@@ -243,7 +198,9 @@ CPhysicalInnerHashJoin::PdsDeriveFromHashedOuter
 
 	GPOS_ASSERT(CDistributionSpec::EdtHashed == pdsOuter->Edt());
 
-	 CDistributionSpecHashed *pdshashedOuter = CDistributionSpecHashed::PdsConvert(pdsOuter);
+
+
+	CDistributionSpecHashed *pdshashedOuter = CDistributionSpecHashed::PdsConvert(pdsOuter);
 	 if (pdshashedOuter->CoversRequiredCols(PdrgpexprOuterKeys()))
 	 {
 	 	// outer child is hashed on a subset of outer hashkeys,
@@ -251,117 +208,33 @@ CPhysicalInnerHashJoin::PdsDeriveFromHashedOuter
 		return PdshashedCreateMatching(mp, pdshashedOuter, 0 /*ulSourceChild*/);
 	 }
 	
-	CDistributionSpecHashed *pds = pdshashedOuter;
-	CDistributionSpecHashed *pdsFinal = NULL;
-	CExpressionArray *pdsSource = const_cast<CExpressionArray *>(PdrgpexprOuterKeys());
-	CExpressionArray *pdsTarget = const_cast<CExpressionArray *>(PdrgpexprInnerKeys());
-	while (pds)
-	{
-		pds->Pdrgpexpr()->AddRef();
-		CDistributionSpecHashed *pdsTemp = GPOS_NEW(mp) CDistributionSpecHashed(pds->Pdrgpexpr(), pds->FNullsColocated());
-		CDistributionSpecHashed *pdsTempEquiv = PdsDeriveEquivInnerSpec(mp, pdsTemp, pdsSource, pdsTarget);
-		if (pdsTempEquiv == NULL)
-		{
-			if (pdsFinal != NULL)
-			{
-				pdsTemp->Pdrgpexpr()->AddRef();
-				pdsFinal = GPOS_NEW(mp) CDistributionSpecHashed(pdsTemp->Pdrgpexpr(),
-																pdsTemp->FNullsColocated(),
-																pdsFinal);
-			}
-			else
-			{
-				pdsTemp->Pdrgpexpr()->AddRef();
-				pdsFinal = GPOS_NEW(mp) CDistributionSpecHashed(pdsTemp->Pdrgpexpr(),
-																pdsTemp->FNullsColocated());
-			}
-			pdsTemp->Release();
-			pds = pds->PdshashedEquiv();
-			continue;
-		}
-		CDistributionSpecHashed *pdsTempEquivAndPrevious = NULL;
-		if (pdsFinal == NULL)
-		{
-			pdsTemp->AddRef();
-			pdsTempEquivAndPrevious = pdsTemp;
-		}
-		else
-		{
-			
-			pdsTemp->Pdrgpexpr()->AddRef();
-			pdsTempEquivAndPrevious = GPOS_NEW(mp) CDistributionSpecHashed(pdsTemp->Pdrgpexpr(),
-																		   pdsTemp->FNullsColocated(),
-																		   pdsFinal);
-		}
-		pdsTempEquiv->Pdrgpexpr()->AddRef();
-		pdsFinal = GPOS_NEW(mp) CDistributionSpecHashed(pdsTempEquiv->Pdrgpexpr(),
-														pdsTempEquiv->FNullsColocated(),
-														pdsTempEquivAndPrevious);
-		pdsTempEquiv->Release();
-		pdsTemp->Release();
-		pds = pds->PdshashedEquiv();
-	}
-	return pdsFinal;
+	return CreateEquivHashSpec(mp, pdshashedOuter, exprhdl);
 }
 
+
 CDistributionSpecHashed *
-CPhysicalInnerHashJoin::PdsDeriveEquivInnerSpec
-(
- IMemoryPool *mp,
- CDistributionSpecHashed *pdsOuterHashed,
- CExpressionArray *pdsSource,
- CExpressionArray *pdsTarget
- )
-const
+CPhysicalInnerHashJoin::CreateEquivHashSpec
+	(
+	IMemoryPool *mp,
+	CDistributionSpecHashed *pdsHashed,
+	CExpressionHandle &exprhdl
+	)
+	const
 {
-	CColRefSet *pcrsDistKeys = GPOS_NEW(mp) CColRefSet(mp);
-	for (ULONG ul = 0; ul < pdsSource->Size(); ul++)
+	CExpressionArrays *equiv_dist_keys = GPOS_NEW(mp) CExpressionArrays(mp);
+	CColRefSetArray *dist_key_colrefsets = GPOS_NEW(mp) CColRefSetArray(mp);
+	for (ULONG id = 0; id < pdsHashed->Pdrgpexpr()->Size(); id++)
 	{
-		CExpression *pexprDistKeys = (*pdsSource)[ul];
-		CColRefSet *pcrsDistKey = CDrvdPropScalar::GetDrvdScalarProps(pexprDistKeys->PdpDerive())->PcrsUsed();
-		pcrsDistKeys->Union(pcrsDistKey);
+		CExpression *dist_key_expr = (*pdsHashed->Pdrgpexpr())[id];
+		CDrvdPropRelational *drvd_prop_relational = exprhdl.GetRelationalProperties();
+		CExpressionArray *pexprEquivIdentArray = CUtils::GetEquivScalarIdents(mp, drvd_prop_relational, dist_key_expr);
+		CUtils::ExtractEquivDistributionKeyArrays(mp, pdsHashed->Pdrgpexpr(), pexprEquivIdentArray, id, equiv_dist_keys, dist_key_colrefsets);
 	}
-	
-	CExpressionArray *pexprResultingInnerKeys = GPOS_NEW(mp) CExpressionArray(mp);
-	CColRefSet *pcrsJoinOuterCols = GPOS_NEW(mp) CColRefSet(mp);
-	for (ULONG ul = 0; ul < PdrgpexprOuterKeys()->Size(); ul++)
-	{
-		CExpression *pexprJoinOuterCol = (*pdsSource)[ul];
-		CColRefSet *pcrsJoinOuterCol = CDrvdPropScalar::GetDrvdScalarProps(pexprJoinOuterCol->PdpDerive())->PcrsUsed();
-		CExpression *pexprJoinInnerCol = (*pdsTarget)[ul];
-		if (pcrsDistKeys->FIntersects(pcrsJoinOuterCol))
-		{
-			pcrsJoinOuterCols->Union(pcrsJoinOuterCol);
-			pexprJoinInnerCol->AddRef();
-			pexprResultingInnerKeys->Append(pexprJoinInnerCol);
-		}
-	}
-	
-	CColRefSet *pdsHashedUsed = pdsOuterHashed->PcrsUsed(mp);
-	CColRefSet *pcrsRemainingDistKeys = GPOS_NEW(mp) CColRefSet(mp, *pdsHashedUsed);
-	pcrsRemainingDistKeys->Difference(pcrsJoinOuterCols);
-	CExpressionArray *pdsHashOuterKeys = pdsOuterHashed->Pdrgpexpr();
-	for (ULONG ul = 0; ul < pdsHashOuterKeys->Size(); ul++)
-	{
-		CExpression *pexprJoinOuterCol = (*pdsHashOuterKeys)[ul];
-		CColRefSet *pcrsJoinOuterCol = CDrvdPropScalar::GetDrvdScalarProps(pexprJoinOuterCol->PdpDerive())->PcrsUsed();
-		if (pcrsRemainingDistKeys->FIntersects(pcrsJoinOuterCol))
-		{
-			pexprJoinOuterCol->AddRef();
-			pexprResultingInnerKeys->Append(pexprJoinOuterCol);
-		}
-	}
-	
-	
-	CDistributionSpecHashed *pds = GPOS_NEW(mp) CDistributionSpecHashed(pexprResultingInnerKeys,
-																		pdsOuterHashed->FNullsColocated());
-	
-	pcrsJoinOuterCols->Release();
-	pcrsRemainingDistKeys->Release();
-	pcrsDistKeys->Release();
-	pdsHashedUsed->Release();
-	
-	return pds;
+
+	CDistributionSpecHashed *pdsHashedSpec = pdsHashed->GetHashedEquivSpecs(mp, equiv_dist_keys, dist_key_colrefsets);
+	equiv_dist_keys->Release();
+	dist_key_colrefsets->Release();
+	return pdsHashedSpec;
 }
 
 //---------------------------------------------------------------------------
@@ -401,12 +274,12 @@ CPhysicalInnerHashJoin::PdsDerive
 
  	if (CDistributionSpec::EdtReplicated == pdsOuter->Edt())
  	{
- 		return PdsDeriveFromReplicatedOuter(mp, pdsOuter, pdsInner);
+ 		return PdsDeriveFromReplicatedOuter(mp, pdsOuter, pdsInner, exprhdl);
  	}
 
  	if (CDistributionSpec::EdtHashed == pdsOuter->Edt())
  	{
- 		CDistributionSpec *pdsDerived = PdsDeriveFromHashedOuter(mp, pdsOuter, pdsInner);
+ 		CDistributionSpec *pdsDerived = PdsDeriveFromHashedOuter(mp, pdsOuter, pdsInner, exprhdl);
  		 if (NULL != pdsDerived)
  		 {
  		 	return pdsDerived;

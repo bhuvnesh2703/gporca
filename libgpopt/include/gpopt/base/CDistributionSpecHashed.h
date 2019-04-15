@@ -116,6 +116,9 @@ namespace gpopt
 			// columns used by distribution expressions
 			virtual
 			CColRefSet *PcrsUsed(IMemoryPool *mp) const;
+		
+			virtual
+			CColRefSet *PcrsUsedEquivSpecsInclusive(IMemoryPool *mp) const;
 
 			// return a copy of the distribution spec after excluding the given columns
 			virtual
@@ -198,6 +201,15 @@ namespace gpopt
 		
 		virtual
 		BOOL CoversRequiredCols(const CExpressionArray *dist_cols_expr_array) const;
+		
+		virtual
+		CDistributionSpecHashed *
+		GetHashedEquivSpecs
+		(
+		 IMemoryPool *mp,
+		 CExpressionArrays *equiv_dist_keys,
+		 CColRefSetArray *dist_key_colrefsets
+		 );
 
 	}; // class CDistributionSpecHashed
 

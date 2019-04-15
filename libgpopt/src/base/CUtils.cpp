@@ -5222,4 +5222,78 @@ CUtils::CanRemoveInferredPredicates
 	op_id == COperator::EopLogicalLeftSemiJoin ||
 	op_id == COperator::EopLogicalLeftAntiSemiJoinNotIn;
 }
+
+CExpressionArray *
+CUtils::GetEquivScalarIdents
+	(
+	IMemoryPool *mp,
+	CDrvdPropRelational *drvd_prop_relational,
+	CExpression *pexprScalarIdent
+	)
+{
+	
+	CExpressionArray *pexprEquivIdentArray = NULL;
+	CScalarIdent *dist_key_scalar_ident = CScalarIdent::PopConvert(pexprScalarIdent->Pop());
+	const CColRef *dist_key_colref = dist_key_scalar_ident->Pcr();
+	
+	CColRefSet *equiv_colrefset = drvd_prop_relational->Ppc()->PcrsEquivClass(dist_key_colref);
+	if (NULL != equiv_colrefset)
+	{
+		CColRefSet *remaining_equiv_colrefset = GPOS_NEW(mp) CColRefSet(mp, *equiv_colrefset);
+		remaining_equiv_colrefset->Exclude(dist_key_colref);
+		if (remaining_equiv_colrefset->Size() > 0)
+		{
+			pexprEquivIdentArray = GPOS_NEW(mp) CExpressionArray(mp);
+			CColRefSetIter pcrsIter(*remaining_equiv_colrefset);
+			while (pcrsIter.Advance())
+			{
+				CColRef *equiv_colref = pcrsIter.Pcr();
+				CExpression *pexprEquivIdent = CUtils::PexprScalarIdent(mp, equiv_colref);
+				pexprEquivIdentArray->Append(pexprEquivIdent);
+				
+			}
+		}
+		remaining_equiv_colrefset->Release();
+	}
+	return pexprEquivIdentArray;
+}
+
+void
+CUtils::ExtractEquivDistributionKeyArrays
+	(
+   	IMemoryPool *mp,
+   	CExpressionArray *dist_key_exprs,
+   CExpressionArray *pexprEquivIdentArray,
+   ULONG id,
+   CExpressionArrays *equiv_dist_keys,
+   CColRefSetArray *dist_key_colrefsets
+   )
+{
+	if (NULL != pexprEquivIdentArray)
+	{
+		for (ULONG equivid = 0; equivid < pexprEquivIdentArray->Size(); equivid++)
+		{
+			CExpression *pexpr = (*pexprEquivIdentArray)[equivid];
+			CExpressionArray *pexprEquivSpecExprArray = GPOS_NEW(mp) CExpressionArray(mp);
+			CColRefSet *dist_key_colrefset = GPOS_NEW(mp) CColRefSet(mp);
+			for (ULONG idx = 0; idx < dist_key_exprs->Size(); idx++)
+			{
+				CExpression *pexprDistKeyExpr = (*dist_key_exprs)[idx];
+				if (idx == id)
+				{
+					pexpr->AddRef();
+					dist_key_colrefset->Include(CScalarIdent::PopConvert(pexpr->Pop())->Pcr());
+					pexprEquivSpecExprArray->Append(pexpr);
+					continue;
+				}
+				pexprDistKeyExpr->AddRef();
+				dist_key_colrefset->Include(CScalarIdent::PopConvert(pexprDistKeyExpr->Pop())->Pcr());
+				pexprEquivSpecExprArray->Append(pexprDistKeyExpr);
+			}
+			dist_key_colrefsets->Append(dist_key_colrefset);
+			equiv_dist_keys->Append(pexprEquivSpecExprArray);
+		}
+		pexprEquivIdentArray->Release();
+	}
+}
 // EOF

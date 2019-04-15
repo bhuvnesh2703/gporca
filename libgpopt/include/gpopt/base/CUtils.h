@@ -1086,11 +1086,24 @@ namespace gpopt
 				CExpressionArray *pdrgpexpr // array of predicates to inspect
 				);
 		
-		static
-		CExpression *GetJoinWithoutInferredPreds(IMemoryPool *mp, CExpression *pexprJoin);
+			static
+			CExpression *GetJoinWithoutInferredPreds(IMemoryPool *mp, CExpression *pexprJoin);
 		
-		static
-		BOOL CanRemoveInferredPredicates(COperator::EOperatorId op_id);
+			static
+			BOOL CanRemoveInferredPredicates(COperator::EOperatorId op_id);
+		
+			static
+			CExpressionArray *GetEquivScalarIdents(IMemoryPool *mp, CDrvdPropRelational *drvd_prop_relational, CExpression *pexprScalarIdent);
+		
+			static
+			void ExtractEquivDistributionKeyArrays(
+												   IMemoryPool *mp,
+												   CExpressionArray *dist_key_exprs,
+												   CExpressionArray *pexprEquivIdentArray,
+												   ULONG id,
+												   CExpressionArrays *equiv_dist_keys,
+												   CColRefSetArray *dist_key_colrefsets
+												   );
 	}; // class CUtils
 
 	// hash set from expressions

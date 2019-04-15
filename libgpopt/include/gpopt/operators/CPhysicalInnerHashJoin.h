@@ -37,13 +37,18 @@ namespace gpopt
 			CDistributionSpec *PdsDeriveFromHashedChildren(IMemoryPool *mp, CDistributionSpec *pdsOuter, CDistributionSpec *pdsInner) const;
 
 			// helper for deriving hash join distribution from replicated outer child
-			CDistributionSpec *PdsDeriveFromReplicatedOuter(IMemoryPool *mp, CDistributionSpec *pdsOuter, CDistributionSpec *pdsInner) const;
+			CDistributionSpec *PdsDeriveFromReplicatedOuter(IMemoryPool *mp, CDistributionSpec *pdsOuter, CDistributionSpec *pdsInner, CExpressionHandle &exprhdl) const;
 
 			// helper for deriving hash join distribution from hashed outer child
-			CDistributionSpec *PdsDeriveFromHashedOuter(IMemoryPool *mp, CDistributionSpec *pdsOuter, CDistributionSpec *pdsInner) const;
+			CDistributionSpec *PdsDeriveFromHashedOuter(IMemoryPool *mp, CDistributionSpec *pdsOuter, CDistributionSpec *pdsInner, CExpressionHandle &exprhdl) const;
 		
-		CDistributionSpecHashed *PdsDeriveEquivInnerSpec(IMemoryPool *mp, CDistributionSpecHashed *pdsOuterHashed,  CExpressionArray *pdsSource,
-														 CExpressionArray *pdsTarget) const;
+		CDistributionSpecHashed *
+		CreateEquivHashSpec
+		(
+		 IMemoryPool *mp,
+		 CDistributionSpecHashed *pdsHashed,
+		 CExpressionHandle &exprhdl
+		 ) const;
 
 			// private copy ctor
 			CPhysicalInnerHashJoin(const CPhysicalInnerHashJoin &);
