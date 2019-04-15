@@ -187,8 +187,9 @@ CPhysicalInnerHashJoin::PdsDeriveFromHashedOuter
 	CDistributionSpec *pdsOuter,
 	CDistributionSpec *
 #ifdef GPOS_DEBUG
-	pdsInner,
+	pdsInner
 #endif // GPOS_DEBUG
+	 ,
 	CExpressionHandle &exprhdl
 	)
 	const
