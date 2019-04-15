@@ -186,9 +186,9 @@ CPhysicalInnerHashJoin::PdsDeriveFromHashedOuter
 	IMemoryPool *mp,
 	CDistributionSpec *pdsOuter,
 	CDistributionSpec *
-//#ifdef GPOS_DEBUG
+#ifdef GPOS_DEBUG
 	pdsInner,
-//#endif // GPOS_DEBUG
+#endif // GPOS_DEBUG
 	CExpressionHandle &exprhdl
 	)
 	const
