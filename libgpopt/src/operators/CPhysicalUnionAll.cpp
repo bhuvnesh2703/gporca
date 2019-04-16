@@ -707,7 +707,7 @@ const
 		BOOL equi_hash_spec_matches = false;
 		while (pdsChildTemp && !equi_hash_spec_matches)
 		{
-			equi_hash_spec_matches = pdsChild->FSatisfies((*m_pdrgpds)[ulChild]);
+			equi_hash_spec_matches = pdsChildTemp->FSatisfies((*m_pdrgpds)[ulChild]);
 			pdsChildTemp = pdsChildTemp->PdshashedEquiv();
 		}
 		fSuccess = equi_hash_spec_matches;
@@ -722,7 +722,16 @@ const
 	// (2) check that child hashed distributions map to the same output columns
 
 	// map outer child hashed distribution to corresponding UnionAll column positions
-	ULongPtrArray *pdrgpulOuter = PdrgpulMap(mp, CDistributionSpecHashed::PdsConvert(exprhdl.Pdpplan(0 /*child_index*/)->Pds())->Pdrgpexpr(), 0/*child_index*/);
+	ULongPtrArray *pdrgpulOuter = NULL;
+	CDistributionSpec *pdsChild = exprhdl.Pdpplan(0)->Pds();
+	CDistributionSpecHashed *pdsHashed = CDistributionSpecHashed::PdsConvert(pdsChild);
+	CDistributionSpecHashed *pdsTemp = pdsHashed;
+	while (pdsTemp && NULL == pdrgpulOuter)
+	{
+		pdrgpulOuter = PdrgpulMap(mp, CDistributionSpecHashed::PdsConvert(pdsTemp)->Pdrgpexpr(), 0/*child_index*/);
+		pdsTemp = pdsHashed->PdshashedEquiv();
+	}
+			
 	if (NULL == pdrgpulOuter)
 	{
 		return NULL;
