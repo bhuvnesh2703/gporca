@@ -698,9 +698,19 @@ const
 	for (ULONG ulChild = 0; fSuccess && ulChild < arity; ulChild++)
 	{
 		CDistributionSpec *pdsChild = exprhdl.Pdpplan(ulChild)->Pds();
-		CDistributionSpec::EDistributionType edtChild = pdsChild->Edt();
-		fSuccess = (CDistributionSpec::EdtHashed == edtChild || CDistributionSpec::EdtHashedNoOp == edtChild || CDistributionSpec::EdtStrictHashed == edtChild)
-				&& pdsChild->FSatisfies((*m_pdrgpds)[ulChild]);
+		CDistributionSpecHashed *pdsChildTemp = NULL;
+		if (pdsChild->Edt() == CDistributionSpec::EdtHashed || pdsChild->Edt() == CDistributionSpec::EdtHashedNoOp || pdsChild->Edt() == CDistributionSpec::EdtStrictHashed)
+		{
+			pdsChildTemp = CDistributionSpecHashed::PdsConvert(pdsChild);
+		}
+		
+		BOOL equi_hash_spec_matches = false;
+		while (pdsChildTemp && !equi_hash_spec_matches)
+		{
+			equi_hash_spec_matches = pdsChild->FSatisfies((*m_pdrgpds)[ulChild]);
+			pdsChildTemp = pdsChildTemp->PdshashedEquiv();
+		}
+		fSuccess = equi_hash_spec_matches;
 	}
 
 	if (!fSuccess)
@@ -724,20 +734,53 @@ const
 		CDistributionSpecHashed *pdsChildSpec = CDistributionSpecHashed::PdsConvert(exprhdl.Pdpplan(ulChild)->Pds());
 		GPOS_ASSERT(NULL != pdsChildSpec);
 		CDistributionSpecHashed *pdsChildTemp = pdsChildSpec;
-		while (pdsChildTemp)
+		BOOL equi_hash_spec_matches = false;
+		while (pdsChildTemp && !equi_hash_spec_matches)
 		{
 			pdrgpulChild = PdrgpulMap(mp, CDistributionSpecHashed::PdsConvert(pdsChildTemp)->Pdrgpexpr(), ulChild);
 			// match mapped column positions of current child with outer child
-			fSuccess = (NULL != pdrgpulChild) && Equals(pdrgpulOuter, pdrgpulChild);
+			equi_hash_spec_matches = (NULL != pdrgpulChild) && Equals(pdrgpulOuter, pdrgpulChild);
 			CRefCount::SafeRelease(pdrgpulChild);
 			pdsChildTemp = pdsChildTemp->PdshashedEquiv();
 		}
+		fSuccess = equi_hash_spec_matches;
 	}
 
 	CDistributionSpecHashed *pdsOutput = NULL;
+	BOOL fNullColocated = false;
 	if (fSuccess)
 	{
-		pdsOutput = PdsMatching(mp, pdrgpulOuter);
+		CExpressionArrays *distribution_keys = GPOS_NEW(mp) CExpressionArrays(mp);
+		for (ULONG ulChild = 0; fSuccess && ulChild < arity; ulChild++)
+		{
+			CDistributionSpecHashed *pdsChildSpec = CDistributionSpecHashed::PdsConvert(exprhdl.Pdpplan(ulChild)->Pds());
+			fNullColocated = pdsChildSpec->FNullsColocated();
+			pdsChildSpec->Pdrgpexpr()->AddRef();
+			distribution_keys->Append(pdsChildSpec->Pdrgpexpr());
+			CDistributionSpecHashed *pdsChildTemp = pdsChildSpec->PdshashedEquiv();
+			while (pdsChildTemp)
+			{
+				CExpressionArray *child_distribution_keys = pdsChildTemp->Pdrgpexpr();
+				child_distribution_keys->AddRef();
+				distribution_keys->Append(child_distribution_keys);
+				pdsChildTemp = pdsChildTemp->PdshashedEquiv();
+			}
+		}
+		CDistributionSpecHashed *pdsHashed = NULL;
+		CDistributionSpecHashed *pdsLast = NULL;
+		for (ULONG ul = 0; ul < distribution_keys->Size(); ul++)
+		{
+			CExpressionArray *pexprArray = (*distribution_keys)[ul];
+			pexprArray->AddRef();
+			if (ul == 0)
+				pdsHashed = GPOS_NEW(mp) CDistributionSpecHashed(pexprArray, fNullColocated);
+			else
+				pdsHashed = GPOS_NEW(mp) CDistributionSpecHashed(pexprArray, fNullColocated, pdsLast);
+			pdsLast = pdsHashed;
+		}
+		distribution_keys->Release();
+		pdrgpulOuter->Release();
+		return pdsLast;
 	}
 
 	pdrgpulOuter->Release();
