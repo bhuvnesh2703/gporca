@@ -324,32 +324,33 @@ CPhysicalHashJoin::PdshashedMatching
 	const ULONG ulDlvrdSize = pdrgpexprDist->Size();
 	const ULONG ulSourceSize = pdrgpexprSource->Size();
 
-	CExpressionArray *pdrgpexprSourceNoCast = GPOS_NEW(mp) CExpressionArray(mp);
-	CExpressionArray *pdrgpexprTargetNoCast = GPOS_NEW(mp) CExpressionArray(mp);
-	for (ULONG ul = 0; ul < ulSourceSize; ul++)
-	{
-		CExpression *pexpr = CCastUtils::PexprWithoutBinaryCoercibleCasts((*pdrgpexprSource)[ul]);
-		pexpr->AddRef();
-		pdrgpexprSourceNoCast->Append(pexpr);
-
-		pexpr = CCastUtils::PexprWithoutBinaryCoercibleCasts((*pdrgpexprTarget)[ul]);
-		pexpr->AddRef();
-		pdrgpexprTargetNoCast->Append(pexpr);
-	}
+//	CExpressionArray *pdrgpexprSourceNoCast = GPOS_NEW(mp) CExpressionArray(mp);
+//	CExpressionArray *pdrgpexprTargetNoCast = GPOS_NEW(mp) CExpressionArray(mp);
+//	for (ULONG ul = 0; ul < ulSourceSize; ul++)
+//	{
+//		CExpression *pexpr = CCastUtils::PexprWithoutBinaryCoercibleCasts((*pdrgpexprSource)[ul]);
+//		pexpr->AddRef();
+//		pdrgpexprSourceNoCast->Append(pexpr);
+//
+//		pexpr = CCastUtils::PexprWithoutBinaryCoercibleCasts((*pdrgpexprTarget)[ul]);
+//		pexpr->AddRef();
+//		pdrgpexprTargetNoCast->Append(pexpr);
+//	}
 
 	// construct an array of target key expressions matching source key expressions
 	CExpressionArray *pdrgpexpr = GPOS_NEW(mp) CExpressionArray(mp);
 	for (ULONG ulDlvrdIdx = 0; ulDlvrdIdx < ulDlvrdSize; ulDlvrdIdx++)
 	{
-		CExpression *pexprDlvrd = CCastUtils::PexprWithoutBinaryCoercibleCasts((*pdrgpexprDist)[ulDlvrdIdx]);
+//		CExpression *pexprDlvrd = CCastUtils::PexprWithoutBinaryCoercibleCasts((*pdrgpexprDist)[ulDlvrdIdx]);
+		CExpression *pexprDlvrd = (*pdrgpexprDist)[ulDlvrdIdx];
 		for (ULONG idx = 0; idx < ulSourceSize; idx++)
 		{
-			if (CUtils::Equals(pexprDlvrd, (*pdrgpexprSourceNoCast)[idx]))
+			if (CUtils::Equals(pexprDlvrd, (*pdrgpexprSource)[idx]))
 			{
 				// TODO: 02/21/2012 - ; source column may be mapped to multiple
 				// target columns (e.g. i=j and i=k);
 				// in this case, we need to generate multiple optimization requests to the target child
-				CExpression *pexprTarget = (*pdrgpexprTargetNoCast)[idx];
+				CExpression *pexprTarget = (*pdrgpexprTarget)[idx];
 				pexprTarget->AddRef();
 				pdrgpexpr->Append(pexprTarget);
 				break;
@@ -357,8 +358,8 @@ CPhysicalHashJoin::PdshashedMatching
 		}
 	}
 
-	pdrgpexprSourceNoCast->Release();
-	pdrgpexprTargetNoCast->Release();
+//	pdrgpexprSourceNoCast->Release();
+//	pdrgpexprTargetNoCast->Release();
 
 	// check if we failed to compute required distribution
 	if (pdrgpexpr->Size() != ulDlvrdSize)

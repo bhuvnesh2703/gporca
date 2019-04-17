@@ -5224,76 +5224,99 @@ CUtils::CanRemoveInferredPredicates
 }
 
 CExpressionArray *
-CUtils::GetEquivScalarIdents
+CUtils::GetEquivScalarIdentExprs
 	(
 	IMemoryPool *mp,
-	CDrvdPropRelational *drvd_prop_relational,
-	CExpression *pexprScalarIdent
+	CDrvdPropRelational *relation_prop,
+	CExpression *dist_scalar_ident_expr
 	)
 {
+	GPOS_ASSERT(COperator::EopScalarIdent == dist_scalar_ident_expr->Pop()->Eopid());
 	
-	CExpressionArray *pexprEquivIdentArray = NULL;
-	CScalarIdent *dist_key_scalar_ident = CScalarIdent::PopConvert(pexprScalarIdent->Pop());
-	const CColRef *dist_key_colref = dist_key_scalar_ident->Pcr();
+	CExpressionArray *equiv_dist_scalar_ident_exprs = NULL;
+	CScalarIdent *dist_scalar_ident = CScalarIdent::PopConvert(dist_scalar_ident_expr->Pop());
+	const CColRef *dist_colref = dist_scalar_ident->Pcr();
 	
-	CColRefSet *equiv_colrefset = drvd_prop_relational->Ppc()->PcrsEquivClass(dist_key_colref);
+	CColRefSet *equiv_colrefset = relation_prop->Ppc()->PcrsEquivClass(dist_colref);
 	if (NULL != equiv_colrefset)
 	{
 		CColRefSet *remaining_equiv_colrefset = GPOS_NEW(mp) CColRefSet(mp, *equiv_colrefset);
-		remaining_equiv_colrefset->Exclude(dist_key_colref);
+		remaining_equiv_colrefset->Exclude(dist_colref);
 		if (remaining_equiv_colrefset->Size() > 0)
 		{
-			pexprEquivIdentArray = GPOS_NEW(mp) CExpressionArray(mp);
+			equiv_dist_scalar_ident_exprs = GPOS_NEW(mp) CExpressionArray(mp);
 			CColRefSetIter pcrsIter(*remaining_equiv_colrefset);
 			while (pcrsIter.Advance())
 			{
 				CColRef *equiv_colref = pcrsIter.Pcr();
-				CExpression *pexprEquivIdent = CUtils::PexprScalarIdent(mp, equiv_colref);
-				pexprEquivIdentArray->Append(pexprEquivIdent);
+				CExpression *equiv_dist_scalar_ident_expr = CUtils::PexprScalarIdent(mp, equiv_colref);
+				equiv_dist_scalar_ident_exprs->Append(equiv_dist_scalar_ident_expr);
 				
 			}
 		}
 		remaining_equiv_colrefset->Release();
 	}
-	return pexprEquivIdentArray;
+	return equiv_dist_scalar_ident_exprs;
 }
 
 void
 CUtils::ExtractEquivDistributionKeyArrays
 	(
-   	IMemoryPool *mp,
-   	CExpressionArray *dist_key_exprs,
-   CExpressionArray *pexprEquivIdentArray,
-   ULONG id,
-   CExpressionArrays *equiv_dist_keys,
-   CColRefSetArray *dist_key_colrefsets
-   )
+	IMemoryPool *mp,
+	CExpressionArray *dist_scalar_ident_exprs,
+	CExpressionArray *equiv_dist_scalar_ident_exprs,
+	ULONG scalar_ident_idx,
+	CExpressionArrays *equiv_hash_dist_scalar_ident_exprs_final,
+	CColRefSetArray *dist_key_colrefsets
+	)
 {
-	if (NULL != pexprEquivIdentArray)
+	if (NULL != equiv_dist_scalar_ident_exprs)
 	{
-		for (ULONG equivid = 0; equivid < pexprEquivIdentArray->Size(); equivid++)
+		for (ULONG equiv_scalar_ident_idx = 0; equiv_scalar_ident_idx < equiv_dist_scalar_ident_exprs->Size(); equiv_scalar_ident_idx++)
 		{
-			CExpression *pexpr = (*pexprEquivIdentArray)[equivid];
-			CExpressionArray *pexprEquivSpecExprArray = GPOS_NEW(mp) CExpressionArray(mp);
-			CColRefSet *dist_key_colrefset = GPOS_NEW(mp) CColRefSet(mp);
-			for (ULONG idx = 0; idx < dist_key_exprs->Size(); idx++)
+			// get the equivalent ident
+			CExpression *equiv_scalar_ident_expr = (*equiv_dist_scalar_ident_exprs)[equiv_scalar_ident_idx];
+			
+			// array of scalar idents created by using the equivalent scalar idents and
+			// keep the other scalar idents as is.
+			CExpressionArray *equiv_dist_scalar_ident_exprs_temp = GPOS_NEW(mp) CExpressionArray(mp);
+			
+//			CColRefSet *dist_key_colrefset = GPOS_NEW(mp) CColRefSet(mp);
+			
+			CColRefSet *equiv_dist_key_colrefset = GPOS_NEW(mp) CColRefSet(mp);
+			
+			// iterate over the array of scalar idents used by the distribution spec
+			for (ULONG idx = 0; idx < dist_scalar_ident_exprs->Size(); idx++)
 			{
-				CExpression *pexprDistKeyExpr = (*dist_key_exprs)[idx];
-				if (idx == id)
+				CExpression *dist_scalar_ident_expr = (*dist_scalar_ident_exprs)[idx];
+				
+				// if the index of the scalar ident is equivalent to the input scalar ident index
+				// in array, it means that we can use the equivalent scalar idents to populate the
+				// new distribution spec ident array
+				if (idx == scalar_ident_idx)
 				{
-					pexpr->AddRef();
-					dist_key_colrefset->Include(CScalarIdent::PopConvert(pexpr->Pop())->Pcr());
-					pexprEquivSpecExprArray->Append(pexpr);
+					equiv_scalar_ident_expr->AddRef();
+					const CColRef *equiv_scalar_ident_colref = CScalarIdent::PopConvert(equiv_scalar_ident_expr->Pop())->Pcr();
+//					dist_key_colrefset->Include(equiv_scalar_ident_colref);
+					equiv_dist_key_colrefset->Include(equiv_scalar_ident_colref);
+					equiv_dist_scalar_ident_exprs_temp->Append(equiv_scalar_ident_expr);
 					continue;
 				}
-				pexprDistKeyExpr->AddRef();
-				dist_key_colrefset->Include(CScalarIdent::PopConvert(pexprDistKeyExpr->Pop())->Pcr());
-				pexprEquivSpecExprArray->Append(pexprDistKeyExpr);
+				
+				// if the index is different, then use the existing ident in the distribution key
+				// as is
+				dist_scalar_ident_expr->AddRef();
+				const CColRef *other_ident_colref = CScalarIdent::PopConvert(dist_scalar_ident_expr->Pop())->Pcr();
+//				dist_key_colrefset->Include(other_ident_colref);
+				equiv_dist_key_colrefset->Include(other_ident_colref);
+				equiv_dist_scalar_ident_exprs_temp->Append(dist_scalar_ident_expr);
 			}
-			dist_key_colrefsets->Append(dist_key_colrefset);
-			equiv_dist_keys->Append(pexprEquivSpecExprArray);
+//			dist_key_colrefsets->Append(dist_key_colrefset);
+			dist_key_colrefsets->Append(equiv_dist_key_colrefset);
+			
+			// add the equiv dist scalar ident array to the final array
+			equiv_hash_dist_scalar_ident_exprs_final->Append(equiv_dist_scalar_ident_exprs_temp);
 		}
-		pexprEquivIdentArray->Release();
 	}
 }
 // EOF

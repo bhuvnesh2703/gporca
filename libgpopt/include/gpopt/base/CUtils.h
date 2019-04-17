@@ -1093,7 +1093,7 @@ namespace gpopt
 			BOOL CanRemoveInferredPredicates(COperator::EOperatorId op_id);
 		
 			static
-			CExpressionArray *GetEquivScalarIdents(IMemoryPool *mp, CDrvdPropRelational *drvd_prop_relational, CExpression *pexprScalarIdent);
+			CExpressionArray *GetEquivScalarIdentExprs(IMemoryPool *mp, CDrvdPropRelational *relation_prop, CExpression *scalar_ident_expr);
 		
 			static
 			void ExtractEquivDistributionKeyArrays(

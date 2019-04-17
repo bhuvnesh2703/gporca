@@ -42,13 +42,18 @@ namespace gpopt
 			// helper for deriving hash join distribution from hashed outer child
 			CDistributionSpec *PdsDeriveFromHashedOuter(IMemoryPool *mp, CDistributionSpec *pdsOuter, CDistributionSpec *pdsInner, CExpressionHandle &exprhdl) const;
 		
-		CDistributionSpecHashed *
-		CreateEquivHashSpec
-		(
-		 IMemoryPool *mp,
-		 CDistributionSpecHashed *pdsHashed,
-		 CExpressionHandle &exprhdl
-		 ) const;
+			// helper for deriving hashed distribution spec using equivalence classes
+			// consider the below setup for a join between t1 and t2, where:
+			// t1 -> distributed by (a,b)
+			// t2 -> distributed by (a,b)
+			// for a join on scalar condition t1.a = t2.a, we need to broadcast one side. let' say
+			// join (t1.a = t2.a)
+			// - t1
+			// - broadcast
+			//		- t2
+			// the resulting spec of the join will be based on the outer spec, i.e t1.a, t1.b:
+			// and since t1.a is equivalent to t2.a, an equivalent spec will be t2.a, t1.b
+			CDistributionSpecHashed *DeriveHashSpecUsingEquivClasses(IMemoryPool *mp, CDistributionSpecHashed *spec, CExpressionHandle &exprhdl) const;
 
 			// private copy ctor
 			CPhysicalInnerHashJoin(const CPhysicalInnerHashJoin &);

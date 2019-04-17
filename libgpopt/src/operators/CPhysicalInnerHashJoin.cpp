@@ -167,7 +167,7 @@ CPhysicalInnerHashJoin::PdsDeriveFromReplicatedOuter
 	}
 	
 	
-	return CreateEquivHashSpec(mp, pdshashedInner, exprhdl);
+	return DeriveHashSpecUsingEquivClasses(mp, pdshashedInner, exprhdl);
 }
 
 
@@ -209,33 +209,93 @@ CPhysicalInnerHashJoin::PdsDeriveFromHashedOuter
 		return PdshashedCreateMatching(mp, pdshashedOuter, 0 /*ulSourceChild*/);
 	 }
 	
-	return CreateEquivHashSpec(mp, pdshashedOuter, exprhdl);
+	return DeriveHashSpecUsingEquivClasses(mp, pdshashedOuter, exprhdl);
 }
 
-
 CDistributionSpecHashed *
-CPhysicalInnerHashJoin::CreateEquivHashSpec
+CPhysicalInnerHashJoin::DeriveHashSpecUsingEquivClasses
 	(
 	IMemoryPool *mp,
-	CDistributionSpecHashed *pdsHashed,
+	CDistributionSpecHashed *spec,
 	CExpressionHandle &exprhdl
 	)
 	const
 {
-	CExpressionArrays *equiv_dist_keys = GPOS_NEW(mp) CExpressionArrays(mp);
-	CColRefSetArray *dist_key_colrefsets = GPOS_NEW(mp) CColRefSetArray(mp);
-	for (ULONG id = 0; id < pdsHashed->Pdrgpexpr()->Size(); id++)
+	CExpressionArrays *equiv_hash_dist_scalar_ident_exprs_final = GPOS_NEW(mp) CExpressionArrays(mp);
+	CColRefSetArray *equiv_hash_dist_scalar_ident_colrefset = GPOS_NEW(mp) CColRefSetArray(mp);
+	CDistributionSpecHashed *spec_temp = spec;
+	while (spec_temp)
 	{
-		CExpression *dist_key_expr = (*pdsHashed->Pdrgpexpr())[id];
-		CDrvdPropRelational *drvd_prop_relational = exprhdl.GetRelationalProperties();
-		CExpressionArray *pexprEquivIdentArray = CUtils::GetEquivScalarIdents(mp, drvd_prop_relational, dist_key_expr);
-		CUtils::ExtractEquivDistributionKeyArrays(mp, pdsHashed->Pdrgpexpr(), pexprEquivIdentArray, id, equiv_dist_keys, dist_key_colrefsets);
+		CExpressionArray *dist_scalar_ident_exprs = spec_temp->Pdrgpexpr();
+		CColRefSet *dist_scalar_ident_colrefset = spec_temp->PcrsUsed(mp);
+		dist_scalar_ident_exprs->AddRef();
+		equiv_hash_dist_scalar_ident_exprs_final->Append(dist_scalar_ident_exprs);
+		equiv_hash_dist_scalar_ident_colrefset->Append(dist_scalar_ident_colrefset);
+		spec_temp = spec_temp->PdshashedEquiv();
 	}
 
-	CDistributionSpecHashed *pdsHashedSpec = pdsHashed->GetHashedEquivSpecs(mp, equiv_dist_keys, dist_key_colrefsets);
-	equiv_dist_keys->Release();
-	dist_key_colrefsets->Release();
-	return pdsHashedSpec;
+	for (ULONG scalar_ident_idx = 0; scalar_ident_idx < spec->Pdrgpexpr()->Size(); scalar_ident_idx++)
+	{
+		CExpression *dist_scalar_ident_expr = (*spec->Pdrgpexpr())[scalar_ident_idx];
+		CDrvdPropRelational *relational_prop = exprhdl.GetRelationalProperties();
+		
+		// get an array containing equivalent scalar idents for the current distribution scalar ident
+		CExpressionArray *equiv_dist_scalar_ident_exprs = CUtils::GetEquivScalarIdentExprs(mp, relational_prop, dist_scalar_ident_expr);
+		
+		// using the equivalent scalar idents for the current distribution scalar ident, create an array containing
+		// all the scalar idents required for the distribution key
+		// for example:
+		// if the distribution spec contains columns t1.a, t1.b
+		// where t1.a is equivalent to t2.a
+		// create an array containing t2.a, t1.b
+		CUtils::ExtractEquivDistributionKeyArrays
+					(
+					mp,
+					spec->Pdrgpexpr(),
+					equiv_dist_scalar_ident_exprs,
+					scalar_ident_idx,
+					equiv_hash_dist_scalar_ident_exprs_final,
+					equiv_hash_dist_scalar_ident_colrefset
+					);
+		CRefCount::SafeRelease(equiv_dist_scalar_ident_exprs);
+	}
+
+	// iterate over an array of distribution scalar ident array, and create distribution spec where spec generated using
+	// every distribution scalar ident array is equivalent to the spec generated for the other scalar ident array
+	// for example: if the array contains
+	// {t1.a, t1.b}, {t2.a, t1.b}
+	// create resulting spec where Spec(t1.a, t1.b) -> equivalent Spec (t2.a, t1.b) -> equivalent Spec (NULL)
+	CDistributionSpecHashed *result_hash_spec = NULL;
+	CDistributionSpecHashed *hash_spec_last = NULL;
+	INT last_elem_idx = equiv_hash_dist_scalar_ident_exprs_final->Size() - 1;
+	CColRefSet *equiv_hash_scalar_ident_processed_colrefset = GPOS_NEW(mp) CColRefSet(mp);
+	for (INT id = last_elem_idx; id >= 0; id--)
+	{
+		CExpressionArray *dist_scalar_ident_exprs = (*equiv_hash_dist_scalar_ident_exprs_final)[id];
+		CColRefSet *dist_scalar_ident_colrefset = (*equiv_hash_dist_scalar_ident_colrefset)[id];
+		if (equiv_hash_scalar_ident_processed_colrefset->ContainsAll(dist_scalar_ident_colrefset))
+		{
+			continue;
+		}
+		equiv_hash_scalar_ident_processed_colrefset->Include(dist_scalar_ident_colrefset);
+		dist_scalar_ident_exprs->AddRef();
+		if (hash_spec_last)
+		{
+			result_hash_spec = GPOS_NEW(mp) CDistributionSpecHashed(dist_scalar_ident_exprs,
+																	spec->FNullsColocated(),
+																	hash_spec_last);
+		}
+		else
+		{
+			result_hash_spec = GPOS_NEW(mp) CDistributionSpecHashed(dist_scalar_ident_exprs,
+																	spec->FNullsColocated());
+		}
+		hash_spec_last = result_hash_spec;
+	}
+	equiv_hash_dist_scalar_ident_exprs_final->Release();
+	equiv_hash_dist_scalar_ident_colrefset->Release();
+	equiv_hash_scalar_ident_processed_colrefset->Release();
+	return hash_spec_last;
 }
 
 //---------------------------------------------------------------------------
@@ -256,6 +316,13 @@ CPhysicalInnerHashJoin::PdsDerive
 {
 	CDistributionSpec *pdsOuter = exprhdl.Pdpplan(0 /*child_index*/)->Pds();
  	CDistributionSpec *pdsInner = exprhdl.Pdpplan(1 /*child_index*/)->Pds();
+	
+	if (exprhdl.Pgexpr() != NULL)
+		exprhdl.Pgexpr()->DbgPrint();
+	else
+		exprhdl.Pexpr()->DbgPrint();
+	pdsOuter->DbgPrint();
+	pdsInner->DbgPrint();
 
  	if (CDistributionSpec::EdtUniversal == pdsOuter->Edt())
  	{
