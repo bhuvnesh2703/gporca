@@ -273,10 +273,10 @@ CPhysicalInnerHashJoin::DeriveHashSpecUsingEquivClasses
 	{
 		CExpressionArray *dist_scalar_ident_exprs = (*equiv_hash_dist_scalar_ident_exprs_final)[id];
 		CColRefSet *dist_scalar_ident_colrefset = (*equiv_hash_dist_scalar_ident_colrefset)[id];
-		if (equiv_hash_scalar_ident_processed_colrefset->ContainsAll(dist_scalar_ident_colrefset))
-		{
-			continue;
-		}
+//		if (equiv_hash_scalar_ident_processed_colrefset->ContainsAll(dist_scalar_ident_colrefset))
+//		{
+//			continue;
+//		}
 		equiv_hash_scalar_ident_processed_colrefset->Include(dist_scalar_ident_colrefset);
 		dist_scalar_ident_exprs->AddRef();
 		if (hash_spec_last)
