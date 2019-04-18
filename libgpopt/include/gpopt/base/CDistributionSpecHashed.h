@@ -207,6 +207,9 @@ namespace gpopt
 		
 			static
 			BOOL MatchesUsingEquivCols(CExpression *pexprLeft, CExpression *pexprRight /*derived*/,CColRefSet *pcrs_equiv);
+		
+			virtual
+			BOOL CoveredBy(const CExpressionArray *dist_cols_expr_array) const;
 	}; // class CDistributionSpecHashed
 
 }

@@ -219,16 +219,12 @@ CPhysicalAgg::PdsRequiredAgg
 
 	if (FGlobal())
 	{
-		CDistributionSpec *pds = PdsRequiredGlobalAgg(mp, exprhdl, pdsInput, child_index, pdrgpcgGrp, pdrgpcrGrpMinimal, ulOptReq);
-		CDistributionSpec *pdsWithEquivCols = CUtils::GetHashedSpecWithEquivCols(mp, exprhdl, pds);
-		return pdsWithEquivCols;
+		return PdsRequiredGlobalAgg(mp, exprhdl, pdsInput, child_index, pdrgpcgGrp, pdrgpcrGrpMinimal, ulOptReq);
 	}
 
 	if (COperator::EgbaggtypeIntermediate == m_egbaggtype)
 	{
-		CDistributionSpec *pds = PdsRequiredIntermediateAgg(mp, ulOptReq);
-		CDistributionSpec *pdsWithEquivCols = CUtils::GetHashedSpecWithEquivCols(mp, exprhdl, pds);
-		return pdsWithEquivCols;
+		return PdsRequiredIntermediateAgg(mp, ulOptReq);
 	}
 
 	// if expression has to execute on a single host then we need a gather
@@ -240,9 +236,7 @@ CPhysicalAgg::PdsRequiredAgg
 	if (COperator::EgbaggtypeLocal == m_egbaggtype && m_pdrgpcrArgDQA != NULL && 0 != m_pdrgpcrArgDQA->Size())
 	{
 		GPOS_ASSERT(0 == ulOptReq);
-		CDistributionSpec *pds = PdsMaximalHashed(mp, m_pdrgpcrArgDQA);
-		CDistributionSpec *pdsWithEquivCols = CUtils::GetHashedSpecWithEquivCols(mp, exprhdl, pds);
-		return pdsWithEquivCols;
+		return PdsMaximalHashed(mp, m_pdrgpcrArgDQA);
 	}
 
 	GPOS_ASSERT(0 == ulOptReq || 1 == ulOptReq);
