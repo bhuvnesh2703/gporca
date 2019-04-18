@@ -5187,4 +5187,81 @@ CUtils::PexprMatchEqualityOrINDF
 	return pexprMatching;
 }
 
+
+CExpression *
+CUtils::GetJoinWithoutInferredPreds
+(
+ IMemoryPool *mp,
+ CExpression *pexprJoin
+ )
+{
+	GPOS_ASSERT(3 == pexprJoin->Arity());
+	CExpressionHandle exprhdl(mp);
+	exprhdl.Attach(pexprJoin);
+	CExpression *pred_without_inferred_cond = CPredicateUtils::PexprRemoveImpliedConjuncts(mp, exprhdl.PexprScalarChild(pexprJoin->Arity() - 1), exprhdl);
+	CExpression *pexprLeft = (*pexprJoin)[0];
+	CExpression *pexprRight = (*pexprJoin)[1];
+	pexprLeft->AddRef();
+	pexprRight->AddRef();
+	COperator *popJoin = pexprJoin->Pop();
+	popJoin->AddRef();
+	return GPOS_NEW(mp) CExpression(mp, popJoin, pexprLeft, pexprRight, pred_without_inferred_cond);
+}
+
+BOOL
+CUtils::CanRemoveInferredPredicates
+(
+ COperator::EOperatorId op_id
+ )
+{
+	return op_id == COperator::EopLogicalInnerJoin ||
+	op_id == COperator::EopLogicalInnerCorrelatedApply ||
+	op_id == COperator::EopLogicalLeftOuterJoin ||
+	op_id == COperator::EopLogicalLeftOuterCorrelatedApply ||
+	op_id == COperator::EopLogicalLeftSemiCorrelatedApplyIn ||
+	op_id == COperator::EopLogicalLeftAntiSemiCorrelatedApplyNotIn ||
+	op_id == COperator::EopLogicalLeftSemiJoin ||
+	op_id == COperator::EopLogicalLeftAntiSemiJoinNotIn;
+}
+
+CDistributionSpec *
+CUtils::GetHashedSpecWithEquivCols
+	(
+	IMemoryPool *mp,
+	CExpressionHandle &exprhdl,
+	CDistributionSpec *pds
+	)
+{
+	if (pds->Edt() == CDistributionSpec::EdtHashed)
+	{
+		CDistributionSpecHashed *pdsHashed = CDistributionSpecHashed::PdsConvert(pds);
+		CExpressionArray *dist_expr_array = pdsHashed->Pdrgpexpr();
+		CColRefSetArray *equivColsArray = pdsHashed->HashSpecEquivCols();
+		if (equivColsArray == NULL)
+		{
+			equivColsArray = GPOS_NEW(mp) CColRefSetArray(mp);
+			for (ULONG ul = 0; ul < dist_expr_array->Size(); ul++)
+			{
+				CExpression *pexpr = (*dist_expr_array)[ul];
+				CScalarIdent *popScIdent = CScalarIdent::PopConvert(pexpr->Pop());
+				const CColRef *pcr = popScIdent->Pcr();
+				CColRefSet *equiv_colrefset = exprhdl.GetRelationalProperties()->Ppc()->PcrsEquivClass(pcr);
+				if (equiv_colrefset == NULL)
+					equiv_colrefset = GPOS_NEW(mp) CColRefSet(mp);
+				else
+				{
+					equiv_colrefset->AddRef();
+				}
+				equivColsArray->Append(equiv_colrefset);
+			}
+			pdsHashed->Pdrgpexpr()->AddRef();
+			CDistributionSpecHashed *pdsWithEquivCols = GPOS_NEW(mp) CDistributionSpecHashed(pdsHashed->Pdrgpexpr(),
+																							 pdsHashed->FNullsColocated(),
+																							 equivColsArray);
+			pds->Release();
+			return pdsWithEquivCols;
+		}
+	}
+	return pds;
+}
 // EOF

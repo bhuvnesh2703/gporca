@@ -101,6 +101,7 @@ CPhysicalSerialUnionAll::PdsRequired
 	{
 		// attempt passing requested hashed distribution to children
 		CDistributionSpecHashed *pdshashed = PdshashedPassThru(mp, CDistributionSpecHashed::PdsConvert(pdsRequired), child_index);
+
 		if (NULL != pdshashed)
 		{
 			return pdshashed;

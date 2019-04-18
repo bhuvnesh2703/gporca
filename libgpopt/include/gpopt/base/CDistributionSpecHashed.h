@@ -41,6 +41,8 @@ namespace gpopt
 
 			// equivalent hashed distribution introduced by a hash join
 			CDistributionSpecHashed *m_pdshashedEquiv;
+		
+			CColRefSetArray *m_hash_idents_equiv_cols;
 
 			// check if specs are compatible wrt to co-location of nulls;
 			// HD1 satisfies HD2 if:
@@ -77,6 +79,8 @@ namespace gpopt
 			
 			// ctor
 			CDistributionSpecHashed(CExpressionArray *pdrgpexpr, BOOL fNullsColocated, CDistributionSpecHashed *pdshashedEquiv);
+		
+			CDistributionSpecHashed(CExpressionArray *pdrgpexpr, BOOL fNullsColocated, CColRefSetArray *hash_idents_equiv_cols);
 
 			// dtor
 			virtual 
@@ -196,6 +200,13 @@ namespace gpopt
 				return pdsHashed;
 			}
 
+			CColRefSetArray *HashSpecEquivCols() const
+			{
+				return m_hash_idents_equiv_cols;
+			}
+		
+			static
+			BOOL MatchesUsingEquivCols(CExpression *pexprLeft, CExpression *pexprRight /*derived*/,CColRefSet *pcrs_equiv);
 	}; // class CDistributionSpecHashed
 
 }

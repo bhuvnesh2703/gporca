@@ -40,12 +40,28 @@ CDistributionSpecHashed::CDistributionSpecHashed
 	:
 	m_pdrgpexpr(pdrgpexpr),
 	m_fNullsColocated(fNullsColocated),
-	m_pdshashedEquiv(NULL)
+	m_pdshashedEquiv(NULL),
+	m_hash_idents_equiv_cols(NULL)
 {
 	GPOS_ASSERT(NULL != pdrgpexpr);
 	GPOS_ASSERT(0 < pdrgpexpr->Size());
 }
 
+CDistributionSpecHashed::CDistributionSpecHashed
+(
+ CExpressionArray *pdrgpexpr,
+ BOOL fNullsColocated,
+ CColRefSetArray *hash_idents_equiv_cols
+ )
+:
+m_pdrgpexpr(pdrgpexpr),
+m_fNullsColocated(fNullsColocated),
+m_pdshashedEquiv(NULL),
+m_hash_idents_equiv_cols(hash_idents_equiv_cols)
+{
+	GPOS_ASSERT(NULL != pdrgpexpr);
+	GPOS_ASSERT(0 < pdrgpexpr->Size());
+}
 
 //---------------------------------------------------------------------------
 //	@function:
@@ -64,7 +80,8 @@ CDistributionSpecHashed::CDistributionSpecHashed
 	:
 	m_pdrgpexpr(pdrgpexpr),
 	m_fNullsColocated(fNullsColocated),
-	m_pdshashedEquiv(pdshashedEquiv)
+	m_pdshashedEquiv(pdshashedEquiv),
+	m_hash_idents_equiv_cols(NULL)
 {
 	GPOS_ASSERT(NULL != pdrgpexpr);
 	GPOS_ASSERT(NULL != pdshashedEquiv);
@@ -83,6 +100,7 @@ CDistributionSpecHashed::~CDistributionSpecHashed()
 {
 	m_pdrgpexpr->Release();
 	CRefCount::SafeRelease(m_pdshashedEquiv);
+	CRefCount::SafeRelease(m_hash_idents_equiv_cols);
 }
 
 //---------------------------------------------------------------------------
@@ -407,13 +425,59 @@ CDistributionSpecHashed::FMatchHashedDistribution
 	const ULONG length = m_pdrgpexpr->Size();
 	for (ULONG ul = 0; ul < length; ul++)
 	{
-		if (!CUtils::Equals(CCastUtils::PexprWithoutBinaryCoercibleCasts((*(pdshashed->m_pdrgpexpr))[ul]),
-							CCastUtils::PexprWithoutBinaryCoercibleCasts((*m_pdrgpexpr)[ul])))
+		CColRefSetArray *req_equivcols = pdshashed->HashSpecEquivCols();
+		CColRefSet *req_expr_equiv_cols = NULL;
+		if (NULL != req_equivcols && req_equivcols->Size() > 0)
+			req_expr_equiv_cols = (*req_equivcols)[ul];
+		CExpression *pexprLeft = (*(pdshashed->m_pdrgpexpr))[ul];
+		CExpression *pexprRight = (*m_pdrgpexpr)[ul];
+		if (!MatchesUsingEquivCols(pexprLeft,
+								   pexprRight, req_expr_equiv_cols))
 		{
 			return false;
 		}
+
 	}
 
+	return true;
+}
+
+BOOL
+CDistributionSpecHashed::MatchesUsingEquivCols
+	(
+	CExpression *pexprLeft,
+	CExpression *pexprRight, // derived
+	CColRefSet *pcrs_equiv
+	)
+{
+	if (NULL == pexprLeft || NULL == pexprRight)
+	{
+		return NULL == pexprLeft && NULL == pexprRight;
+	}
+	
+	GPOS_ASSERT(COperator::EopScalarIdent == pexprLeft->Pop()->Eopid());
+	GPOS_ASSERT(COperator::EopScalarIdent == pexprRight->Pop()->Eopid());
+	
+	// start with pointers comparison
+	if (pexprLeft == pexprRight)
+	{
+		return true;
+	}
+	
+	CScalarIdent *popLeft = CScalarIdent::PopConvert(pexprLeft->Pop());
+	const CColRef *popLeftColref = popLeft->Pcr();
+	
+	CScalarIdent *popRight = CScalarIdent::PopConvert(pexprRight->Pop());
+	const CColRef *popRightColref = popRight->Pcr();
+	if (popRightColref != popLeftColref)
+	{
+		if (NULL != pcrs_equiv)
+		{
+			if (pcrs_equiv->FMember(popRightColref))
+				return true;
+		}
+		return false;
+	}
 	return true;
 }
 
