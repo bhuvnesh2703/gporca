@@ -700,7 +700,7 @@ CPhysicalHashJoin::PdsRequired
 		// requests N+1, N+2 are (hashed/non-singleton, replicate)
 
 		CDistributionSpec *pds = PdsRequiredReplicate(mp, exprhdl, pdsInput, child_index, pdrgpdpCtxt, ulOptReq);
-		GPOS_ASSERT(pds->Edt() != CDistributionSpec::EdtHashed);
+		CUtils::SetHashedSpecWithEquivCols(mp, exprhdl, pds);
 		return pds;
 	}
 
