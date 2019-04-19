@@ -5260,7 +5260,6 @@ CUtils::GetHashedSpecWithEquivCols
 																							 equivColsArray);
 			return pdsWithEquivCols;
 		}
-		return pdsHashed;
 	}
 	return NULL;
 }

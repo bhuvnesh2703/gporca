@@ -347,11 +347,6 @@ CPhysicalHashJoin::PdshashedMatching
 			}
 		}
 	}
-
-	if (pdrgpexpr->Size() != ulDlvrdSize)
-	{
-		GPOS_ASSERT(pdrgpexpr->Size() == ulDlvrdSize);
-	}
 	// check if we failed to compute required distribution
 	if (pdrgpexpr->Size() != ulDlvrdSize)
 	{
@@ -615,7 +610,12 @@ CPhysicalHashJoin::PdsRequiredRedistribute
 	}
 
 	// return a matching distribution request for the second child
-	return PdsMatch(mp, pdsInput, ulFirstChild);
+	CDistributionSpec *pds = PdsMatch(mp, pdsInput, ulFirstChild);
+	if (NULL != pdsWithEquivCols)
+	{
+		pdsWithEquivCols->Release();
+	}
+	return pds;
 }
 
 
