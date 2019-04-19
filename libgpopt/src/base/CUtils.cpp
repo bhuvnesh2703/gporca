@@ -5258,10 +5258,10 @@ CUtils::GetHashedSpecWithEquivCols
 			CDistributionSpecHashed *pdsWithEquivCols = GPOS_NEW(mp) CDistributionSpecHashed(pdsHashed->Pdrgpexpr(),
 																							 pdsHashed->FNullsColocated(),
 																							 equivColsArray);
-			pds->Release();
 			return pdsWithEquivCols;
 		}
+		return pdsHashed;
 	}
-	return pds;
+	return NULL;
 }
 // EOF

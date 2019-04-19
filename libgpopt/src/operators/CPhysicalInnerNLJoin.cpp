@@ -150,7 +150,12 @@ CPhysicalInnerNLJoin::PdsRequired
 					BOOL fNullsColocated = pdshashed->FNullsColocated();
 					CDistributionSpecHashed *pdshashedEquiv = GPOS_NEW(mp) CDistributionSpecHashed(pdrgpexprMatching, fNullsColocated);
 					CDistributionSpec *pdsWithEquivCols = CUtils::GetHashedSpecWithEquivCols(mp, exprhdl, pdshashedEquiv);
-					return pdsWithEquivCols;
+					if (NULL != pdsWithEquivCols)
+					{
+						pdshashedEquiv->Release();
+						return pdsWithEquivCols;
+					}
+					return pdshashedEquiv;
 				}
 				pdrgpexprMatching->Release();
 			}

@@ -326,12 +326,16 @@ CPhysicalHashJoin::PdshashedMatching
 
 	// construct an array of target key expressions matching source key expressions
 	CExpressionArray *pdrgpexpr = GPOS_NEW(mp) CExpressionArray(mp);
+	CColRefSetArray *req_equivcols = pdshashed->HashSpecEquivCols();
 	for (ULONG ulDlvrdIdx = 0; ulDlvrdIdx < ulDlvrdSize; ulDlvrdIdx++)
 	{
 		CExpression *pexprDlvrd = CCastUtils::PexprWithoutBinaryCoercibleCasts((*pdrgpexprDist)[ulDlvrdIdx]);
+		CColRefSet *req_expr_equiv_cols = NULL;
+		if (NULL != req_equivcols && req_equivcols->Size() > 0)
+			req_expr_equiv_cols = (*req_equivcols)[ulDlvrdIdx];
 		for (ULONG idx = 0; idx < ulSourceSize; idx++)
 		{
-			if (CUtils::Equals(pexprDlvrd, (*pdrgpexprSource)[idx]))
+			if (CDistributionSpecHashed::MatchesUsingEquivCols(pexprDlvrd, (*pdrgpexprSource)[idx], req_expr_equiv_cols))
 			{
 				// TODO: 02/21/2012 - ; source column may be mapped to multiple
 				// target columns (e.g. i=j and i=k);
@@ -344,6 +348,10 @@ CPhysicalHashJoin::PdshashedMatching
 		}
 	}
 
+	if (pdrgpexpr->Size() != ulDlvrdSize)
+	{
+		GPOS_ASSERT(pdrgpexpr->Size() == ulDlvrdSize);
+	}
 	// check if we failed to compute required distribution
 	if (pdrgpexpr->Size() != ulDlvrdSize)
 	{
@@ -575,7 +583,7 @@ CDistributionSpec *
 CPhysicalHashJoin::PdsRequiredRedistribute
 	(
 	IMemoryPool *mp,
-	CExpressionHandle &, // exprhdl
+	CExpressionHandle &exprhdl,
 	CDistributionSpec *, // pdsInput
 	ULONG  child_index,
 	CDrvdProp2dArray *pdrgpdpCtxt,
@@ -591,6 +599,12 @@ CPhysicalHashJoin::PdsRequiredRedistribute
 
 	// find the distribution delivered by first child
 	CDistributionSpec *pdsFirst = CDrvdPropPlan::Pdpplan((*pdrgpdpCtxt)[0])->Pds();
+	CDistributionSpec *pdsInput = pdsFirst;
+	CDistributionSpec *pdsWithEquivCols = CUtils::GetHashedSpecWithEquivCols(mp, exprhdl, pdsFirst);
+	if (NULL != pdsWithEquivCols)
+	{
+		pdsInput = pdsWithEquivCols;
+	}
 	GPOS_ASSERT(NULL != pdsFirst);
 
 	// find the index of the first child
@@ -601,7 +615,7 @@ CPhysicalHashJoin::PdsRequiredRedistribute
 	}
 
 	// return a matching distribution request for the second child
-	return PdsMatch(mp, pdsFirst, ulFirstChild);
+	return PdsMatch(mp, pdsInput, ulFirstChild);
 }
 
 
@@ -669,7 +683,12 @@ CPhysicalHashJoin::PdsRequired
 			
 			CDistributionSpecHashed *pdsHashed = CDistributionSpecHashed::PdsConvert(pds);
 			CDistributionSpec *pdsWithEquivCols = CUtils::GetHashedSpecWithEquivCols(mp, exprhdl, pdsHashed);
-			return pdsWithEquivCols;
+			if (NULL != pdsWithEquivCols)
+			{
+				pdsHashed->Release();
+				return pdsWithEquivCols;
+			}
+			return pdsHashed;
 		}
 		return pds;
 	}
