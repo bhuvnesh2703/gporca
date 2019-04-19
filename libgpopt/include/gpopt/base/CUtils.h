@@ -1100,6 +1100,15 @@ namespace gpopt
 		 CExpressionHandle &exprhdl,
 		 CDistributionSpec *pds
 		 );
+		
+		void
+		static
+		SetHashedSpecWithEquivCols
+		(
+		 IMemoryPool *mp,
+		 CExpressionHandle &exprhdl,
+		 CDistributionSpec *pds
+		 );
 	}; // class CUtils
 
 	// hash set from expressions

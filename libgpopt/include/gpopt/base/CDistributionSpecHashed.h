@@ -205,6 +205,11 @@ namespace gpopt
 				return m_hash_idents_equiv_cols;
 			}
 		
+			void SetHashSpecEquivCols(CColRefSetArray *pcrsArray)
+			{
+				m_hash_idents_equiv_cols = pcrsArray;
+			}
+		
 			static
 			BOOL MatchesUsingEquivCols(CExpression *pexprLeft, CExpression *pexprRight /*derived*/,CColRefSet *pcrs_equiv);
 		
