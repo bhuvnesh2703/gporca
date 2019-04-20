@@ -450,9 +450,8 @@ CDistributionSpecHashed::FMatchHashedDistribution
 		}
 		if (!fSuccess)
 		{
-			GPOS_ASSERT(!fSuccess);
+			return fSuccess;
 		}
-		return fSuccess;
 	}
 
 	return true;
