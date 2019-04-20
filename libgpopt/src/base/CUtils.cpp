@@ -33,6 +33,7 @@
 #include "gpopt/mdcache/CMDAccessorUtils.h"
 #include "gpopt/exception.h"
 #include "gpopt/optimizer/COptimizerConfig.h"
+#include "gpopt/operators/CExpressionPreprocessor.h"
 
 #include "naucrates/base/IDatumInt2.h"
 #include "naucrates/base/IDatumInt4.h"
@@ -5184,6 +5185,8 @@ CUtils::PexprMatchEqualityOrINDF
 		}
 	}
 
+	if (NULL != pexprMatching)
+		return CCastUtils::PexprWithoutBinaryCoercibleCasts(pexprMatching);
 	return pexprMatching;
 }
 
@@ -5265,7 +5268,7 @@ CUtils::GetHashedSpecWithEquivCols
 }
 
 void
-CUtils::SetHashedSpecWithEquivCols
+CUtils::SetHashedSpecWithEquivExprs
 (
  IMemoryPool *mp,
  CExpressionHandle &exprhdl,
@@ -5276,26 +5279,55 @@ CUtils::SetHashedSpecWithEquivCols
 	{
 		CDistributionSpecHashed *pdsHashed = CDistributionSpecHashed::PdsConvert(pds);
 		CExpressionArray *dist_expr_array = pdsHashed->Pdrgpexpr();
-		CColRefSetArray *equivColsArray = pdsHashed->HashSpecEquivCols();
-		if (equivColsArray == NULL)
+		CExpressionArrays *equivColsExprsArray = pdsHashed->HashSpecEquivExprs();
+		if (equivColsExprsArray == NULL)
 		{
-			equivColsArray = GPOS_NEW(mp) CColRefSetArray(mp);
+			equivColsExprsArray = GPOS_NEW(mp) CExpressionArrays(mp);
 			for (ULONG ul = 0; ul < dist_expr_array->Size(); ul++)
 			{
+				CExpression *pexprTest = (*dist_expr_array)[ul];
 				CExpression *pexpr = CCastUtils::PexprWithoutCasts((*dist_expr_array)[ul]);
 				CScalarIdent *popScIdent = CScalarIdent::PopConvert(pexpr->Pop());
 				const CColRef *pcr = popScIdent->Pcr();
 				CColRefSet *equiv_colrefset = exprhdl.GetRelationalProperties()->Ppc()->PcrsEquivClass(pcr);
-				if (equiv_colrefset == NULL)
-					equiv_colrefset = GPOS_NEW(mp) CColRefSet(mp);
-				else
+				CExpressionArray *pexprEquivExpressions = GPOS_NEW(mp) CExpressionArray(mp);;
+				pexprTest->AddRef();
+				pexprEquivExpressions->Append(pexprTest);
+				if (equiv_colrefset != NULL)
 				{
-					equiv_colrefset->AddRef();
+					CExpression *pexprEquality = CExpressionPreprocessor::PexprConjEqualityPredicates(mp, equiv_colrefset);
+					CExpressionArray *conjuncts = CPredicateUtils::PdrgpexprConjuncts(mp, pexprEquality);
+					CColRefSet *pcrsProcessed = GPOS_NEW(mp) CColRefSet(mp);
+					for (ULONG id = 0; id < conjuncts->Size(); id++)
+					{
+						CExpression *pexpr = (*conjuncts)[id];
+						for (ULONG idx = 0; idx < pexpr->Arity(); idx++)
+						{
+							CExpression *pexprEquiv = CCastUtils::PexprWithoutBinaryCoercibleCasts((*pexpr)[idx]);
+							CColRefSet *pcrsEquiv = CDrvdPropScalar::GetDrvdScalarProps(pexprEquiv->PdpDerive())->PcrsUsed();
+							if (!pcrsProcessed->FIntersects(pcrsEquiv) && !pcrsEquiv->FMember(pcr))
+							{
+								pexprEquiv->AddRef();
+								pexprEquivExpressions->Append(pexprEquiv);
+								pcrsProcessed->Include(pcrsEquiv);
+							}
+						}
+					}
+					pcrsProcessed->Release();
+					conjuncts->Release();
+					pexprEquality->Release();
 				}
-				equivColsArray->Append(equiv_colrefset);
+//				else
+//				{
+//					CExpression *pexpr = (*dist_expr_array)[ul];
+//					pexpr->AddRef();
+//					pexprEquivExpressions->Append(pexpr);
+//				}
+				equivColsExprsArray->Append(pexprEquivExpressions);
 			}
-			pdsHashed->SetHashSpecEquivCols(equivColsArray);
+			pdsHashed->SetHashSpecEquivExprs(equivColsExprsArray);
 		}
 	}
+
 }
 // EOF

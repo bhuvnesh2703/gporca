@@ -319,6 +319,10 @@ CGroup::UpdateBestCost
 		pocFound = shta.Find();
 	}
 
+	if (NULL == pocFound)
+	{
+		GPOS_ASSERT(NULL != pocFound);
+	}
 	GPOS_ASSERT(NULL != pocFound);
 
 	// update best cost context

@@ -43,6 +43,8 @@ namespace gpopt
 			CDistributionSpecHashed *m_pdshashedEquiv;
 		
 			CColRefSetArray *m_hash_idents_equiv_cols;
+		
+			CExpressionArrays *m_hash_idents_equiv_exprs;
 
 			// check if specs are compatible wrt to co-location of nulls;
 			// HD1 satisfies HD2 if:
@@ -210,6 +212,15 @@ namespace gpopt
 				m_hash_idents_equiv_cols = pcrsArray;
 			}
 		
+			void SetHashSpecEquivExprs(CExpressionArrays *pexprArrays)
+			{
+				m_hash_idents_equiv_exprs = pexprArrays;
+			}
+		
+			CExpressionArrays *HashSpecEquivExprs() const
+			{
+				return m_hash_idents_equiv_exprs;
+			}
 			static
 			BOOL MatchesUsingEquivCols(CExpression *pexprLeft, CExpression *pexprRight /*derived*/,CColRefSet *pcrs_equiv);
 		

@@ -41,7 +41,8 @@ CDistributionSpecHashed::CDistributionSpecHashed
 	m_pdrgpexpr(pdrgpexpr),
 	m_fNullsColocated(fNullsColocated),
 	m_pdshashedEquiv(NULL),
-	m_hash_idents_equiv_cols(NULL)
+	m_hash_idents_equiv_cols(NULL),
+	m_hash_idents_equiv_exprs(NULL)
 {
 	GPOS_ASSERT(NULL != pdrgpexpr);
 	GPOS_ASSERT(0 < pdrgpexpr->Size());
@@ -57,7 +58,8 @@ CDistributionSpecHashed::CDistributionSpecHashed
 m_pdrgpexpr(pdrgpexpr),
 m_fNullsColocated(fNullsColocated),
 m_pdshashedEquiv(NULL),
-m_hash_idents_equiv_cols(hash_idents_equiv_cols)
+m_hash_idents_equiv_cols(hash_idents_equiv_cols),
+m_hash_idents_equiv_exprs(NULL)
 {
 	GPOS_ASSERT(NULL != pdrgpexpr);
 	GPOS_ASSERT(0 < pdrgpexpr->Size());
@@ -81,7 +83,8 @@ CDistributionSpecHashed::CDistributionSpecHashed
 	m_pdrgpexpr(pdrgpexpr),
 	m_fNullsColocated(fNullsColocated),
 	m_pdshashedEquiv(pdshashedEquiv),
-	m_hash_idents_equiv_cols(NULL)
+	m_hash_idents_equiv_cols(NULL),
+	m_hash_idents_equiv_exprs(NULL)
 {
 	GPOS_ASSERT(NULL != pdrgpexpr);
 	GPOS_ASSERT(NULL != pdshashedEquiv);
@@ -101,6 +104,7 @@ CDistributionSpecHashed::~CDistributionSpecHashed()
 	m_pdrgpexpr->Release();
 	CRefCount::SafeRelease(m_pdshashedEquiv);
 	CRefCount::SafeRelease(m_hash_idents_equiv_cols);
+	CRefCount::SafeRelease(m_hash_idents_equiv_exprs);
 }
 
 //---------------------------------------------------------------------------
@@ -425,18 +429,30 @@ CDistributionSpecHashed::FMatchHashedDistribution
 	const ULONG length = m_pdrgpexpr->Size();
 	for (ULONG ul = 0; ul < length; ul++)
 	{
-		CColRefSetArray *req_equivcols = pdshashed->HashSpecEquivCols();
-		CColRefSet *req_expr_equiv_cols = NULL;
-		if (NULL != req_equivcols && req_equivcols->Size() > 0)
-			req_expr_equiv_cols = (*req_equivcols)[ul];
+		CExpressionArrays *req_equivexprs = pdshashed->HashSpecEquivExprs();
+		CExpressionArray *req_expr_equiv_exprs = NULL;
+		if (NULL != req_equivexprs && req_equivexprs->Size() > 0)
+			req_expr_equiv_exprs = (*req_equivexprs)[ul];
 		CExpression *pexprLeft = (*(pdshashed->m_pdrgpexpr))[ul];
 		CExpression *pexprRight = (*m_pdrgpexpr)[ul];
-		if (!MatchesUsingEquivCols(pexprLeft,
-								   pexprRight, req_expr_equiv_cols))
+		BOOL fSuccess = false;
+		if (req_expr_equiv_exprs != NULL && req_expr_equiv_exprs->Size() > 0)
 		{
-			return false;
+			for (ULONG id = 0; id < req_expr_equiv_exprs->Size() && !fSuccess; id++)
+			{
+				CExpression *test = (*req_expr_equiv_exprs)[id];
+				fSuccess = CUtils::Equals(test, pexprRight);
+			}
 		}
-
+		else
+		{
+			fSuccess = CUtils::Equals(pexprLeft, pexprRight);
+		}
+		if (!fSuccess)
+		{
+			GPOS_ASSERT(!fSuccess);
+		}
+		return fSuccess;
 	}
 
 	return true;
@@ -455,17 +471,22 @@ CDistributionSpecHashed::MatchesUsingEquivCols
 		return NULL == pexprLeft && NULL == pexprRight;
 	}
 	
+	if (pexprLeft->Arity() != pexprRight->Arity())
+	{
+		return false;
+	}
+	
+	// start with pointers comparison
+	if (pexprLeft == pexprRight)
+	{
+		return true;
+	}
+	
 	CExpression *pexprLeftNoCast = CCastUtils::PexprWithoutCasts(pexprLeft);
 	CExpression *pexprRightNoCast = CCastUtils::PexprWithoutCasts(pexprRight);
 	
 	GPOS_ASSERT(COperator::EopScalarIdent == pexprLeftNoCast->Pop()->Eopid());
 	GPOS_ASSERT(COperator::EopScalarIdent == pexprRightNoCast->Pop()->Eopid());
-	
-	// start with pointers comparison
-	if (pexprLeftNoCast == pexprRightNoCast)
-	{
-		return true;
-	}
 	
 	CScalarIdent *popLeft = CScalarIdent::PopConvert(pexprLeftNoCast->Pop());
 	const CColRef *popLeftColref = popLeft->Pcr();
@@ -617,6 +638,20 @@ CDistributionSpecHashed::OsPrint
 	{
 		os << ", equiv. dist: ";
 		m_pdshashedEquiv->OsPrint(os);
+	}
+	
+	if (NULL != m_hash_idents_equiv_exprs && m_hash_idents_equiv_exprs->Size() > 0)
+	{
+		for (ULONG ul = 0; ul < m_hash_idents_equiv_exprs->Size(); ul++)
+		{
+			CExpressionArray *pexprArray = (*m_hash_idents_equiv_exprs)[ul];
+			os << ", equiv exprs: ";
+			for (ULONG id = 0; pexprArray->Size() >0 && id < pexprArray->Size(); id++)
+			{
+				CExpression *pexpr = (*pexprArray)[id];
+				pexpr->OsPrint(os);
+			}
+		}
 	}
 
 	return os;

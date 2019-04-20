@@ -328,16 +328,30 @@ CPhysicalHashJoin::PdshashedMatching
 
 	// construct an array of target key expressions matching source key expressions
 	CExpressionArray *pdrgpexpr = GPOS_NEW(mp) CExpressionArray(mp);
-	CColRefSetArray *req_equivcols = pdshashed->HashSpecEquivCols();
+	CExpressionArrays *req_equivexprs = pdshashed->HashSpecEquivExprs();
 	for (ULONG ulDlvrdIdx = 0; ulDlvrdIdx < ulDlvrdSize; ulDlvrdIdx++)
 	{
 		CExpression *pexprDlvrd = (*pdrgpexprDist)[ulDlvrdIdx];
-		CColRefSet *req_expr_equiv_cols = NULL;
-		if (NULL != req_equivcols && req_equivcols->Size() > 0)
-			req_expr_equiv_cols = (*req_equivcols)[ulDlvrdIdx];
+		CExpressionArray *req_expr_equiv_exprs = NULL;
+		if (NULL != req_equivexprs && req_equivexprs->Size() > 0)
+			req_expr_equiv_exprs = (*req_equivexprs)[ulDlvrdIdx];
 		for (ULONG idx = 0; idx < ulSourceSize; idx++)
 		{
-			if (CDistributionSpecHashed::MatchesUsingEquivCols(pexprDlvrd, (*pdrgpexprSource)[idx], req_expr_equiv_cols))
+			BOOL fSuccess = false;
+			CExpression *pexprRight = (*pdrgpexprSource)[idx];
+			if (req_expr_equiv_exprs != NULL && req_expr_equiv_exprs->Size() > 0)
+			{
+				for (ULONG id = 0; id < req_expr_equiv_exprs->Size() && !fSuccess; id++)
+				{
+					CExpression *pexprTest = (*req_expr_equiv_exprs)[id];
+					fSuccess = CUtils::Equals(pexprTest, pexprRight);
+				}
+			}
+			else
+			{
+				fSuccess = CUtils::Equals(pexprDlvrd, pexprRight);
+			}
+			if (fSuccess)
 			{
 				// TODO: 02/21/2012 - ; source column may be mapped to multiple
 				// target columns (e.g. i=j and i=k);
@@ -356,7 +370,7 @@ CPhysicalHashJoin::PdshashedMatching
 		if (NULL != pdshashed->PdshashedEquiv())
 		{
 			CDistributionSpec *pds = pdshashed->PdshashedEquiv();
-			CUtils::SetHashedSpecWithEquivCols(mp, exprhdl, pds);
+			CUtils::SetHashedSpecWithEquivExprs(mp, exprhdl, pds);
 			// try again using the equivalent hashed distribution
 			return PdshashedMatching(mp, pdshashed->PdshashedEquiv(), ulSourceChild, exprhdl);
 		}
@@ -367,7 +381,7 @@ CPhysicalHashJoin::PdshashedMatching
 	}
 
 	CDistributionSpecHashed *pds = GPOS_NEW(mp) CDistributionSpecHashed(pdrgpexpr, true /* fNullsCollocated */);
-	CUtils::SetHashedSpecWithEquivCols(mp, exprhdl, pds);
+	CUtils::SetHashedSpecWithEquivExprs(mp, exprhdl, pds);
 	return pds;
 }
 
@@ -601,7 +615,7 @@ CPhysicalHashJoin::PdsRequiredRedistribute
 	// find the distribution delivered by first child
 	CDistributionSpec *pdsFirst = CDrvdPropPlan::Pdpplan((*pdrgpdpCtxt)[0])->Pds();
 //	CDistributionSpec *pdsInput = pdsFirst;
-	CUtils::SetHashedSpecWithEquivCols(mp, exprhdl, pdsFirst);
+	CUtils::SetHashedSpecWithEquivExprs(mp, exprhdl, pdsFirst);
 //	if (NULL != pdsWithEquivCols)
 //	{
 //		pdsInput = pdsWithEquivCols;
@@ -688,7 +702,7 @@ CPhysicalHashJoin::PdsRequired
 		{
 			
 			CDistributionSpecHashed *pdsHashed = CDistributionSpecHashed::PdsConvert(pds);
-			CUtils::SetHashedSpecWithEquivCols(mp, exprhdl, pdsHashed);
+			CUtils::SetHashedSpecWithEquivExprs(mp, exprhdl, pdsHashed);
 			return pdsHashed;
 		}
 		return pds;
@@ -700,7 +714,7 @@ CPhysicalHashJoin::PdsRequired
 		// requests N+1, N+2 are (hashed/non-singleton, replicate)
 
 		CDistributionSpec *pds = PdsRequiredReplicate(mp, exprhdl, pdsInput, child_index, pdrgpdpCtxt, ulOptReq);
-		CUtils::SetHashedSpecWithEquivCols(mp, exprhdl, pds);
+		CUtils::SetHashedSpecWithEquivExprs(mp, exprhdl, pds);
 		return pds;
 	}
 

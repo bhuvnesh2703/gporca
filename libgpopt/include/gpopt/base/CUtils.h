@@ -1103,7 +1103,7 @@ namespace gpopt
 		
 		void
 		static
-		SetHashedSpecWithEquivCols
+		SetHashedSpecWithEquivExprs
 		(
 		 IMemoryPool *mp,
 		 CExpressionHandle &exprhdl,
