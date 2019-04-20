@@ -5282,7 +5282,7 @@ CUtils::SetHashedSpecWithEquivCols
 			equivColsArray = GPOS_NEW(mp) CColRefSetArray(mp);
 			for (ULONG ul = 0; ul < dist_expr_array->Size(); ul++)
 			{
-				CExpression *pexpr = (*dist_expr_array)[ul];
+				CExpression *pexpr = CCastUtils::PexprWithoutCasts((*dist_expr_array)[ul]);
 				CScalarIdent *popScIdent = CScalarIdent::PopConvert(pexpr->Pop());
 				const CColRef *pcr = popScIdent->Pcr();
 				CColRefSet *equiv_colrefset = exprhdl.GetRelationalProperties()->Ppc()->PcrsEquivClass(pcr);

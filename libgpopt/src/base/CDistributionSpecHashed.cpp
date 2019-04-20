@@ -455,19 +455,22 @@ CDistributionSpecHashed::MatchesUsingEquivCols
 		return NULL == pexprLeft && NULL == pexprRight;
 	}
 	
-	GPOS_ASSERT(COperator::EopScalarIdent == pexprLeft->Pop()->Eopid());
-	GPOS_ASSERT(COperator::EopScalarIdent == pexprRight->Pop()->Eopid());
+	CExpression *pexprLeftNoCast = CCastUtils::PexprWithoutCasts(pexprLeft);
+	CExpression *pexprRightNoCast = CCastUtils::PexprWithoutCasts(pexprRight);
+	
+	GPOS_ASSERT(COperator::EopScalarIdent == pexprLeftNoCast->Pop()->Eopid());
+	GPOS_ASSERT(COperator::EopScalarIdent == pexprRightNoCast->Pop()->Eopid());
 	
 	// start with pointers comparison
-	if (pexprLeft == pexprRight)
+	if (pexprLeftNoCast == pexprRightNoCast)
 	{
 		return true;
 	}
 	
-	CScalarIdent *popLeft = CScalarIdent::PopConvert(pexprLeft->Pop());
+	CScalarIdent *popLeft = CScalarIdent::PopConvert(pexprLeftNoCast->Pop());
 	const CColRef *popLeftColref = popLeft->Pcr();
 	
-	CScalarIdent *popRight = CScalarIdent::PopConvert(pexprRight->Pop());
+	CScalarIdent *popRight = CScalarIdent::PopConvert(pexprRightNoCast->Pop());
 	const CColRef *popRightColref = popRight->Pcr();
 	if (popRightColref != popLeftColref)
 	{

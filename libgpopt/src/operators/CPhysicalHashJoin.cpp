@@ -331,7 +331,7 @@ CPhysicalHashJoin::PdshashedMatching
 	CColRefSetArray *req_equivcols = pdshashed->HashSpecEquivCols();
 	for (ULONG ulDlvrdIdx = 0; ulDlvrdIdx < ulDlvrdSize; ulDlvrdIdx++)
 	{
-		CExpression *pexprDlvrd = CCastUtils::PexprWithoutBinaryCoercibleCasts((*pdrgpexprDist)[ulDlvrdIdx]);
+		CExpression *pexprDlvrd = (*pdrgpexprDist)[ulDlvrdIdx];
 		CColRefSet *req_expr_equiv_cols = NULL;
 		if (NULL != req_equivcols && req_equivcols->Size() > 0)
 			req_expr_equiv_cols = (*req_equivcols)[ulDlvrdIdx];

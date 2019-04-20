@@ -337,4 +337,23 @@ CCastUtils::PexprCast
     return pexprCast;
 }
 
+CExpression *
+CCastUtils::PexprWithoutCasts
+(
+ CExpression *pexpr
+ )
+{
+	GPOS_ASSERT(NULL != pexpr);
+	GPOS_ASSERT(pexpr->Pop()->FScalar());
+	
+	CExpression *pexprOutput = pexpr;
+	
+	while (!(COperator::EopScalarIdent == pexprOutput->Pop()->Eopid()))
+	{
+		GPOS_ASSERT(1 == pexprOutput->Arity());
+		pexprOutput = (*pexprOutput)[0];
+	}
+	
+	return pexprOutput;
+}
 // EOF
