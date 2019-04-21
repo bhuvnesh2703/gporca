@@ -336,10 +336,8 @@ where t.a in (select count(s.i) from s);
         <dxl:Filter/>
         <dxl:JoinFilter/>
         <dxl:HashCondList>
-          <dxl:Comparison ComparisonOperator="=" OperatorMdid="0.410.1.0">
-            <dxl:Cast TypeMdid="0.20.1.0" FuncId="0.481.1.0">
-              <dxl:Ident ColId="0" ColName="a" TypeMdid="0.23.1.0"/>
-            </dxl:Cast>
+          <dxl:Comparison ComparisonOperator="=" OperatorMdid="0.15.1.0">
+            <dxl:Ident ColId="0" ColName="a" TypeMdid="0.23.1.0"/>
             <dxl:Ident ColId="18" ColName="count" TypeMdid="0.20.1.0"/>
           </dxl:Comparison>
         </dxl:HashCondList>
