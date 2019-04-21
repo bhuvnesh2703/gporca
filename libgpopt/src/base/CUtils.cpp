@@ -5346,17 +5346,10 @@ CUtils::SetHashedSpecWithEquivExprs
 					conjuncts->Release();
 					pexprEquality->Release();
 				}
-//				else
-//				{
-//					CExpression *pexpr = (*dist_expr_array)[ul];
-//					pexpr->AddRef();
-//					pexprEquivExpressions->Append(pexpr);
-//				}
 				equivColsExprsArray->Append(pexprEquivExpressions);
 			}
 			pdsHashed->SetHashSpecEquivExprs(equivColsExprsArray);
 		}
 	}
-
 }
 // EOF
