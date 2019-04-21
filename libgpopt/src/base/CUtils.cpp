@@ -5289,6 +5289,10 @@ CUtils::SetHashedSpecWithEquivExprs
 				CExpression *pexpr = CCastUtils::PexprWithoutCasts((*dist_expr_array)[ul]);
 				CScalarIdent *popScIdent = CScalarIdent::PopConvert(pexpr->Pop());
 				const CColRef *pcr = popScIdent->Pcr();
+//				if (pcr->Id() == 0 && pexprTest->Pop()->Eopid() == COperator::EopScalarIdent)
+//				{
+//					GPOS_ASSERT(pcr);
+//				}
 				CColRefSet *equiv_colrefset = exprhdl.GetRelationalProperties()->Ppc()->PcrsEquivClass(pcr);
 				CExpressionArray *pexprEquivExpressions = GPOS_NEW(mp) CExpressionArray(mp);;
 				pexprTest->AddRef();
@@ -5297,21 +5301,46 @@ CUtils::SetHashedSpecWithEquivExprs
 				{
 					CExpression *pexprEquality = CExpressionPreprocessor::PexprConjEqualityPredicates(mp, equiv_colrefset);
 					CExpressionArray *conjuncts = CPredicateUtils::PdrgpexprConjuncts(mp, pexprEquality);
+//					if (pcr->Id() == 0 and conjuncts->Size() == 3)
+//					{
+//						GPOS_ASSERT(conjuncts);
+//					}
 					CColRefSet *pcrsProcessed = GPOS_NEW(mp) CColRefSet(mp);
+					pcrsProcessed->Include(pcr);
 					for (ULONG id = 0; id < conjuncts->Size(); id++)
 					{
 						CExpression *pexpr = (*conjuncts)[id];
-						for (ULONG idx = 0; idx < pexpr->Arity(); idx++)
+						if (!(CUtils::FScalarCmp(pexpr) || CPredicateUtils::FINDF(pexpr)))
 						{
-							CExpression *pexprEquiv = CCastUtils::PexprWithoutBinaryCoercibleCasts((*pexpr)[idx]);
-							CColRefSet *pcrsEquiv = CDrvdPropScalar::GetDrvdScalarProps(pexprEquiv->PdpDerive())->PcrsUsed();
-							if (!pcrsProcessed->FIntersects(pcrsEquiv) && !pcrsEquiv->FMember(pcr))
+							continue;
+						}
+						CExpression *pexprCasted = CCastUtils::PexprAddCast(mp, pexpr);
+						CExpression *pexprCast = NULL;
+						if (pexprCasted)
+							pexprCast = pexprCasted;
+						else
+							pexprCast = pexpr;
+						CExpression *pexprLeft = (*pexprCast)[0];
+						CExpression *pexprRight = (*pexprCast)[1];
+						CColRefSet *pcrsEquiv = CDrvdPropScalar::GetDrvdScalarProps(pexprCast->PdpDerive())->PcrsUsed();
+						BOOL consider = false;
+						if (pcrsEquiv->FMember(pcr))
+						{
+							if (CUtils::Equals(pexprLeft, pexprTest) || CUtils::Equals(pexprRight, pexprTest))
+								consider = true;
+						}
+						for (ULONG idx = 0; idx < pexprCast->Arity() && consider; idx++)
+						{
+							CExpression *pexprEquiv1 = CCastUtils::PexprWithoutBinaryCoercibleCasts((*pexprCast)[idx]);
+							CColRefSet *pcrsEquiv1 = CDrvdPropScalar::GetDrvdScalarProps(pexprEquiv1->PdpDerive())->PcrsUsed();
+							if (!pcrsProcessed->FIntersects(pcrsEquiv1))
 							{
-								pexprEquiv->AddRef();
-								pexprEquivExpressions->Append(pexprEquiv);
-								pcrsProcessed->Include(pcrsEquiv);
+								pexprEquiv1->AddRef();
+								pexprEquivExpressions->Append(pexprEquiv1);
+								pcrsProcessed->Include(pcrsEquiv1);
 							}
 						}
+						CRefCount::SafeRelease(pexprCasted);
 					}
 					pcrsProcessed->Release();
 					conjuncts->Release();

@@ -313,6 +313,16 @@ CPhysicalHashJoin::PdshashedMatching
 	const
 {
 	GPOS_ASSERT(2 > ulSourceChild);
+	
+//	if (exprhdl.Pgexpr() != NULL)
+//	{
+//		ULONG id1 = (*exprhdl.Pgexpr())[0]->Id();
+//		ULONG id2 = (*exprhdl.Pgexpr())[1]->Id();
+//		if (id1 == 2 && id2 == 11)
+//		{
+//			GPOS_ASSERT(id1);
+//		}
+//	}
 
 	CExpressionArray *pdrgpexprSource = m_pdrgpexprOuterKeys;
 	CExpressionArray *pdrgpexprTarget = m_pdrgpexprInnerKeys;
@@ -321,6 +331,30 @@ CPhysicalHashJoin::PdshashedMatching
 		pdrgpexprSource = m_pdrgpexprInnerKeys;
 		pdrgpexprTarget = m_pdrgpexprOuterKeys;
 	}
+	
+
+//	{
+//		{
+//			CAutoTrace at(mp);
+//			at.Os() << "source" << std::endl;
+//		}
+//		for (ULONG ul = 0; ul < pdrgpexprSource->Size(); ul++)
+//		{
+//			(*pdrgpexprSource)[ul]->DbgPrint();
+//		}
+//	}
+//	
+//	{
+//		{
+//				CAutoTrace at(mp);
+//			at.Os() << "target" << std::endl;
+//		}
+//		for (ULONG ul = 0; ul < pdrgpexprSource->Size(); ul++)
+//		{
+//			(*pdrgpexprTarget)[ul]->DbgPrint();
+//		}
+//	}
+//	pdshashed->DbgPrint();
 
 	const CExpressionArray *pdrgpexprDist = pdshashed->Pdrgpexpr();
 	const ULONG ulDlvrdSize = pdrgpexprDist->Size();
@@ -377,6 +411,7 @@ CPhysicalHashJoin::PdshashedMatching
 	}
 	if (pdrgpexpr->Size() != ulDlvrdSize)
 	{
+//		exprhdl.Pgexpr()->DbgPrint();
 		GPOS_ASSERT(pdrgpexpr->Size() == ulDlvrdSize);
 	}
 
