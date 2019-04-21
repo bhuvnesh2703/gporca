@@ -641,14 +641,15 @@ CDistributionSpecHashed::OsPrint
 	
 	if (NULL != m_hash_idents_equiv_exprs && m_hash_idents_equiv_exprs->Size() > 0)
 	{
+		os << "," << std::endl;
 		for (ULONG ul = 0; ul < m_hash_idents_equiv_exprs->Size(); ul++)
 		{
 			CExpressionArray *pexprArray = (*m_hash_idents_equiv_exprs)[ul];
-			os << ", equiv exprs: ";
+			os << "equiv exprs: " << ul << ":" ;
 			for (ULONG id = 0; pexprArray->Size() >0 && id < pexprArray->Size(); id++)
 			{
 				CExpression *pexpr = (*pexprArray)[id];
-				pexpr->OsPrint(os);
+				os << *pexpr << ",";
 			}
 		}
 	}
