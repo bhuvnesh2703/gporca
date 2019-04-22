@@ -876,7 +876,7 @@ CNormalizer::PushThruJoin
 	CExpression *pexprJoinWithInferredPred = GPOS_NEW(mp) CExpression(mp, pop, pdrgpexprChildren);
 	CExpression *pexprJoinWithoutInferredPred = NULL;
 	
-	if (CUtils::CanRemoveInferredPredicates(pop->Eopid()))
+	if (CUtils::CanRemoveInferredPredicates(pop->Eopid()) && !COptCtxt::PoctxtFromTLS()->Pcteinfo()->FEnableInlining())
 	{
 		CExpression *pexprScalarWithInferredPred = (*pexprJoinWithInferredPred)[2];
 		//TODO: check if subquery check is required
@@ -889,7 +889,6 @@ CNormalizer::PushThruJoin
 			return;
 		}
 	}
-	
 	*ppexprResult = pexprJoinWithInferredPred;
 }
 
