@@ -5285,14 +5285,12 @@ CUtils::SetHashedSpecWithEquivExprs
 			equivColsExprsArray = GPOS_NEW(mp) CExpressionArrays(mp);
 			for (ULONG ul = 0; ul < dist_expr_array->Size(); ul++)
 			{
+				// TODO: Handle Cases where distribution key is not on simple scalar
+				// idents
 				CExpression *pexprTest = (*dist_expr_array)[ul];
 				CExpression *pexpr = CCastUtils::PexprWithoutCasts((*dist_expr_array)[ul]);
 				CScalarIdent *popScIdent = CScalarIdent::PopConvert(pexpr->Pop());
 				const CColRef *pcr = popScIdent->Pcr();
-//				if (pcr->Id() == 0 && pexprTest->Pop()->Eopid() == COperator::EopScalarIdent)
-//				{
-//					GPOS_ASSERT(pcr);
-//				}
 				CColRefSet *equiv_colrefset = exprhdl.GetRelationalProperties()->Ppc()->PcrsEquivClass(pcr);
 				CExpressionArray *pexprEquivExpressions = GPOS_NEW(mp) CExpressionArray(mp);;
 				pexprTest->AddRef();

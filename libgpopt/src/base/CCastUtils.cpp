@@ -350,7 +350,8 @@ CCastUtils::PexprWithoutCasts
 	
 	while (!(COperator::EopScalarIdent == pexprOutput->Pop()->Eopid()))
 	{
-		GPOS_ASSERT(1 == pexprOutput->Arity());
+//		if (1 != pexprOutput->Arity())
+//			GPOS_ASSERT(1 == pexprOutput->Arity());
 		pexprOutput = (*pexprOutput)[0];
 	}
 	
