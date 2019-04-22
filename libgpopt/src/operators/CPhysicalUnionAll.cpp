@@ -728,7 +728,7 @@ const
 	while (pdsTemp && NULL == pdrgpulOuter)
 	{
 		pdrgpulOuter = PdrgpulMap(mp, CDistributionSpecHashed::PdsConvert(pdsTemp)->Pdrgpexpr(), 0/*child_index*/);
-		pdsTemp = pdsHashed->PdshashedEquiv();
+		pdsTemp = pdsTemp->PdshashedEquiv();
 	}
 	if (NULL == pdrgpulOuter)
 	{
