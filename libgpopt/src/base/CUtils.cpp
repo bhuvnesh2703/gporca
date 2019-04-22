@@ -5217,14 +5217,7 @@ CUtils::CanRemoveInferredPredicates
  COperator::EOperatorId op_id
  )
 {
-	return op_id == COperator::EopLogicalInnerJoin ||
-	op_id == COperator::EopLogicalInnerCorrelatedApply ||
-	op_id == COperator::EopLogicalLeftOuterJoin ||
-	op_id == COperator::EopLogicalLeftOuterCorrelatedApply ||
-	op_id == COperator::EopLogicalLeftSemiCorrelatedApplyIn ||
-	op_id == COperator::EopLogicalLeftAntiSemiCorrelatedApplyNotIn ||
-	op_id == COperator::EopLogicalLeftSemiJoin ||
-	op_id == COperator::EopLogicalLeftAntiSemiJoinNotIn;
+	return op_id == COperator::EopLogicalInnerJoin;
 }
 
 CDistributionSpec *
@@ -5299,10 +5292,6 @@ CUtils::SetHashedSpecWithEquivExprs
 				{
 					CExpression *pexprEquality = CExpressionPreprocessor::PexprConjEqualityPredicates(mp, equiv_colrefset);
 					CExpressionArray *conjuncts = CPredicateUtils::PdrgpexprConjuncts(mp, pexprEquality);
-//					if (pcr->Id() == 0 and conjuncts->Size() == 3)
-//					{
-//						GPOS_ASSERT(conjuncts);
-//					}
 					CColRefSet *pcrsProcessed = GPOS_NEW(mp) CColRefSet(mp);
 					pcrsProcessed->Include(pcr);
 					for (ULONG id = 0; id < conjuncts->Size(); id++)

@@ -878,9 +878,8 @@ CNormalizer::PushThruJoin
 	
 	if (CUtils::CanRemoveInferredPredicates(pop->Eopid()) && !COptCtxt::PoctxtFromTLS()->Pcteinfo()->FEnableInlining())
 	{
-		CExpression *pexprScalarWithInferredPred = (*pexprJoinWithInferredPred)[2];
 		//TODO: check if subquery check is required
-		BOOL has_subquery = CDrvdPropScalar::GetDrvdScalarProps(pexprScalarWithInferredPred->PdpDerive())->FHasSubquery();
+		BOOL has_subquery = CUtils::FHasSubqueryOrApply(pexprJoinWithInferredPred);
 		if (!has_subquery)
 		{
 			pexprJoinWithoutInferredPred = CUtils::GetJoinWithoutInferredPreds(mp, pexprJoinWithInferredPred);
