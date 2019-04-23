@@ -130,6 +130,12 @@ namespace gpopt
 			// does this distribution match the given one
 			virtual 
 			BOOL Matches(const CDistributionSpec *pds) const;
+		
+			BOOL
+			SatisfiesSpec
+			(
+			 const CDistributionSpec *pds
+			 ) const;
 
 			// does this distribution satisfy the given one
 			virtual 

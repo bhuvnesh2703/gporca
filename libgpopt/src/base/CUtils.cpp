@@ -5336,6 +5336,12 @@ CUtils::SetHashedSpecWithEquivExprs
 				equivColsExprsArray->Append(pexprEquivExpressions);
 			}
 			pdsHashed->SetHashSpecEquivExprs(equivColsExprsArray);
+			{
+				CAutoTrace at(mp);
+				at.Os() << "HashValue: " << pdsHashed->HashValue();
+			}
+			pdsHashed->DbgPrint();
+
 		}
 	}
 }

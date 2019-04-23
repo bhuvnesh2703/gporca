@@ -163,7 +163,7 @@ CDistributionSpecHashed::FSatisfies
  		return true;
  	}
 
-	if (Matches(pds))
+	if (SatisfiesSpec(pds))
 	{
 		// exact match implies satisfaction
 		return true;
@@ -378,6 +378,26 @@ CDistributionSpecHashed::HashValue() const
 		CExpression *pexpr = (*m_pdrgpexpr)[ul];
 		ulHash = gpos::CombineHashes(ulHash, CExpression::HashValue(pexpr));
 	}
+	
+	CDistributionSpecHashed *pdsTemp = this->PdshashedEquiv();
+	while (pdsTemp)
+	{
+		ulHash = gpos::CombineHashes(ulHash, pdsTemp->HashValue());
+		pdsTemp = pdsTemp->PdshashedEquiv();
+	}
+	
+	if (NULL != m_hash_idents_equiv_exprs && m_hash_idents_equiv_exprs->Size() > 0)
+	{
+		for (ULONG ul = 0; ul < m_hash_idents_equiv_exprs->Size(); ul++)
+		{
+			CExpressionArray *pexprArray = (*m_hash_idents_equiv_exprs)[ul];
+			for (ULONG id = 0; id < pexprArray->Size();  id++)
+			{
+				CExpression *pexpr = (*pexprArray)[id];
+				ulHash = gpos::CombineHashes(ulHash, CExpression::HashValue(pexpr));
+			}
+		}
+	}
 
 	return ulHash;
 }
@@ -539,6 +559,34 @@ CDistributionSpecHashed::Matches
 
 	return FMatchHashedDistribution(pdshashed);
 }
+
+BOOL
+CDistributionSpecHashed::SatisfiesSpec
+(
+ const CDistributionSpec *pds
+ )
+const
+{
+	if (Edt() != pds->Edt())
+	{
+		return false;
+	}
+	
+	const CDistributionSpecHashed *pdshashed = CDistributionSpecHashed::PdsConvert(pds);
+	
+	if (NULL != m_pdshashedEquiv && m_pdshashedEquiv->SatisfiesSpec(pdshashed))
+	{
+		return true;
+	}
+	
+	if (NULL != pdshashed->PdshashedEquiv() && pdshashed->PdshashedEquiv()->SatisfiesSpec(this))
+	{
+		return true;
+	}
+	
+	return FMatchHashedDistribution(pdshashed);
+}
+
 
 
 //---------------------------------------------------------------------------
