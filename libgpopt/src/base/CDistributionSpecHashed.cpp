@@ -163,7 +163,7 @@ CDistributionSpecHashed::FSatisfies
  		return true;
  	}
 
-	if (SatisfiesSpec(pds))
+	if (Matches(pds))
 	{
 		// exact match implies satisfaction
 		return true;
@@ -621,12 +621,12 @@ const
 	
 	const CDistributionSpecHashed *pdshashed = CDistributionSpecHashed::PdsConvert(pds);
 	
-	if (NULL != m_pdshashedEquiv && m_pdshashedEquiv->SatisfiesSpec(pdshashed))
+	if (NULL != m_pdshashedEquiv && m_pdshashedEquiv->Matches(pdshashed))
 	{
 		return true;
 	}
 	
-	if (NULL != pdshashed->PdshashedEquiv() && pdshashed->PdshashedEquiv()->SatisfiesSpec(this))
+	if (NULL != pdshashed->PdshashedEquiv() && pdshashed->PdshashedEquiv()->Matches(this))
 	{
 		return true;
 	}

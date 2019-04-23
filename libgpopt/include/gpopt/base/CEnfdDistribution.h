@@ -95,14 +95,14 @@ namespace gpopt
 				{
 					if (m_pds->Edt() == CDistributionSpec::EdtHashed)
 					{
-						m_pds->MatchesForHash(ped->PdsRequired());
+						success = m_pds->MatchesForHash(ped->PdsRequired());
 					}
 					else
 					{
-						m_pds->Matches(ped->PdsRequired());
+						success = m_pds->Matches(ped->PdsRequired());
 					}
 				}
-				
+				return success;
 			}
 			// hash function
 			virtual

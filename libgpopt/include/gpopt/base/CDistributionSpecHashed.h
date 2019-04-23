@@ -69,7 +69,7 @@ namespace gpopt
 			}
 
 			// exact match against given hashed distribution
-			BOOL FMatchHashedDistribution(const CDistributionSpecHashed *pdshashed) const;
+			BOOL FMatchHashedDistributionForHash(const CDistributionSpecHashed *pdshashed) const;
 		
 		// exact match against given hashed distribution
 		BOOL FMatchHashedDistribution(const CDistributionSpecHashed *pdshashed) const;
