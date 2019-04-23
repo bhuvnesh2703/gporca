@@ -216,7 +216,7 @@ CDistributionSpecHashed::FMatchSubset
 	for (ULONG ulOuter = 0; ulOuter < ulOwnExprs; ulOuter++)
 	{
 		CExpression *pexprOwn = CCastUtils::PexprWithoutBinaryCoercibleCasts((*m_pdrgpexpr)[ulOuter]);
-		CExpressionArrays *equi_exprs = m_hash_idents_equiv_exprs;
+//		CExpressionArrays *equi_exprs = m_hash_idents_equiv_exprs;
 		BOOL fFound = false;
 		for (ULONG ulInner = 0; ulInner < ulOtherExprs; ulInner++)
 		{
