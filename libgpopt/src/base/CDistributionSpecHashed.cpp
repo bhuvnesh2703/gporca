@@ -421,6 +421,53 @@ CDistributionSpecHashed::PcrsUsed
 	return CUtils::PcrsExtractColumns(mp, m_pdrgpexpr);
 }
 
+BOOL
+CDistributionSpecHashed::FMatchHashedDistributionForHash
+(
+ const CDistributionSpecHashed *pdshashed
+ )
+const
+{
+	GPOS_ASSERT(NULL != pdshashed);
+	
+	if (m_pdrgpexpr->Size() != pdshashed->m_pdrgpexpr->Size() ||
+		FNullsColocated() != pdshashed->FNullsColocated() ||
+		IsDuplicateSensitive() != pdshashed->IsDuplicateSensitive())
+	{
+		return false;
+	}
+	
+	const ULONG length = m_pdrgpexpr->Size();
+	for (ULONG ul = 0; ul < length; ul++)
+	{
+		CExpressionArrays *req_equivexprs = pdshashed->HashSpecEquivExprs();
+		CExpressionArray *req_expr_equiv_exprs = NULL;
+		if (NULL != req_equivexprs && req_equivexprs->Size() > 0)
+			req_expr_equiv_exprs = (*req_equivexprs)[ul];
+		CExpression *pexprLeft = (*(pdshashed->m_pdrgpexpr))[ul];
+		CExpression *pexprRight = (*m_pdrgpexpr)[ul];
+		BOOL fSuccess = false;
+		if (req_expr_equiv_exprs != NULL && req_expr_equiv_exprs->Size() > 0)
+		{
+			for (ULONG id = 0; id < req_expr_equiv_exprs->Size() && !fSuccess; id++)
+			{
+				CExpression *test = (*req_expr_equiv_exprs)[id];
+				fSuccess = CUtils::Equals(test, pexprRight);
+			}
+		}
+		else
+		{
+			fSuccess = CUtils::Equals(pexprLeft, pexprRight);
+		}
+		if (!fSuccess)
+		{
+			return fSuccess;
+		}
+	}
+	
+	return true;
+}
+
 
 //---------------------------------------------------------------------------
 //	@function:
@@ -534,7 +581,7 @@ CDistributionSpecHashed::MatchesUsingEquivCols
 //
 //---------------------------------------------------------------------------
 BOOL 
-CDistributionSpecHashed::Matches
+CDistributionSpecHashed::MatchesForHash
 	(
 	const CDistributionSpec *pds
 	) 
@@ -547,21 +594,21 @@ CDistributionSpecHashed::Matches
 
 	const CDistributionSpecHashed *pdshashed = CDistributionSpecHashed::PdsConvert(pds);
 
-	if (NULL != m_pdshashedEquiv && m_pdshashedEquiv->Matches(pdshashed))
+	if (NULL != m_pdshashedEquiv && m_pdshashedEquiv->MatchesForHash(pdshashed))
 	{
 		return true;
 	 }
 
-	if (NULL != pdshashed->PdshashedEquiv() && pdshashed->PdshashedEquiv()->Matches(this))
+	if (NULL != pdshashed->PdshashedEquiv() && pdshashed->PdshashedEquiv()->MatchesForHash(this))
 	{
 		return true;
 	}
 
-	return FMatchHashedDistribution(pdshashed);
+	return FMatchHashedDistributionForHash(pdshashed);
 }
 
 BOOL
-CDistributionSpecHashed::SatisfiesSpec
+CDistributionSpecHashed::Matches
 (
  const CDistributionSpec *pds
  )

@@ -78,7 +78,7 @@ CLogicalInnerJoin::PxfsCandidates
 {
 	CXformSet *xform_set = GPOS_NEW(mp) CXformSet(mp);
 	
-	(void) xform_set->ExchangeSet(CXform::ExfInnerJoin2NLJoin);
+//	(void) xform_set->ExchangeSet(CXform::ExfInnerJoin2NLJoin);
 	(void) xform_set->ExchangeSet(CXform::ExfInnerJoin2HashJoin);
 	(void) xform_set->ExchangeSet(CXform::ExfSubqJoin2Apply);
 	(void) xform_set->ExchangeSet(CXform::ExfInnerJoin2IndexGetApply);
@@ -92,7 +92,7 @@ CLogicalInnerJoin::PxfsCandidates
 	(void) xform_set->ExchangeSet(CXform::ExfInnerJoinWithInnerSelect2BitmapIndexGetApply);
 	(void) xform_set->ExchangeSet(CXform::ExfInnerJoinWithInnerSelect2DynamicBitmapIndexGetApply);
 
-	(void) xform_set->ExchangeSet(CXform::ExfJoinCommutativity);
+//	(void) xform_set->ExchangeSet(CXform::ExfJoinCommutativity);
 	(void) xform_set->ExchangeSet(CXform::ExfJoinAssociativity);
 	(void) xform_set->ExchangeSet(CXform::ExfInnerJoinSemiJoinSwap);
 	(void) xform_set->ExchangeSet(CXform::ExfInnerJoinAntiSemiJoinSwap);

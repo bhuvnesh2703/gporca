@@ -70,6 +70,9 @@ namespace gpopt
 
 			// exact match against given hashed distribution
 			BOOL FMatchHashedDistribution(const CDistributionSpecHashed *pdshashed) const;
+		
+		// exact match against given hashed distribution
+		BOOL FMatchHashedDistribution(const CDistributionSpecHashed *pdshashed) const;
 
 			// private copy ctor
 			CDistributionSpecHashed(const CDistributionSpecHashed &);
@@ -130,6 +133,10 @@ namespace gpopt
 			// does this distribution match the given one
 			virtual 
 			BOOL Matches(const CDistributionSpec *pds) const;
+
+			// does this distribution match the given one
+			virtual
+			BOOL MatchesForHash(const CDistributionSpec *pds) const;
 		
 			BOOL
 			SatisfiesSpec
