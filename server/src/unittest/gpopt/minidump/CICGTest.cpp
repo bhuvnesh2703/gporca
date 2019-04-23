@@ -51,9 +51,7 @@ const CHAR *rgszFileNames[] =
 		// "../data/dxl/minidump/HAWQ-TPCH09-NoTopBroadcast.mdp",
 		"../data/dxl/minidump/HAWQ-TPCH-Stat-Derivation.mdp",
 		"../data/dxl/minidump/HJN-Redistribute-One-Side.mdp",
-		"../data/dxl/minidump/TPCH-Q5.mdp",
 		"../data/dxl/minidump/TPCDS-39-InnerJoin-JoinEstimate.mdp",
-		"../data/dxl/minidump/TPCH-Partitioned-256GB.mdp",
 		"../data/dxl/minidump/Tpcds-NonPart-Q70a.mdp",
 		// TODO:  - Jul 31st 2018; disabling it since new cost model picks up Indexed nested Loop Joi
 		// however the comment on file says that it should not pick Indexed Nested Loop Join.
@@ -484,7 +482,12 @@ CICGTest::EresUnittest_RunTestsWithoutAdditionalTraceFlags()
 	{
 		"../data/dxl/minidump/PartTbl-MultiWayJoin.mdp",
 		"../data/dxl/minidump/LOJReorderComplexNestedLOJs.mdp",
-		"../data/dxl/minidump/Union-On-HJNs.mdp"
+		"../data/dxl/minidump/Union-On-HJNs.mdp",
+		"../data/dxl/minidump/LOJ_bb_mpph.mdp",
+#ifndef GPOS_DEBUG
+		"../data/dxl/minidump/TPCH-Partitioned-256GB.mdp",
+		"../data/dxl/minidump/TPCH-Q5.mdp"
+#endif
 		
 	};
 	
