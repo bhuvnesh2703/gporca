@@ -216,7 +216,7 @@ CDistributionSpecHashed::FMatchSubset
 	for (ULONG ulOuter = 0; ulOuter < ulOwnExprs; ulOuter++)
 	{
 		CExpression *pexprOwn = CCastUtils::PexprWithoutBinaryCoercibleCasts((*m_pdrgpexpr)[ulOuter]);
-
+		CExpressionArrays *equi_exprs = m_hash_idents_equiv_exprs;
 		BOOL fFound = false;
 		for (ULONG ulInner = 0; ulInner < ulOtherExprs; ulInner++)
 		{
@@ -226,10 +226,30 @@ CDistributionSpecHashed::FMatchSubset
 				fFound = true;
 				break;
 			}
+			if (equi_exprs != NULL && equi_exprs->Size() > 0)
+			{
+				BOOL innerfFound = false;
+				CExpressionArray *equiv_exprs = (*equi_exprs)[ulOuter];
+				for (ULONG id = 0; id < equiv_exprs->Size() && equiv_exprs->Size() >0; id++)
+				{
+					CExpression *pexprOwn = (*equiv_exprs)[id];
+					if (CUtils::Equals(pexprOwn, pexprOther))
+					{
+						innerfFound = true;
+						break;
+					}
+				}
+				if (innerfFound)
+				{
+					fFound = true;
+					break;
+				}
+			}
 		}
 
 		if (!fFound)
 		{
+
 			return false;
 		}
 	}
@@ -438,34 +458,40 @@ const
 	}
 	
 	const ULONG length = m_pdrgpexpr->Size();
-	for (ULONG ul = 0; ul < length; ul++)
+
+	
+	BOOL match = true;
+	for (ULONG id = length; id < length && match; id++)
 	{
-		CExpressionArrays *req_equivexprs = pdshashed->HashSpecEquivExprs();
-		CExpressionArray *req_expr_equiv_exprs = NULL;
-		if (NULL != req_equivexprs && req_equivexprs->Size() > 0)
-			req_expr_equiv_exprs = (*req_equivexprs)[ul];
-		CExpression *pexprLeft = (*(pdshashed->m_pdrgpexpr))[ul];
-		CExpression *pexprRight = (*m_pdrgpexpr)[ul];
-		BOOL fSuccess = false;
-		if (req_expr_equiv_exprs != NULL && req_expr_equiv_exprs->Size() > 0)
-		{
-			for (ULONG id = 0; id < req_expr_equiv_exprs->Size() && !fSuccess; id++)
-			{
-				CExpression *test = (*req_expr_equiv_exprs)[id];
-				fSuccess = CUtils::Equals(test, pexprRight);
-			}
-		}
-		else
-		{
-			fSuccess = CUtils::Equals(pexprLeft, pexprRight);
-		}
-		if (!fSuccess)
-		{
-			return fSuccess;
-		}
+		CExpression *pexprLeft = (*m_pdrgpexpr)[id];
+		CExpression *pexprRight = (*pdshashed->m_pdrgpexpr)[id];
+		match = CUtils::Equals(pexprLeft, pexprRight);
+	}
+	if (!match)
+		return false;
+	
+	CExpressionArrays *current_obj_array = m_hash_idents_equiv_exprs;
+	CExpressionArrays *pdshashed_array = pdshashed->HashSpecEquivExprs();
+	
+	if (current_obj_array == NULL || pdshashed_array == NULL)
+	{
+		return current_obj_array == NULL && pdshashed_array == NULL;
 	}
 	
-	return true;
+	if (current_obj_array->Size() != pdshashed_array->Size())
+	{
+		return false;
+	}
+	
+	BOOL match2 = true;
+	for (ULONG ul = 0; ul < current_obj_array->Size() && match; ul++)
+	{
+		CExpressionArray *pexpr_array = (*current_obj_array)[ul];
+		CExpressionArray *pexpr_array2 = (*pdshashed_array)[ul];
+		match2 = CUtils::Equals(pexpr_array, pexpr_array2);
+	}
+	
+	return match2;
 }
 
 
