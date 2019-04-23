@@ -91,7 +91,9 @@ namespace gpopt
 			// test that hash join is preferred versus index join when estimation risk is high
 			static
 			GPOS_RESULT EresUnittest_PreferHashJoinVersusIndexJoinWhenRiskIsHigh();
-
+		
+			static
+			GPOS_RESULT EresUnittest_RunTestsWithoutAdditionalTraceFlags();
 	}; // class CICGTest
 }
 

@@ -116,6 +116,7 @@ CICGTest::EresUnittest()
 	CUnittest rgut[] =
 		{
 		// keep test for testing partially supported operators/xforms
+		GPOS_UNITTEST_FUNC(EresUnittest_RunTestsWithoutAdditionalTraceFlags),
 		GPOS_UNITTEST_FUNC(CICGTest::EresUnittest_RunUnsupportedMinidumpTests),
 		GPOS_UNITTEST_FUNC(CICGTest::EresUnittest_NegativeIndexApplyTests),
 
@@ -474,6 +475,27 @@ CICGTest::EresUnittest_PreferHashJoinVersusIndexJoinWhenRiskIsHigh()
 	pdrgpcpNoIndexJoin->Release();
 
 	return eres;
+}
+
+GPOS_RESULT
+CICGTest::EresUnittest_RunTestsWithoutAdditionalTraceFlags()
+{
+	const CHAR *rgszMdpFilesNoSpaceSize[] =
+	{
+		"../data/dxl/minidump/PartTbl-MultiWayJoin.mdp",
+		"../data/dxl/minidump/LOJReorderComplexNestedLOJs.mdp",
+		"../data/dxl/minidump/Union-On-HJNs.mdp"
+		
+	};
+	
+	return CTestUtils::EresUnittest_RunTestsWithoutAdditionalTraceFlags
+	(
+	 rgszMdpFilesNoSpaceSize,
+	 &m_ulTestCounter,
+	 GPOS_ARRAY_SIZE(rgszMdpFilesNoSpaceSize),
+	 true,
+	 true
+	 );
 }
 
 // EOF
