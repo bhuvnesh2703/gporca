@@ -156,7 +156,6 @@ CPhysicalInnerNLJoin::PdsRequired
 			}
 		}
 		CDistributionSpec *pdshashedEquiv = CPhysicalJoin::PdsRequired(mp, exprhdl, pdsRequired, child_index, pdrgpdpCtxt, ulOptReq);
-		CUtils::SetHashedSpecWithEquivExprs(mp, exprhdl, pdshashedEquiv);
 		return pdshashedEquiv;
 	}
 	GPOS_ASSERT(1 == ulOptReq);
