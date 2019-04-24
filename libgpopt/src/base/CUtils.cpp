@@ -5220,46 +5220,6 @@ CUtils::CanRemoveInferredPredicates
 	return op_id == COperator::EopLogicalInnerJoin;
 }
 
-CDistributionSpec *
-CUtils::GetHashedSpecWithEquivCols
-	(
-	IMemoryPool *mp,
-	CExpressionHandle &exprhdl,
-	CDistributionSpec *pds
-	)
-{
-	if (pds->Edt() == CDistributionSpec::EdtHashed)
-	{
-		CDistributionSpecHashed *pdsHashed = CDistributionSpecHashed::PdsConvert(pds);
-		CExpressionArray *dist_expr_array = pdsHashed->Pdrgpexpr();
-		CColRefSetArray *equivColsArray = pdsHashed->HashSpecEquivCols();
-		if (equivColsArray == NULL)
-		{
-			equivColsArray = GPOS_NEW(mp) CColRefSetArray(mp);
-			for (ULONG ul = 0; ul < dist_expr_array->Size(); ul++)
-			{
-				CExpression *pexpr = (*dist_expr_array)[ul];
-				CScalarIdent *popScIdent = CScalarIdent::PopConvert(pexpr->Pop());
-				const CColRef *pcr = popScIdent->Pcr();
-				CColRefSet *equiv_colrefset = exprhdl.GetRelationalProperties()->Ppc()->PcrsEquivClass(pcr);
-				if (equiv_colrefset == NULL)
-					equiv_colrefset = GPOS_NEW(mp) CColRefSet(mp);
-				else
-				{
-					equiv_colrefset->AddRef();
-				}
-				equivColsArray->Append(equiv_colrefset);
-			}
-			pdsHashed->Pdrgpexpr()->AddRef();
-			CDistributionSpecHashed *pdsWithEquivCols = GPOS_NEW(mp) CDistributionSpecHashed(pdsHashed->Pdrgpexpr(),
-																							 pdsHashed->FNullsColocated(),
-																							 equivColsArray);
-			return pdsWithEquivCols;
-		}
-	}
-	return NULL;
-}
-
 void
 CUtils::SetHashedSpecWithEquivExprs
 (

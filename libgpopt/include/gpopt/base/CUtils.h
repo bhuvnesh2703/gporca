@@ -1093,14 +1093,6 @@ namespace gpopt
 			static
 			BOOL CanRemoveInferredPredicates(COperator::EOperatorId op_id);
 		
-		static CDistributionSpec *
-		GetHashedSpecWithEquivCols
-		(
-		 IMemoryPool *mp,
-		 CExpressionHandle &exprhdl,
-		 CDistributionSpec *pds
-		 );
-		
 		void
 		static
 		SetHashedSpecWithEquivExprs

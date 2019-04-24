@@ -221,8 +221,6 @@ namespace gpopt
 			{
 				return m_hash_idents_equiv_exprs;
 			}
-			static
-			BOOL MatchesUsingEquivCols(CExpression *pexprLeft, CExpression *pexprRight /*derived*/,CColRefSet *pcrs_equiv);
 		
 			virtual
 			BOOL CoveredBy(const CExpressionArray *dist_cols_expr_array) const;

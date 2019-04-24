@@ -378,8 +378,7 @@ CPhysicalHashJoin::PdshashedMatching
 		GPOS_ASSERT(pdrgpexpr->Size() == ulDlvrdSize);
 	}
 
-	CDistributionSpecHashed *pds = GPOS_NEW(mp) CDistributionSpecHashed(pdrgpexpr, true /* fNullsCollocated */);
-	return pds;
+	return GPOS_NEW(mp) CDistributionSpecHashed(pdrgpexpr, true /* fNullsCollocated */);
 }
 
 
@@ -626,8 +625,7 @@ CPhysicalHashJoin::PdsRequiredRedistribute
 	}
 
 	// return a matching distribution request for the second child
-	CDistributionSpec *pds = PdsMatch(mp, pdsFirst, ulFirstChild, exprhdl);
-	return pds;
+	return PdsMatch(mp, pdsFirst, ulFirstChild, exprhdl);
 }
 
 
@@ -679,8 +677,7 @@ CPhysicalHashJoin::PdsRequired
 		if (CDistributionSpec::EdtSingleton == pdsInput->Edt() ||
 			CDistributionSpec::EdtReplicated == pdsInput->Edt())
 		{
-			CDistributionSpec *pds = PdsPassThru(mp, exprhdl, pdsInput, child_index);
-			return pds;
+			return PdsPassThru(mp, exprhdl, pdsInput, child_index);
 		}
 		return GPOS_NEW(mp) CDistributionSpecReplicated();
 	}
@@ -708,8 +705,7 @@ CPhysicalHashJoin::PdsRequired
 
 	// requests N+3 is (singleton, singleton)
 
-	CDistributionSpec *pds = PdsRequiredSingleton(mp, exprhdl, pdsInput, child_index, pdrgpdpCtxt);
-	return pds;
+	return PdsRequiredSingleton(mp, exprhdl, pdsInput, child_index, pdrgpdpCtxt);
 }
 
 

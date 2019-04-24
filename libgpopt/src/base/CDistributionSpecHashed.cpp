@@ -457,53 +457,6 @@ CDistributionSpecHashed::FMatchHashedDistribution
 	return true;
 }
 
-BOOL
-CDistributionSpecHashed::MatchesUsingEquivCols
-	(
-	CExpression *pexprLeft,
-	CExpression *pexprRight, // derived
-	CColRefSet *pcrs_equiv
-	)
-{
-	if (NULL == pexprLeft || NULL == pexprRight)
-	{
-		return NULL == pexprLeft && NULL == pexprRight;
-	}
-	
-	if (pexprLeft->Arity() != pexprRight->Arity())
-	{
-		return false;
-	}
-	
-	// start with pointers comparison
-	if (pexprLeft == pexprRight)
-	{
-		return true;
-	}
-	
-	CExpression *pexprLeftNoCast = CCastUtils::PexprWithoutCasts(pexprLeft);
-	CExpression *pexprRightNoCast = CCastUtils::PexprWithoutCasts(pexprRight);
-	
-	GPOS_ASSERT(COperator::EopScalarIdent == pexprLeftNoCast->Pop()->Eopid());
-	GPOS_ASSERT(COperator::EopScalarIdent == pexprRightNoCast->Pop()->Eopid());
-	
-	CScalarIdent *popLeft = CScalarIdent::PopConvert(pexprLeftNoCast->Pop());
-	const CColRef *popLeftColref = popLeft->Pcr();
-	
-	CScalarIdent *popRight = CScalarIdent::PopConvert(pexprRightNoCast->Pop());
-	const CColRef *popRightColref = popRight->Pcr();
-	if (popRightColref != popLeftColref)
-	{
-		if (NULL != pcrs_equiv)
-		{
-			if (pcrs_equiv->FMember(popRightColref))
-				return true;
-		}
-		return false;
-	}
-	return true;
-}
-
 
 //---------------------------------------------------------------------------
 //	@function:

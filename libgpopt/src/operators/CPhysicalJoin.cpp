@@ -659,9 +659,6 @@ CPhysicalJoin::FHashJoinPossible
 
 	// introduce explicit casting, if needed
 	CExpressionArray *pdrgpexpr = CCastUtils::PdrgpexprCastEquality(mp,  (*pexpr)[2]);
-	
-//	CExpressionArray *pdrgpexpr = CPredicateUtils::PdrgpexprConjuncts(mp,  (*pexpr)[2]);
-
 
 	// identify hashkeys
 	ULONG ulPreds = pdrgpexpr->Size();
