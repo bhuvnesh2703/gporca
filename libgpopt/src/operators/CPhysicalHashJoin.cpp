@@ -547,13 +547,30 @@ CPhysicalHashJoin::PdshashedPassThru
 	if (fSubset)
 	{
 		// incoming request uses columns from outer child only, pass it through
-		CExpressionArray *pdsInputHashedExprs = pdshashedInput->Pdrgpexpr();
-		pdsInputHashedExprs->AddRef();
-		CDistributionSpecHashed *pdsPassThruHashed = GPOS_NEW(mp) CDistributionSpecHashed(pdsInputHashedExprs,
-																						  pdshashedInput->FNullsColocated());
-		// TODO: Remove after testing, at this stage, there should be no equivalent spec in the input
-		GPOS_ASSERT(pdshashedInput->PdshashedEquiv() == NULL);
-		return pdsPassThruHashed;
+		CExpressionArrays *pdsEquivHashedExprs = GPOS_NEW(mp) CExpressionArrays(mp);
+		CDistributionSpecHashed *pds = pdshashedInput;
+		while (pds)
+		{
+			GPOS_CHECK_STACK_SIZE;
+			CExpressionArray *pdsHashExprs = pds->Pdrgpexpr();
+			pdsHashExprs->AddRef();
+			pdsEquivHashedExprs->Append(pdsHashExprs);
+			pds = pdshashedInput->PdshashedEquiv();
+		}
+
+		CDistributionSpecHashed *pdsEquivHashSpec = NULL;
+		for (ULONG ul = 1; ul < pdsEquivHashedExprs->Size(); ul++)
+		{
+			CExpressionArray *pdsHashExprs = (*pdsEquivHashedExprs)[ul];
+			pdsHashExprs->AddRef();
+			pdsEquivHashSpec = GPOS_NEW(mp) CDistributionSpecHashed(pdsHashExprs, pdshashedInput->FNullsColocated(), pdsEquivHashSpec);
+		}
+
+		pdrgpexprIncomingRequest->AddRef();
+		CDistributionSpecHashed *pdsEquivSpecs = GPOS_NEW(mp) CDistributionSpecHashed(pdrgpexprIncomingRequest, pdshashedInput->FNullsColocated(), pdsEquivHashSpec);
+
+		pdsEquivHashedExprs->Release();
+		return pdsEquivSpecs;
 	}
 
 	if (!fDisjoint)

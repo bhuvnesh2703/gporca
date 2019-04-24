@@ -87,7 +87,6 @@ CDistributionSpecHashed::CDistributionSpecHashed
 	m_hash_idents_equiv_exprs(NULL)
 {
 	GPOS_ASSERT(NULL != pdrgpexpr);
-	GPOS_ASSERT(NULL != pdshashedEquiv);
 	GPOS_ASSERT(0 < pdrgpexpr->Size());
 }
 
