@@ -309,7 +309,17 @@ CGroup::UpdateBestCost
 	CCostContext *pcc
 	)
 {
+
 	GPOS_ASSERT(CCostContext::estCosted == pcc->Est());
+	
+	{
+		IMemoryPool *mp = COptCtxt::PoctxtFromTLS()->Pmp();
+		CAutoTrace at(mp);
+			at.Os() << "Update Best Cost";
+			at.Os() << poc->Id() << std::endl;
+	}
+
+	poc->DbgPrint();
 
 	COptimizationContext *pocFound  = NULL;
 	
@@ -432,6 +442,16 @@ CGroup::PocInsert
 	COptimizationContext *poc
 	)
 {
+	{
+		IMemoryPool *mp = COptCtxt::PoctxtFromTLS()->Pmp();
+		CAutoTrace at(mp);
+		at.Os() << "Insert";
+	}
+	poc->DbgPrint();
+	if (poc == NULL)
+	{
+		GPOS_ASSERT(poc == NULL);
+	}
 	ShtAcc shta(Sht(), *poc);
 
 	COptimizationContext *pocFound = shta.Find();

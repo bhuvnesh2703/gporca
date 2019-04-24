@@ -233,6 +233,8 @@ CReqdPropPlan::Compute
 							),
 							popPhysical->Edm(prppInput, child_index, pdrgpdpCtxt, ulDistrReq)
 						);
+	CDistributionSpec *pds = m_ped->PdsRequired();
+	CUtils::SetHashedSpecWithEquivExprs(mp, exprhdl, pds);
 
 	GPOS_ASSERT(CDistributionSpec::EdtUniversal != m_ped->PdsRequired()->Edt() && "CDistributionSpecUniversal is a derive-only, cannot be required");
 

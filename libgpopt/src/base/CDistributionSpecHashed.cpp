@@ -318,15 +318,62 @@ CDistributionSpecHashed::PdshashedExcludeColumns
 BOOL
 CDistributionSpecHashed::Equals
 	(
-	const CDistributionSpecHashed *pdshashed
+	const CDistributionSpecHashed *pds
 	)
 	const
 {
-	return m_fNullsColocated == pdshashed->FNullsColocated() &&
+	if (pds->Edt() != this->Edt())
+	{
+		return false;
+	}
+	
+	const CDistributionSpecHashed *pdshashed = CDistributionSpecHashed::PdsConvert(pds);
+	CDistributionSpecHashed *pdsThis = this->PdshashedEquiv();
+	CDistributionSpecHashed *pdsHashed = pdshashed->PdshashedEquiv();
+	
+	if ((pdsThis != NULL && pdshashed == NULL) || (pdsThis != NULL && pdsHashed == NULL))
+		return false;
+
+	BOOL equals = true;
+	if (pdsThis != NULL && pdsHashed != NULL)
+	{
+		equals = pdsThis->Equals(pdsHashed);
+	}
+
+	
+	if (!equals)
+		return false;
+	
+	BOOL matches = m_fNullsColocated == pdshashed->FNullsColocated() &&
 			m_is_duplicate_sensitive == pdshashed->IsDuplicateSensitive() &&
 			m_fSatisfiedBySingleton == pdshashed->FSatisfiedBySingleton() &&
 			CUtils::Equals(m_pdrgpexpr, pdshashed->m_pdrgpexpr) &&
 			Edt() == pdshashed->Edt();
+	
+	if (!matches)
+		return false;
+	
+	CExpressionArrays *thisexprarrays = HashSpecEquivExprs();
+	CExpressionArrays *hashedexprarrays = pdshashed->HashSpecEquivExprs();
+	
+	if ((thisexprarrays == NULL && hashedexprarrays != NULL) || (thisexprarrays != NULL && hashedexprarrays == NULL))
+		return false;
+	
+	if (thisexprarrays == NULL && hashedexprarrays == NULL)
+		return true;
+	
+	if (thisexprarrays->Size() != hashedexprarrays->Size())
+		return false;
+	
+	BOOL match = true;
+	for (ULONG id = 0; id < thisexprarrays->Size() && match; id++)
+	{
+		match = CUtils::Equals((*thisexprarrays)[id], (*hashedexprarrays)[id]);
+	}
+	
+	
+	return match;
+
 }
 
 
@@ -391,19 +438,17 @@ ULONG
 CDistributionSpecHashed::HashValue() const
 {
 	ULONG ulHash = (ULONG) Edt();
+	
+	CDistributionSpecHashed *pdsTemp = this->PdshashedEquiv();
+	if (pdsTemp != NULL)
+		ulHash = gpos::CombineHashes(ulHash, pdsTemp->HashValue());
+	
 	ULONG ulHashedExpressions = std::min(m_pdrgpexpr->Size(), GPOPT_DISTR_SPEC_HASHED_EXPRESSIONS);
 	
 	for (ULONG ul = 0; ul < ulHashedExpressions; ul++)
 	{
 		CExpression *pexpr = (*m_pdrgpexpr)[ul];
 		ulHash = gpos::CombineHashes(ulHash, CExpression::HashValue(pexpr));
-	}
-	
-	CDistributionSpecHashed *pdsTemp = this->PdshashedEquiv();
-	while (pdsTemp)
-	{
-		ulHash = gpos::CombineHashes(ulHash, pdsTemp->HashValue());
-		pdsTemp = pdsTemp->PdshashedEquiv();
 	}
 	
 	if (NULL != m_hash_idents_equiv_exprs && m_hash_idents_equiv_exprs->Size() > 0)
@@ -550,53 +595,6 @@ CDistributionSpecHashed::FMatchHashedDistribution
 	return true;
 }
 
-BOOL
-CDistributionSpecHashed::MatchesUsingEquivCols
-	(
-	CExpression *pexprLeft,
-	CExpression *pexprRight, // derived
-	CColRefSet *pcrs_equiv
-	)
-{
-	if (NULL == pexprLeft || NULL == pexprRight)
-	{
-		return NULL == pexprLeft && NULL == pexprRight;
-	}
-	
-	if (pexprLeft->Arity() != pexprRight->Arity())
-	{
-		return false;
-	}
-	
-	// start with pointers comparison
-	if (pexprLeft == pexprRight)
-	{
-		return true;
-	}
-	
-	CExpression *pexprLeftNoCast = CCastUtils::PexprWithoutCasts(pexprLeft);
-	CExpression *pexprRightNoCast = CCastUtils::PexprWithoutCasts(pexprRight);
-	
-	GPOS_ASSERT(COperator::EopScalarIdent == pexprLeftNoCast->Pop()->Eopid());
-	GPOS_ASSERT(COperator::EopScalarIdent == pexprRightNoCast->Pop()->Eopid());
-	
-	CScalarIdent *popLeft = CScalarIdent::PopConvert(pexprLeftNoCast->Pop());
-	const CColRef *popLeftColref = popLeft->Pcr();
-	
-	CScalarIdent *popRight = CScalarIdent::PopConvert(pexprRightNoCast->Pop());
-	const CColRef *popRightColref = popRight->Pcr();
-	if (popRightColref != popLeftColref)
-	{
-		if (NULL != pcrs_equiv)
-		{
-			if (pcrs_equiv->FMember(popRightColref))
-				return true;
-		}
-		return false;
-	}
-	return true;
-}
-
 
 //---------------------------------------------------------------------------
 //	@function:
@@ -613,24 +611,55 @@ CDistributionSpecHashed::MatchesForHash
 	) 
 	const
 {
-	if (Edt() != pds->Edt())
-	{
+//	GPOS_ASSERT(pds->Edt() == CDistributionSpec::EdtHashed);
+	if (pds->Edt() != this->Edt())
 		return false;
-	}
-
+	CDistributionSpecHashed *pdsThis = this->PdshashedEquiv();
 	const CDistributionSpecHashed *pdshashed = CDistributionSpecHashed::PdsConvert(pds);
-
-	if (NULL != m_pdshashedEquiv && m_pdshashedEquiv->MatchesForHash(pdshashed))
+	CDistributionSpecHashed *pdsHashed = pdshashed->PdshashedEquiv();
+	
+	if ((pdsThis != NULL && pdshashed == NULL) || (pdsThis != NULL && pdsHashed == NULL))
+		return false;
+	
+	BOOL equals = true;
+	if (pdsThis != NULL && pdsHashed != NULL)
 	{
-		return true;
-	 }
-
-	if (NULL != pdshashed->PdshashedEquiv() && pdshashed->PdshashedEquiv()->MatchesForHash(this))
-	{
-		return true;
+		equals = pdsThis->MatchesForHash(pdsHashed);
 	}
-
-	return FMatchHashedDistributionForHash(pdshashed);
+	
+	
+	if (!equals)
+		return false;
+	
+	BOOL matches = m_fNullsColocated == pdshashed->FNullsColocated() &&
+	m_is_duplicate_sensitive == pdshashed->IsDuplicateSensitive() &&
+	m_fSatisfiedBySingleton == pdshashed->FSatisfiedBySingleton() &&
+	CUtils::Equals(m_pdrgpexpr, pdshashed->m_pdrgpexpr) &&
+	Edt() == pdshashed->Edt();
+	
+	if (!matches)
+		return false;
+	
+	CExpressionArrays *thisexprarrays = HashSpecEquivExprs();
+	CExpressionArrays *hashedexprarrays = pdshashed->HashSpecEquivExprs();
+	
+	if ((thisexprarrays == NULL && hashedexprarrays != NULL) || (thisexprarrays != NULL && hashedexprarrays == NULL))
+		return false;
+	
+	if (thisexprarrays == NULL && hashedexprarrays == NULL)
+		return true;
+	
+	if (thisexprarrays->Size() != hashedexprarrays->Size())
+		return false;
+	
+	BOOL match = true;
+	for (ULONG id = 0; id < thisexprarrays->Size() && match; id++)
+	{
+		match = CUtils::Equals((*thisexprarrays)[id], (*hashedexprarrays)[id]);
+	}
+	
+	
+	return match;
 }
 
 BOOL

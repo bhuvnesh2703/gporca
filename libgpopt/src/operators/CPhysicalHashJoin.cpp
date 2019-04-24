@@ -403,8 +403,8 @@ CPhysicalHashJoin::PdshashedMatching
 		pdrgpexpr->Release();
 		if (NULL != pdshashed->PdshashedEquiv())
 		{
-			CDistributionSpec *pds = pdshashed->PdshashedEquiv();
-			CUtils::SetHashedSpecWithEquivExprs(mp, exprhdl, pds);
+//			CDistributionSpec *pds = pdshashed->PdshashedEquiv();
+//			CUtils::SetHashedSpecWithEquivExprs(mp, exprhdl, pds);
 			// try again using the equivalent hashed distribution
 			return PdshashedMatching(mp, pdshashed->PdshashedEquiv(), ulSourceChild, exprhdl);
 		}
@@ -416,7 +416,7 @@ CPhysicalHashJoin::PdshashedMatching
 	}
 
 	CDistributionSpecHashed *pds = GPOS_NEW(mp) CDistributionSpecHashed(pdrgpexpr, true /* fNullsCollocated */);
-	CUtils::SetHashedSpecWithEquivExprs(mp, exprhdl, pds);
+//	CUtils::SetHashedSpecWithEquivExprs(mp, exprhdl, pds);
 	return pds;
 }
 
@@ -587,6 +587,7 @@ CPhysicalHashJoin::PdshashedPassThru
 	{
 		// incoming request uses columns from outer child only, pass it through
 		pdshashedInput->AddRef();
+//		CUtils::SetHashedSpecWithEquivExprs(mp, exprhdl, pdshashedInput);
 		return pdshashedInput;
 	}
 
@@ -610,6 +611,7 @@ CPhysicalHashJoin::PdshashedPassThru
 		 GPOS_ASSERT(0 < pdrgpexprChildRequest->Size());
 
 		 CDistributionSpecHashed *pdshashed = GPOS_NEW(mp) CDistributionSpecHashed(pdrgpexprChildRequest, pdshashedInput->FNullsColocated());
+//		 CUtils::SetHashedSpecWithEquivExprs(mp, exprhdl, pdshashedInput);
 
 		 // since the other child of the join is replicated, we need to enforce hashed-distribution across segments here
 		 pdshashed->MarkUnsatisfiableBySingleton();
@@ -650,7 +652,7 @@ CPhysicalHashJoin::PdsRequiredRedistribute
 	// find the distribution delivered by first child
 	CDistributionSpec *pdsFirst = CDrvdPropPlan::Pdpplan((*pdrgpdpCtxt)[0])->Pds();
 //	CDistributionSpec *pdsInput = pdsFirst;
-	CUtils::SetHashedSpecWithEquivExprs(mp, exprhdl, pdsFirst);
+//	CUtils::SetHashedSpecWithEquivExprs(mp, exprhdl, pdsFirst);
 //	if (NULL != pdsWithEquivCols)
 //	{
 //		pdsInput = pdsWithEquivCols;
@@ -737,7 +739,7 @@ CPhysicalHashJoin::PdsRequired
 		{
 			
 			CDistributionSpecHashed *pdsHashed = CDistributionSpecHashed::PdsConvert(pds);
-			CUtils::SetHashedSpecWithEquivExprs(mp, exprhdl, pdsHashed);
+//			CUtils::SetHashedSpecWithEquivExprs(mp, exprhdl, pdsHashed);
 			return pdsHashed;
 		}
 		return pds;
@@ -749,7 +751,7 @@ CPhysicalHashJoin::PdsRequired
 		// requests N+1, N+2 are (hashed/non-singleton, replicate)
 
 		CDistributionSpec *pds = PdsRequiredReplicate(mp, exprhdl, pdsInput, child_index, pdrgpdpCtxt, ulOptReq);
-		CUtils::SetHashedSpecWithEquivExprs(mp, exprhdl, pds);
+//		CUtils::SetHashedSpecWithEquivExprs(mp, exprhdl, pds);
 		return pds;
 	}
 
