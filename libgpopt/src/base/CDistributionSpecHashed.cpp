@@ -215,6 +215,7 @@ CDistributionSpecHashed::FMatchSubset
 	for (ULONG ulOuter = 0; ulOuter < ulOwnExprs; ulOuter++)
 	{
 		CExpression *pexprOwn = CCastUtils::PexprWithoutBinaryCoercibleCasts((*m_pdrgpexpr)[ulOuter]);
+		CExpressionArrays *equi_exprs = m_hash_idents_equiv_exprs;
 
 		BOOL fFound = false;
 		for (ULONG ulInner = 0; ulInner < ulOtherExprs; ulInner++)
@@ -225,7 +226,29 @@ CDistributionSpecHashed::FMatchSubset
 				fFound = true;
 				break;
 			}
+			
+			if (equi_exprs != NULL && equi_exprs->Size() > 0)
+			{
+				BOOL innerfFound = false;
+				CExpressionArray *equiv_exprs = (*equi_exprs)[ulOuter];
+				for (ULONG id = 0; id < equiv_exprs->Size() && equiv_exprs->Size() >0; id++)
+				{
+					CExpression *pexprOwn = (*equiv_exprs)[id];
+					if (CUtils::Equals(pexprOwn, pexprOther))
+					{
+						innerfFound = true;
+						break;
+					}
+				}
+				if (innerfFound)
+				{
+					fFound = true;
+					break;
+				}
+			}
 		}
+		
+		
 
 		if (!fFound)
 		{
