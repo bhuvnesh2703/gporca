@@ -90,8 +90,19 @@ namespace gpopt
 			{
 				GPOS_ASSERT(NULL != ped);
 
-				return m_edm == ped->Edm() &&
-						m_pds->Matches(ped->PdsRequired());
+				BOOL success = m_edm == ped->Edm();
+				if (success)
+				{
+					if (m_pds->Edt() == CDistributionSpec::EdtHashed)
+					{
+						success = m_pds->MatchesForHash(ped->PdsRequired());
+					}
+					else
+					{
+						success = m_pds->Matches(ped->PdsRequired());
+					}
+				}
+				return success;
 			}
 
 			// hash function

@@ -296,16 +296,63 @@ CDistributionSpecHashed::PdshashedExcludeColumns
 //---------------------------------------------------------------------------
 BOOL
 CDistributionSpecHashed::Equals
-	(
-	const CDistributionSpecHashed *pdshashed
-	)
-	const
+(
+ const CDistributionSpecHashed *pds
+ )
+const
 {
-	return m_fNullsColocated == pdshashed->FNullsColocated() &&
-			m_is_duplicate_sensitive == pdshashed->IsDuplicateSensitive() &&
-			m_fSatisfiedBySingleton == pdshashed->FSatisfiedBySingleton() &&
-			CUtils::Equals(m_pdrgpexpr, pdshashed->m_pdrgpexpr) &&
-			Edt() == pdshashed->Edt();
+	if (pds->Edt() != this->Edt())
+	{
+		return false;
+	}
+	
+	const CDistributionSpecHashed *pdshashed = CDistributionSpecHashed::PdsConvert(pds);
+	CDistributionSpecHashed *pdsThis = this->PdshashedEquiv();
+	CDistributionSpecHashed *pdsHashed = pdshashed->PdshashedEquiv();
+	
+	if ((pdsThis != NULL && pdshashed == NULL) || (pdsThis != NULL && pdsHashed == NULL))
+		return false;
+	
+	BOOL equals = true;
+	if (pdsThis != NULL && pdsHashed != NULL)
+	{
+		equals = pdsThis->Equals(pdsHashed);
+	}
+	
+	
+	if (!equals)
+		return false;
+	
+	BOOL matches = m_fNullsColocated == pdshashed->FNullsColocated() &&
+	m_is_duplicate_sensitive == pdshashed->IsDuplicateSensitive() &&
+	m_fSatisfiedBySingleton == pdshashed->FSatisfiedBySingleton() &&
+	CUtils::Equals(m_pdrgpexpr, pdshashed->m_pdrgpexpr) &&
+	Edt() == pdshashed->Edt();
+	
+	if (!matches)
+		return false;
+	
+	CExpressionArrays *thisexprarrays = HashSpecEquivExprs();
+	CExpressionArrays *hashedexprarrays = pdshashed->HashSpecEquivExprs();
+	
+	if ((thisexprarrays == NULL && hashedexprarrays != NULL) || (thisexprarrays != NULL && hashedexprarrays == NULL))
+		return false;
+	
+	if (thisexprarrays == NULL && hashedexprarrays == NULL)
+		return true;
+	
+	if (thisexprarrays->Size() != hashedexprarrays->Size())
+		return false;
+	
+	BOOL match = true;
+	for (ULONG id = 0; id < thisexprarrays->Size() && match; id++)
+	{
+		match = CUtils::Equals((*thisexprarrays)[id], (*hashedexprarrays)[id]);
+	}
+	
+	
+	return match;
+	
 }
 
 
@@ -370,6 +417,11 @@ ULONG
 CDistributionSpecHashed::HashValue() const
 {
 	ULONG ulHash = (ULONG) Edt();
+	
+	CDistributionSpecHashed *pdsTemp = this->PdshashedEquiv();
+	if (pdsTemp != NULL)
+		ulHash = gpos::CombineHashes(ulHash, pdsTemp->HashValue());
+	
 	ULONG ulHashedExpressions = std::min(m_pdrgpexpr->Size(), GPOPT_DISTR_SPEC_HASHED_EXPRESSIONS);
 	
 	for (ULONG ul = 0; ul < ulHashedExpressions; ul++)
@@ -377,7 +429,19 @@ CDistributionSpecHashed::HashValue() const
 		CExpression *pexpr = (*m_pdrgpexpr)[ul];
 		ulHash = gpos::CombineHashes(ulHash, CExpression::HashValue(pexpr));
 	}
-
+	
+	if (NULL != m_hash_idents_equiv_exprs && m_hash_idents_equiv_exprs->Size() > 0)
+	{
+		for (ULONG ul = 0; ul < m_hash_idents_equiv_exprs->Size(); ul++)
+		{
+			CExpressionArray *pexprArray = (*m_hash_idents_equiv_exprs)[ul];
+			for (ULONG id = 0; id < pexprArray->Size();  id++)
+			{
+				CExpression *pexpr = (*pexprArray)[id];
+				ulHash = gpos::CombineHashes(ulHash, CExpression::HashValue(pexpr));
+			}
+		}
+	}
 	return ulHash;
 }
 
@@ -492,6 +556,63 @@ CDistributionSpecHashed::Matches
 	return FMatchHashedDistribution(pdshashed);
 }
 
+BOOL
+CDistributionSpecHashed::MatchesForHash
+(
+ const CDistributionSpec *pds
+ )
+const
+{
+	//	GPOS_ASSERT(pds->Edt() == CDistributionSpec::EdtHashed);
+	if (pds->Edt() != this->Edt())
+		return false;
+	CDistributionSpecHashed *pdsThis = this->PdshashedEquiv();
+	const CDistributionSpecHashed *pdshashed = CDistributionSpecHashed::PdsConvert(pds);
+	CDistributionSpecHashed *pdsHashed = pdshashed->PdshashedEquiv();
+	
+	if ((pdsThis != NULL && pdshashed == NULL) || (pdsThis != NULL && pdsHashed == NULL))
+		return false;
+	
+	BOOL equals = true;
+	if (pdsThis != NULL && pdsHashed != NULL)
+	{
+		equals = pdsThis->MatchesForHash(pdsHashed);
+	}
+	
+	
+	if (!equals)
+		return false;
+	
+	BOOL matches = m_fNullsColocated == pdshashed->FNullsColocated() &&
+	m_is_duplicate_sensitive == pdshashed->IsDuplicateSensitive() &&
+	m_fSatisfiedBySingleton == pdshashed->FSatisfiedBySingleton() &&
+	CUtils::Equals(m_pdrgpexpr, pdshashed->m_pdrgpexpr) &&
+	Edt() == pdshashed->Edt();
+	
+	if (!matches)
+		return false;
+	
+	CExpressionArrays *thisexprarrays = HashSpecEquivExprs();
+	CExpressionArrays *hashedexprarrays = pdshashed->HashSpecEquivExprs();
+	
+	if ((thisexprarrays == NULL && hashedexprarrays != NULL) || (thisexprarrays != NULL && hashedexprarrays == NULL))
+		return false;
+	
+	if (thisexprarrays == NULL && hashedexprarrays == NULL)
+		return true;
+	
+	if (thisexprarrays->Size() != hashedexprarrays->Size())
+		return false;
+	
+	BOOL match = true;
+	for (ULONG id = 0; id < thisexprarrays->Size() && match; id++)
+	{
+		match = CUtils::Equals((*thisexprarrays)[id], (*hashedexprarrays)[id]);
+	}
+	
+	
+	return match;
+}
 
 //---------------------------------------------------------------------------
 //	@function:

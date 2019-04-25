@@ -555,7 +555,7 @@ CPhysicalHashJoin::PdshashedPassThru
 			CExpressionArray *pdsHashExprs = pds->Pdrgpexpr();
 			pdsHashExprs->AddRef();
 			pdsEquivHashedExprs->Append(pdsHashExprs);
-			pds = pdshashedInput->PdshashedEquiv();
+			pds = pds->PdshashedEquiv();
 		}
 
 		CDistributionSpecHashed *pdsEquivHashSpec = NULL;
