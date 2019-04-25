@@ -875,7 +875,7 @@ CNormalizer::PushThruJoin
 	pop->AddRef();
 	CExpression *pexprJoinWithInferredPred = GPOS_NEW(mp) CExpression(mp, pop, pdrgpexprChildren);
 	CExpression *pexprJoinWithoutInferredPred = NULL;
-	
+
 	if (CUtils::CanRemoveInferredPredicates(pop->Eopid()) && !COptCtxt::PoctxtFromTLS()->Pcteinfo()->FEnableInlining())
 	{
 		//TODO: check if subquery check is required

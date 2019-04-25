@@ -310,7 +310,7 @@ const
 	CDistributionSpecHashed *pdsThis = this->PdshashedEquiv();
 	CDistributionSpecHashed *pdsHashed = pdshashed->PdshashedEquiv();
 	
-	if ((pdsThis != NULL && pdshashed == NULL) || (pdsThis != NULL && pdsHashed == NULL))
+	if ((pdsThis != NULL && pdshashed == NULL) || (pdsThis == NULL && pdsHashed != NULL))
 		return false;
 	
 	BOOL equals = true;
@@ -570,7 +570,7 @@ const
 	const CDistributionSpecHashed *pdshashed = CDistributionSpecHashed::PdsConvert(pds);
 	CDistributionSpecHashed *pdsHashed = pdshashed->PdshashedEquiv();
 	
-	if ((pdsThis != NULL && pdshashed == NULL) || (pdsThis != NULL && pdsHashed == NULL))
+	if ((pdsThis != NULL && pdshashed == NULL) || (pdsThis == NULL && pdsHashed != NULL))
 		return false;
 	
 	BOOL equals = true;
