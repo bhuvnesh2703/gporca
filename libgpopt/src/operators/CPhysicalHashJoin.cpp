@@ -633,6 +633,40 @@ CPhysicalHashJoin::PdsRequiredRedistribute
 	// find the distribution delivered by first child
 	CDistributionSpec *pdsFirst = CDrvdPropPlan::Pdpplan((*pdrgpdpCtxt)[0])->Pds();
 	GPOS_ASSERT(NULL != pdsFirst);
+	
+	CDistributionSpec *pdsInputForMatch = NULL;
+	if (pdsFirst->Edt() == CDistributionSpec::EdtHashed)
+	{
+		CDistributionSpecHashed *pdsInput = CDistributionSpecHashed::PdsConvert(pdsFirst);
+		CExpressionArray *pdrgpexprInput = pdsInput->Pdrgpexpr();
+		CExpressionArrays *pdsEquivHashedExprs = GPOS_NEW(mp) CExpressionArrays(mp);
+		CDistributionSpecHashed *pds = pdsInput;
+		while (pds)
+		{
+			GPOS_CHECK_STACK_SIZE;
+			CExpressionArray *pdsHashExprs = pds->Pdrgpexpr();
+			pdsHashExprs->AddRef();
+			pdsEquivHashedExprs->Append(pdsHashExprs);
+			pds = pds->PdshashedEquiv();
+		}
+		CDistributionSpecHashed *pdsEquivHashSpec = NULL;
+		for (ULONG ul = 1; ul < pdsEquivHashedExprs->Size(); ul++)
+		{
+			CExpressionArray *pdsHashExprs = (*pdsEquivHashedExprs)[ul];
+			pdsHashExprs->AddRef();
+			pdsEquivHashSpec = GPOS_NEW(mp) CDistributionSpecHashed(pdsHashExprs, pdsInput->FNullsColocated(), pdsEquivHashSpec);
+		}
+		
+		pdrgpexprInput->AddRef();
+		pdsInputForMatch = GPOS_NEW(mp) CDistributionSpecHashed(pdrgpexprInput, pdsInput->FNullsColocated(), pdsEquivHashSpec);
+		CUtils::SetHashedSpecWithEquivExprs(mp, exprhdl, pdsInputForMatch);
+		pdsEquivHashedExprs->Release();
+	}
+	else
+	{
+		pdsInputForMatch = pdsFirst;
+	}
+	
 
 	// find the index of the first child
 	ULONG ulFirstChild = 0;
@@ -642,7 +676,12 @@ CPhysicalHashJoin::PdsRequiredRedistribute
 	}
 
 	// return a matching distribution request for the second child
-	return PdsMatch(mp, pdsFirst, ulFirstChild, exprhdl);
+	CDistributionSpec *pdsMatch = PdsMatch(mp, pdsInputForMatch, ulFirstChild, exprhdl);
+	if (pdsFirst->Edt() == CDistributionSpec::EdtHashed)
+	{
+		pdsInputForMatch->Release();
+	}
+	return pdsMatch;
 }
 
 
