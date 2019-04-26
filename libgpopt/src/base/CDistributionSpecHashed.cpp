@@ -51,22 +51,6 @@ CDistributionSpecHashed::CDistributionSpecHashed
 	GPOS_ASSERT(0 < pdrgpexpr->Size());
 }
 
-CDistributionSpecHashed::CDistributionSpecHashed
-(
- CExpressionArray *pdrgpexpr,
- BOOL fNullsColocated,
- CColRefSetArray *hash_idents_equiv_cols
- )
-:
-m_pdrgpexpr(pdrgpexpr),
-m_fNullsColocated(fNullsColocated),
-m_pdshashedEquiv(NULL),
-m_hash_idents_equiv_exprs(NULL)
-{
-	GPOS_ASSERT(NULL != pdrgpexpr);
-	GPOS_ASSERT(0 < pdrgpexpr->Size());
-}
-
 //---------------------------------------------------------------------------
 //	@function:
 //		CDistributionSpecHashed::CDistributionSpecHashed
@@ -829,6 +813,7 @@ CDistributionSpecHashed::PdsHashedCopy
 	distribution_exprs->AddRef();
 	CDistributionSpecHashed *spec_copy = GPOS_NEW(mp) CDistributionSpecHashed(distribution_exprs, this->FNullsColocated(), spec);
 	equiv_distribution_exprs->Release();
+	GPOS_ASSERT(NULL != spec_copy);
 	return spec_copy;
 }
 //---------------------------------------------------------------------------

@@ -650,7 +650,6 @@ CPhysicalHashJoin::PdsRequiredRedistribute
 	{
 		pdsInputForMatch = pdsFirst;
 	}
-	
 
 	// find the index of the first child
 	ULONG ulFirstChild = 0;
@@ -663,6 +662,7 @@ CPhysicalHashJoin::PdsRequiredRedistribute
 	CDistributionSpec *pdsMatch = PdsMatch(mp, pdsInputForMatch, ulFirstChild, exprhdl);
 	if (pdsFirst->Edt() == CDistributionSpec::EdtHashed)
 	{
+		// if the input spec was created as a copy, release it
 		pdsInputForMatch->Release();
 	}
 	return pdsMatch;
