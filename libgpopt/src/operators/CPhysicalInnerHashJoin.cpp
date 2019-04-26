@@ -73,14 +73,16 @@ CPhysicalInnerHashJoin::PdshashedCreateMatching
 	GPOS_ASSERT(NULL != pdshashed);
 
 	CDistributionSpecHashed *pdshashedMatching = PdshashedMatching(mp, pdshashed, ulSourceChild, exprhdl);
+
+	// create a new spec with input and the output spec as equivalents, as you don't want to lose
+	// the already existing equivalent specs of pdshashed
 	pdshashedMatching->Pdrgpexpr()->AddRef();
 	pdshashed->AddRef();
-	CDistributionSpecHashed *pdsHashedMatchingEquivalents = GPOS_NEW(mp)
-	CDistributionSpecHashed(
-							pdshashedMatching->Pdrgpexpr(),
-							pdshashedMatching->FNullsColocated(),
-							pdshashed // matching distribution spec is equivalent to passed distribution spec
-							);
+	CDistributionSpecHashed *pdsHashedMatchingEquivalents = GPOS_NEW(mp) CDistributionSpecHashed(
+												pdshashedMatching->Pdrgpexpr(),
+												pdshashedMatching->FNullsColocated(),
+												pdshashed // matching distribution spec is equivalent to passed distribution spec
+												);
 	pdshashedMatching->Release();
 	return pdsHashedMatchingEquivalents;
 }

@@ -698,17 +698,19 @@ const
 	for (ULONG ulChild = 0; fSuccess && ulChild < arity; ulChild++)
 	{
 		CDistributionSpec *pdsChild = exprhdl.Pdpplan(ulChild)->Pds();
-		CDistributionSpecHashed *pdsChildTemp = NULL;
+		CDistributionSpecHashed *pdsChildHashed = NULL;
 		if (pdsChild->Edt() == CDistributionSpec::EdtHashed || pdsChild->Edt() == CDistributionSpec::EdtHashedNoOp || pdsChild->Edt() == CDistributionSpec::EdtStrictHashed)
 		{
-			pdsChildTemp = CDistributionSpecHashed::PdsConvert(pdsChild);
+			pdsChildHashed = CDistributionSpecHashed::PdsConvert(pdsChild);
 		}
-		
+
+		// iterate over all the equivalent hash specs of the childs as well to check
+		// if they satisfy the required distribution
 		BOOL equi_hash_spec_matches = false;
-		while (pdsChildTemp && !equi_hash_spec_matches)
+		while (pdsChildHashed && !equi_hash_spec_matches)
 		{
-			equi_hash_spec_matches = pdsChildTemp->FSatisfies((*m_pdrgpds)[ulChild]);
-			pdsChildTemp = pdsChildTemp->PdshashedEquiv();
+			equi_hash_spec_matches = pdsChildHashed->FSatisfies((*m_pdrgpds)[ulChild]);
+			pdsChildHashed = pdsChildHashed->PdshashedEquiv();
 		}
 		fSuccess = equi_hash_spec_matches;
 	}
@@ -723,12 +725,12 @@ const
 	// map outer child hashed distribution to corresponding UnionAll column positions
 	ULongPtrArray *pdrgpulOuter = NULL;
 	CDistributionSpec *pdsChild = exprhdl.Pdpplan(0)->Pds();
-	CDistributionSpecHashed *pdsHashed = CDistributionSpecHashed::PdsConvert(pdsChild);
-	CDistributionSpecHashed *pdsTemp = pdsHashed;
-	while (pdsTemp && NULL == pdrgpulOuter)
+	CDistributionSpecHashed *pdsHashedFirstChild = CDistributionSpecHashed::PdsConvert(pdsChild);
+	CDistributionSpecHashed *pdsHashed = pdsHashedFirstChild;
+	while (pdsHashed && NULL == pdrgpulOuter)
 	{
-		pdrgpulOuter = PdrgpulMap(mp, CDistributionSpecHashed::PdsConvert(pdsTemp)->Pdrgpexpr(), 0/*child_index*/);
-		pdsTemp = pdsTemp->PdshashedEquiv();
+		pdrgpulOuter = PdrgpulMap(mp, CDistributionSpecHashed::PdsConvert(pdsHashed)->Pdrgpexpr(), 0/*child_index*/);
+		pdsHashed = pdsHashed->PdshashedEquiv();
 	}
 	if (NULL == pdrgpulOuter)
 	{
@@ -740,15 +742,15 @@ const
 	{
 		CDistributionSpecHashed *pdsChildSpec = CDistributionSpecHashed::PdsConvert(exprhdl.Pdpplan(ulChild)->Pds());
 		GPOS_ASSERT(NULL != pdsChildSpec);
-		CDistributionSpecHashed *pdsChildTemp = pdsChildSpec;
+		CDistributionSpecHashed *pdsChildHashed = pdsChildSpec;
 		BOOL equi_hash_spec_matches = false;
-		while (pdsChildTemp && !equi_hash_spec_matches)
+		while (pdsChildHashed && !equi_hash_spec_matches)
 		{
-			pdrgpulChild = PdrgpulMap(mp, CDistributionSpecHashed::PdsConvert(pdsChildTemp)->Pdrgpexpr(), ulChild);
+			pdrgpulChild = PdrgpulMap(mp, CDistributionSpecHashed::PdsConvert(pdsChildHashed)->Pdrgpexpr(), ulChild);
 			// match mapped column positions of current child with outer child
 			equi_hash_spec_matches = (NULL != pdrgpulChild) && Equals(pdrgpulOuter, pdrgpulChild);
 			CRefCount::SafeRelease(pdrgpulChild);
-			pdsChildTemp = pdsChildTemp->PdshashedEquiv();
+			pdsChildHashed = pdsChildHashed->PdshashedEquiv();
 		}
 		fSuccess = equi_hash_spec_matches;
 	}

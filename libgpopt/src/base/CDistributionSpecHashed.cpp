@@ -45,7 +45,6 @@ CDistributionSpecHashed::CDistributionSpecHashed
 	m_pdrgpexpr(pdrgpexpr),
 	m_fNullsColocated(fNullsColocated),
 	m_pdshashedEquiv(NULL),
-	m_hash_idents_equiv_cols(NULL),
 	m_hash_idents_equiv_exprs(NULL)
 {
 	GPOS_ASSERT(NULL != pdrgpexpr);
@@ -62,7 +61,6 @@ CDistributionSpecHashed::CDistributionSpecHashed
 m_pdrgpexpr(pdrgpexpr),
 m_fNullsColocated(fNullsColocated),
 m_pdshashedEquiv(NULL),
-m_hash_idents_equiv_cols(hash_idents_equiv_cols),
 m_hash_idents_equiv_exprs(NULL)
 {
 	GPOS_ASSERT(NULL != pdrgpexpr);
@@ -87,7 +85,6 @@ CDistributionSpecHashed::CDistributionSpecHashed
 	m_pdrgpexpr(pdrgpexpr),
 	m_fNullsColocated(fNullsColocated),
 	m_pdshashedEquiv(pdshashedEquiv),
-	m_hash_idents_equiv_cols(NULL),
 	m_hash_idents_equiv_exprs(NULL)
 {
 	GPOS_ASSERT(NULL != pdrgpexpr);
@@ -106,7 +103,6 @@ CDistributionSpecHashed::~CDistributionSpecHashed()
 {
 	m_pdrgpexpr->Release();
 	CRefCount::SafeRelease(m_pdshashedEquiv);
-	CRefCount::SafeRelease(m_hash_idents_equiv_cols);
 	CRefCount::SafeRelease(m_hash_idents_equiv_exprs);
 }
 
@@ -803,6 +799,37 @@ CDistributionSpecHashed::SetEquivHashExprs
 		m_hash_idents_equiv_exprs = equiv_distribution_all_exprs;
 		GPOS_ASSERT(m_hash_idents_equiv_exprs->Size() == m_pdrgpexpr->Size());
 	}
+}
+
+CDistributionSpecHashed *
+CDistributionSpecHashed::PdsHashedCopy
+	(
+	IMemoryPool *mp
+	)
+{
+	CExpressionArray *distribution_exprs = this->Pdrgpexpr();
+	CExpressionArrays *equiv_distribution_exprs = GPOS_NEW(mp) CExpressionArrays(mp);
+	CDistributionSpecHashed *pds = this;
+	while (pds)
+	{
+		CExpressionArray *distribution_exprs = pds->Pdrgpexpr();
+		distribution_exprs->AddRef();
+		equiv_distribution_exprs->Append(distribution_exprs);
+		pds = pds->PdshashedEquiv();
+	}
+
+	CDistributionSpecHashed *spec = NULL;
+	for (ULONG ul = 1; ul < equiv_distribution_exprs->Size(); ul++)
+	{
+		CExpressionArray *distribution_exprs = (*equiv_distribution_exprs)[ul];
+		distribution_exprs->AddRef();
+		spec = GPOS_NEW(mp) CDistributionSpecHashed(distribution_exprs, this->FNullsColocated(), spec);
+	}
+
+	distribution_exprs->AddRef();
+	CDistributionSpecHashed *spec_copy = GPOS_NEW(mp) CDistributionSpecHashed(distribution_exprs, this->FNullsColocated(), spec);
+	equiv_distribution_exprs->Release();
+	return spec_copy;
 }
 //---------------------------------------------------------------------------
 //	@function:

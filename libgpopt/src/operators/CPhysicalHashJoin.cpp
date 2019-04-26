@@ -637,30 +637,13 @@ CPhysicalHashJoin::PdsRequiredRedistribute
 	CDistributionSpec *pdsInputForMatch = NULL;
 	if (pdsFirst->Edt() == CDistributionSpec::EdtHashed)
 	{
-		CDistributionSpecHashed *pdsInput = CDistributionSpecHashed::PdsConvert(pdsFirst);
-		CExpressionArray *pdrgpexprInput = pdsInput->Pdrgpexpr();
-		CExpressionArrays *pdsEquivHashedExprs = GPOS_NEW(mp) CExpressionArrays(mp);
-		CDistributionSpecHashed *pds = pdsInput;
-		while (pds)
-		{
-			GPOS_CHECK_STACK_SIZE;
-			CExpressionArray *pdsHashExprs = pds->Pdrgpexpr();
-			pdsHashExprs->AddRef();
-			pdsEquivHashedExprs->Append(pdsHashExprs);
-			pds = pds->PdshashedEquiv();
-		}
-		CDistributionSpecHashed *pdsEquivHashSpec = NULL;
-		for (ULONG ul = 1; ul < pdsEquivHashedExprs->Size(); ul++)
-		{
-			CExpressionArray *pdsHashExprs = (*pdsEquivHashedExprs)[ul];
-			pdsHashExprs->AddRef();
-			pdsEquivHashSpec = GPOS_NEW(mp) CDistributionSpecHashed(pdsHashExprs, pdsInput->FNullsColocated(), pdsEquivHashSpec);
-		}
-		
-		pdrgpexprInput->AddRef();
-		CDistributionSpecHashed *pdsHashed = GPOS_NEW(mp) CDistributionSpecHashed(pdrgpexprInput, pdsInput->FNullsColocated(), pdsEquivHashSpec);
+		// the spec of the first child is hashed spec, so create a copy
+		// (as we shouldn't modify the original object).
+		// add the equivalent exprs, so the PdsMatch can consider
+		// them while creating matching spec
+		CDistributionSpecHashed *pdsHashedFirstChild = CDistributionSpecHashed::PdsConvert(pdsFirst);
+		CDistributionSpecHashed *pdsHashed = pdsHashedFirstChild->PdsHashedCopy(mp);
 		pdsHashed->SetEquivHashExprs(mp, exprhdl);
-		pdsEquivHashedExprs->Release();
 		pdsInputForMatch = pdsHashed;
 	}
 	else
