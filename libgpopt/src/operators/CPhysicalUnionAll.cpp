@@ -704,8 +704,8 @@ const
 			pdsChildHashed = CDistributionSpecHashed::PdsConvert(pdsChild);
 		}
 
-		// iterate over all the equivalent hash specs of the childs as well to check
-		// if they satisfy the required distribution
+		// iterate over all the equivalent hash specs of the child specs as well to check
+		// if any of them satisfy the required distribution
 		BOOL equi_hash_spec_matches = false;
 		while (pdsChildHashed && !equi_hash_spec_matches)
 		{
