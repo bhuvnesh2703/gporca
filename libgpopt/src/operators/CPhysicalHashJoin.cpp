@@ -251,8 +251,7 @@ CPhysicalHashJoin::PdsMatch
 	(
 	IMemoryPool *mp,
 	CDistributionSpec *pds,
-	ULONG ulSourceChildIndex,
-	CExpressionHandle &exprhdl
+	ULONG ulSourceChildIndex
 	)
 	const
 {
@@ -274,7 +273,7 @@ CPhysicalHashJoin::PdsMatch
 
 		case CDistributionSpec::EdtHashed:
 			// require second child to provide a matching hashed distribution
-			return PdshashedMatching(mp, CDistributionSpecHashed::PdsConvert(pds), ulSourceChildIndex, exprhdl);
+			return PdshashedMatching(mp, CDistributionSpecHashed::PdsConvert(pds), ulSourceChildIndex);
 
 		default:
 			GPOS_ASSERT(CDistributionSpec::EdtReplicated == pds->Edt());
@@ -307,8 +306,7 @@ CPhysicalHashJoin::PdshashedMatching
 	(
 	IMemoryPool *mp,
 	CDistributionSpecHashed *pdshashed,
-	ULONG ulSourceChild, // index of child that delivered the given hashed distribution
-	CExpressionHandle &exprhdl
+	ULONG ulSourceChild // index of child that delivered the given hashed distribution
 	)
 	const
 {
@@ -370,12 +368,14 @@ CPhysicalHashJoin::PdshashedMatching
 		if (NULL != pdshashed->PdshashedEquiv())
 		{
 			// try again using the equivalent hashed distribution
-			return PdshashedMatching(mp, pdshashed->PdshashedEquiv(), ulSourceChild, exprhdl);
+			return PdshashedMatching(mp, pdshashed->PdshashedEquiv(), ulSourceChild);
 		}
 	}
+	GPOS_ASSERT(pdrgpexpr->Size() == ulDlvrdSize);
 	if (pdrgpexpr->Size() != ulDlvrdSize)
 	{
-		GPOS_ASSERT(pdrgpexpr->Size() == ulDlvrdSize);
+		// it should never happen, but instead of creating wrong spec, raise an exception
+		GPOS_RAISE(CException::ExmaUnhandled, CException::ExmiUnhandled);
 	}
 
 	return GPOS_NEW(mp) CDistributionSpecHashed(pdrgpexpr, true /* fNullsCollocated */);
@@ -547,30 +547,9 @@ CPhysicalHashJoin::PdshashedPassThru
 	if (fSubset)
 	{
 		// incoming request uses columns from outer child only, pass it through
-		CExpressionArrays *pdsEquivHashedExprs = GPOS_NEW(mp) CExpressionArrays(mp);
-		CDistributionSpecHashed *pds = pdshashedInput;
-		while (pds)
-		{
-			GPOS_CHECK_STACK_SIZE;
-			CExpressionArray *pdsHashExprs = pds->Pdrgpexpr();
-			pdsHashExprs->AddRef();
-			pdsEquivHashedExprs->Append(pdsHashExprs);
-			pds = pds->PdshashedEquiv();
-		}
-
-		CDistributionSpecHashed *pdsEquivHashSpec = NULL;
-		for (ULONG ul = 1; ul < pdsEquivHashedExprs->Size(); ul++)
-		{
-			CExpressionArray *pdsHashExprs = (*pdsEquivHashedExprs)[ul];
-			pdsHashExprs->AddRef();
-			pdsEquivHashSpec = GPOS_NEW(mp) CDistributionSpecHashed(pdsHashExprs, pdshashedInput->FNullsColocated(), pdsEquivHashSpec);
-		}
-
-		pdrgpexprIncomingRequest->AddRef();
-		CDistributionSpecHashed *pdsEquivSpecs = GPOS_NEW(mp) CDistributionSpecHashed(pdrgpexprIncomingRequest, pdshashedInput->FNullsColocated(), pdsEquivHashSpec);
-
-		pdsEquivHashedExprs->Release();
-		return pdsEquivSpecs;
+		// but create a copy
+		CDistributionSpecHashed *pdsHashedRequired = pdshashedInput->PdsHashedCopy(mp);
+		return pdsHashedRequired;
 	}
 
 	if (!fDisjoint)
@@ -659,7 +638,7 @@ CPhysicalHashJoin::PdsRequiredRedistribute
 	}
 
 	// return a matching distribution request for the second child
-	CDistributionSpec *pdsMatch = PdsMatch(mp, pdsInputForMatch, ulFirstChild, exprhdl);
+	CDistributionSpec *pdsMatch = PdsMatch(mp, pdsInputForMatch, ulFirstChild);
 	if (pdsFirst->Edt() == CDistributionSpec::EdtHashed)
 	{
 		// if the input spec was created as a copy, release it

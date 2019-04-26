@@ -53,7 +53,7 @@ namespace gpopt
 			void CreateHashRedistributeRequests(IMemoryPool *mp);
 
 			// compute a distribution matching the distribution delivered by given child
-			CDistributionSpec *PdsMatch(IMemoryPool *mp, CDistributionSpec *pds, ULONG ulSourceChildIndex, CExpressionHandle &exprhdl) const;
+			CDistributionSpec *PdsMatch(IMemoryPool *mp, CDistributionSpec *pds, ULONG ulSourceChildIndex) const;
 
 			// compute required hashed distribution from the n-th child
 			CDistributionSpecHashed *PdshashedRequired(IMemoryPool *mp, ULONG child_index, ULONG ulReqIndex) const;
@@ -112,7 +112,7 @@ namespace gpopt
 		protected:
 			
 			// helper for computing a hashed distribution matching the given distribution
-            CDistributionSpecHashed *PdshashedMatching(IMemoryPool *mp, CDistributionSpecHashed *pdshashed, ULONG ulSourceChild, CExpressionHandle &exprhdl) const;
+            CDistributionSpecHashed *PdshashedMatching(IMemoryPool *mp, CDistributionSpecHashed *pdshashed, ULONG ulSourceChild) const;
 
 			// check whether the hash keys from one child are nullable
 			BOOL FNullableHashKeys(CColRefSet *pcrsNotNullInner, BOOL fInner) const;
