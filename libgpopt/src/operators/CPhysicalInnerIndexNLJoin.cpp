@@ -135,8 +135,8 @@ CPhysicalInnerIndexNLJoin::PdsRequired
 		{
 			// request hashed distribution from outer
 			pdshashedEquiv->Pdrgpexpr()->AddRef();
-			CDistributionSpec *pdsEquivCols = GPOS_NEW(mp) CDistributionSpecHashed(pdshashedEquiv->Pdrgpexpr(), pdshashedEquiv->FNullsColocated());
-			CUtils::SetHashedSpecWithEquivExprs(mp, exprhdl, pdsEquivCols);
+			CDistributionSpecHashed *pdsEquivCols = GPOS_NEW(mp) CDistributionSpecHashed(pdshashedEquiv->Pdrgpexpr(), pdshashedEquiv->FNullsColocated());
+			pdsEquivCols->SetEquivHashExprs(mp, exprhdl);
 			return pdsEquivCols;
 		}
 	}

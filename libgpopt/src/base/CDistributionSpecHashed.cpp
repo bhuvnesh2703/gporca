@@ -19,6 +19,10 @@
 #include "gpopt/operators/CPhysicalMotionBroadcast.h"
 #include "gpopt/operators/CPhysicalMotionHashDistribute.h"
 #include "gpopt/operators/CScalarIdent.h"
+#include "gpopt/operators/CExpressionPreprocessor.h"
+#include "gpopt/operators/CPredicateUtils.h"
+#include "gpopt/operators/CExpressionHandle.h"
+
 
 #define GPOPT_DISTR_SPEC_HASHED_EXPRESSIONS      (ULONG(5))
 
@@ -670,23 +674,136 @@ CDistributionSpecHashed::PdshashedMaximal
 	return pdshashed;
 }
 
+// check if the distribution key expression are covered by the input
+// expression array
 BOOL
 CDistributionSpecHashed::CoveredBy
-(
- const CExpressionArray *dist_cols_expr_array
- )
-const
+	(
+	const CExpressionArray *dist_cols_expr_array
+	)
+	const
 {
 	BOOL covers = false;
 	const CDistributionSpecHashed *pds = this;
 	while (pds && !covers)
 	{
+		
 		covers = CUtils::Contains(dist_cols_expr_array, pds->Pdrgpexpr());
 		pds = pds->PdshashedEquiv();
 	}
 	return covers;
 }
 
+// iterate over all the distribution exprs keys and create an array holding
+// equivalent exprs which correspond to the same distribution based on equivalence
+// for example: select * from t1, t2 where t1.a = t2.c and t1.b = t2.d;
+// if the resulting spec consists of column t1.a, t1,b, based on the equivalence,
+// it implies that t1.a distribution is equivalent to t2.c and t1.b is equivalent to t2.d
+// t1.a --> equivalent exprs: [t1.a, t2.c]
+// t1.b --> equivalent exprs:[t1.b, t2.d]
+void
+CDistributionSpecHashed::SetEquivHashExprs
+	(
+	IMemoryPool *mp,
+	CExpressionHandle &expression_handle
+	)
+{
+	CExpressionArray *distribution_exprs = m_pdrgpexpr;
+	CExpressionArrays *equiv_distribution_all_exprs = m_hash_idents_equiv_exprs;
+	if (NULL == equiv_distribution_all_exprs)
+	{
+		equiv_distribution_all_exprs = GPOS_NEW(mp) CExpressionArrays(mp);
+		for (ULONG distribution_key_idx = 0; distribution_key_idx < distribution_exprs->Size(); distribution_key_idx++)
+		{
+			CExpression *distribution_expr = (*distribution_exprs)[distribution_key_idx];
+			CExpression *sc_ident_expr = CCastUtils::PexprWithoutCasts(distribution_expr);
+			const CColRef *sc_ident_colref = CScalarIdent::PopConvert(sc_ident_expr->Pop())->Pcr();
+
+			CExpressionArray *equiv_distribution_exprs = GPOS_NEW(mp) CExpressionArray(mp);
+			distribution_expr->AddRef();
+
+			// the input expr is always equivalent to itself, so add it to the equivalent expr array
+			equiv_distribution_exprs->Append(distribution_expr);
+
+			CColRefSet *equiv_cols = expression_handle.GetRelationalProperties()->Ppc()->PcrsEquivClass(sc_ident_colref);
+			// if there are equivalent columns found, then we have a chance to create equivalent distribution exprs
+			if (NULL != equiv_cols)
+			{
+				// create a scalar expr with all the equivalent columns
+				CExpression *predicate_expr_with_inferred_quals = CExpressionPreprocessor::PexprConjEqualityPredicates(mp, equiv_cols);
+				// put all the scalar expr into an array
+				CExpressionArray *predicate_exprs = CPredicateUtils::PdrgpexprConjuncts(mp, predicate_expr_with_inferred_quals);
+
+				// colrefset to track what all exprs has already been considered, it helps avoiding duplicates
+				CColRefSet *processed_colrefs = GPOS_NEW(mp) CColRefSet(mp);
+				processed_colrefs->Include(sc_ident_colref);
+				for (ULONG predicate_idx = 0; predicate_idx < predicate_exprs->Size(); predicate_idx++)
+				{
+					CExpression *predicate_expr = (*predicate_exprs)[predicate_idx];
+					if (!CUtils::FScalarCmp(predicate_expr))
+					{
+						// if the predicate is anything other than scalar comparision,
+						// skip it. for instance: CScalarConst(1)
+						continue;
+					}
+
+					CColRefSet *scalar_condition_colrefset = CDrvdPropScalar::GetDrvdScalarProps(predicate_expr->PdpDerive())->PcrsUsed();
+					if (!scalar_condition_colrefset->FMember(sc_ident_colref))
+					{
+						// if the current distribution colref is not part of the generated predicate, skip it.
+						// we need to consider only the predicate expr which are made up of current
+						// distribution expr
+						continue;
+					}
+
+					// add cast on the expressions if required, both the outer and inner hash exprs
+					// should be of the same data type else they may be hashed to different segments
+					CExpression *predicate_expr_with_casts = CCastUtils::PexprAddCast(mp, predicate_expr);
+					CExpression *original_predicate_expr = predicate_expr;
+					if (predicate_expr_with_casts)
+					{
+						original_predicate_expr = predicate_expr_with_casts;
+					}
+					CExpression *left_distribution_expr = (*original_predicate_expr)[0];
+					CExpression *right_distribution_expr = (*original_predicate_expr)[1];
+
+					// if the predicate is a = b, and a is the current distribution expr,
+					// then the equivalent expr consists of b
+					CExpression *equiv_distribution_expr = NULL;
+					if (CUtils::Equals(left_distribution_expr, distribution_expr))
+					{
+						equiv_distribution_expr = right_distribution_expr;
+					}
+					else if (CUtils::Equals(right_distribution_expr, distribution_expr))
+					{
+						equiv_distribution_expr = left_distribution_expr;
+					}
+
+					// if equivalent distributione expr is found, add it to the array holding equivalent distribution exprs
+					if (equiv_distribution_expr)
+					{
+						CExpression *equiv_distribution_expr_without_bcc = CCastUtils::PexprWithoutBinaryCoercibleCasts(equiv_distribution_expr);
+						CColRefSet *distribution_expr_without_bcc_colrefset = CDrvdPropScalar::GetDrvdScalarProps(equiv_distribution_expr_without_bcc->PdpDerive())->PcrsUsed();
+						// check if the entry has already been processed
+						if (!processed_colrefs->FIntersects(distribution_expr_without_bcc_colrefset))
+						{
+							equiv_distribution_expr_without_bcc->AddRef();
+							equiv_distribution_exprs->Append(equiv_distribution_expr_without_bcc);
+							processed_colrefs->Include(distribution_expr_without_bcc_colrefset);
+						}
+					}
+					CRefCount::SafeRelease(predicate_expr_with_casts);
+				}
+				processed_colrefs->Release();
+				predicate_exprs->Release();
+				predicate_expr_with_inferred_quals->Release();
+			}
+			equiv_distribution_all_exprs->Append(equiv_distribution_exprs);
+		}
+		m_hash_idents_equiv_exprs = equiv_distribution_all_exprs;
+		GPOS_ASSERT(m_hash_idents_equiv_exprs->Size() == m_pdrgpexpr->Size());
+	}
+}
 //---------------------------------------------------------------------------
 //	@function:
 //		CDistributionSpecHashed::OsPrint

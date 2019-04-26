@@ -222,12 +222,15 @@ namespace gpopt
 				return m_hash_idents_equiv_exprs;
 			}
 		
-		BOOL
-		MatchesForHash
-		(
-		 const CDistributionSpec *pds
-		 )
-		const;
+			virtual
+			void SetEquivHashExprs(IMemoryPool *mp, CExpressionHandle &expression_handle);
+		
+			BOOL
+			MatchesForHash
+			(
+			 const CDistributionSpec *pds
+			 )
+			const;
 		
 			virtual
 			BOOL CoveredBy(const CExpressionArray *dist_cols_expr_array) const;

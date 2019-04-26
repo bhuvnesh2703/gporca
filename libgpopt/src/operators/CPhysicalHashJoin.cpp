@@ -658,9 +658,10 @@ CPhysicalHashJoin::PdsRequiredRedistribute
 		}
 		
 		pdrgpexprInput->AddRef();
-		pdsInputForMatch = GPOS_NEW(mp) CDistributionSpecHashed(pdrgpexprInput, pdsInput->FNullsColocated(), pdsEquivHashSpec);
-		CUtils::SetHashedSpecWithEquivExprs(mp, exprhdl, pdsInputForMatch);
+		CDistributionSpecHashed *pdsHashed = GPOS_NEW(mp) CDistributionSpecHashed(pdrgpexprInput, pdsInput->FNullsColocated(), pdsEquivHashSpec);
+		pdsHashed->SetEquivHashExprs(mp, exprhdl);
 		pdsEquivHashedExprs->Release();
+		pdsInputForMatch = pdsHashed;
 	}
 	else
 	{
@@ -743,7 +744,11 @@ CPhysicalHashJoin::PdsRequired
 	{
 		// requests 1 .. N are (redistribute, redistribute)
 		CDistributionSpec *pds = PdsRequiredRedistribute(mp, exprhdl, pdsInput, child_index, pdrgpdpCtxt, ulOptReq);
-		CUtils::SetHashedSpecWithEquivExprs(mp, exprhdl, pds);
+		if (CDistributionSpec::EdtHashed == pds->Edt())
+		{
+			CDistributionSpecHashed *pdsHashed = CDistributionSpecHashed::PdsConvert(pds);
+			pdsHashed->SetEquivHashExprs(mp, exprhdl);
+		}
 		return pds;
 	}
 
@@ -753,7 +758,11 @@ CPhysicalHashJoin::PdsRequired
 		// requests N+1, N+2 are (hashed/non-singleton, replicate)
 
 		CDistributionSpec *pds = PdsRequiredReplicate(mp, exprhdl, pdsInput, child_index, pdrgpdpCtxt, ulOptReq);
-		CUtils::SetHashedSpecWithEquivExprs(mp, exprhdl, pds);
+		if (CDistributionSpec::EdtHashed == pds->Edt())
+		{
+			CDistributionSpecHashed *pdsHashed = CDistributionSpecHashed::PdsConvert(pds);
+			pdsHashed->SetEquivHashExprs(mp, exprhdl);
+		}
 		return pds;
 	}
 

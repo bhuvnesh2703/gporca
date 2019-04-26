@@ -1088,19 +1088,10 @@ namespace gpopt
 				);
 		
 			static
-			CExpression *GetJoinWithoutInferredPreds(IMemoryPool *mp, CExpression *pexprJoin);
-		
+			CExpression *GetJoinWithoutInferredPreds(IMemoryPool *mp, CExpression *join_expr);
+
 			static
 			BOOL CanRemoveInferredPredicates(COperator::EOperatorId op_id);
-		
-		void
-		static
-		SetHashedSpecWithEquivExprs
-		(
-		 IMemoryPool *mp,
-		 CExpressionHandle &exprhdl,
-		 CDistributionSpec *pds
-		 );
 	}; // class CUtils
 
 	// hash set from expressions

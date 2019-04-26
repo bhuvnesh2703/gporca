@@ -876,9 +876,13 @@ CNormalizer::PushThruJoin
 	CExpression *pexprJoinWithInferredPred = GPOS_NEW(mp) CExpression(mp, pop, pdrgpexprChildren);
 	CExpression *pexprJoinWithoutInferredPred = NULL;
 
+	// remove inferred predicate from the join expression. inferred predicate can impact the cost
+	// of the join node as the node will have to project more columns even though they are not
+	// used by the above nodes. So, better to remove them from the join after all the inferred predicates
+	// are pushed down.
 	if (CUtils::CanRemoveInferredPredicates(pop->Eopid()) && !COptCtxt::PoctxtFromTLS()->Pcteinfo()->FEnableInlining())
 	{
-		//TODO: check if subquery check is required
+		// if there are subqueries in the node, don't remove any predicates.
 		BOOL has_subquery = CUtils::FHasSubqueryOrApply(pexprJoinWithInferredPred);
 		if (!has_subquery)
 		{

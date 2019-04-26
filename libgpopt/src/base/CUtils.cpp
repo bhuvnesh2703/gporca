@@ -5190,113 +5190,40 @@ CUtils::PexprMatchEqualityOrINDF
 	return pexprMatching;
 }
 
-
+// from the input join expression, remove the inferred predicates
+// and return the new join expression without inferred predicate
 CExpression *
 CUtils::GetJoinWithoutInferredPreds
-(
- IMemoryPool *mp,
- CExpression *pexprJoin
- )
+	(
+	IMemoryPool *mp,
+	CExpression *join_expr
+	)
 {
-	GPOS_ASSERT(3 == pexprJoin->Arity());
-	CExpressionHandle exprhdl(mp);
-	exprhdl.Attach(pexprJoin);
-	CExpression *pred_without_inferred_cond = CPredicateUtils::PexprRemoveImpliedConjuncts(mp, exprhdl.PexprScalarChild(pexprJoin->Arity() - 1), exprhdl);
-	CExpression *pexprLeft = (*pexprJoin)[0];
-	CExpression *pexprRight = (*pexprJoin)[1];
-	pexprLeft->AddRef();
-	pexprRight->AddRef();
-	COperator *popJoin = pexprJoin->Pop();
-	popJoin->AddRef();
-	return GPOS_NEW(mp) CExpression(mp, popJoin, pexprLeft, pexprRight, pred_without_inferred_cond);
+	GPOS_ASSERT(COperator::EopLogicalInnerJoin == join_expr->Pop()->Eopid());
+
+	CExpressionHandle expression_handle(mp);
+	expression_handle.Attach(join_expr);
+	CExpression *scalar_expr = expression_handle.PexprScalarChild(join_expr->Arity() - 1);
+	CExpression *scalar_expr_without_inferred_pred = CPredicateUtils::PexprRemoveImpliedConjuncts(mp, scalar_expr, expression_handle);
+
+	// create a new join expression using the scalar expr without inferred predicate
+	CExpression *left_child_expr = (*join_expr)[0];
+	CExpression *right_child_expr = (*join_expr)[1];
+	left_child_expr->AddRef();
+	right_child_expr->AddRef();
+	COperator *join_op = join_expr->Pop();
+	join_op->AddRef();
+	return GPOS_NEW(mp) CExpression(mp, join_op, left_child_expr, right_child_expr, scalar_expr_without_inferred_pred);
 }
 
+// operators from which the inferred predicates can be removed
+// NB: currently, only inner join is included, but we can add more later.
 BOOL
 CUtils::CanRemoveInferredPredicates
-(
- COperator::EOperatorId op_id
- )
+	(
+	COperator::EOperatorId op_id
+	)
 {
 	return op_id == COperator::EopLogicalInnerJoin;
-}
-
-void
-CUtils::SetHashedSpecWithEquivExprs
-(
- IMemoryPool *mp,
- CExpressionHandle &exprhdl,
- CDistributionSpec *pds
- )
-{
-	if (pds->Edt() == CDistributionSpec::EdtHashed)
-	{
-		CDistributionSpecHashed *pdsHashed = CDistributionSpecHashed::PdsConvert(pds);
-		CExpressionArray *dist_expr_array = pdsHashed->Pdrgpexpr();
-		CExpressionArrays *equivColsExprsArray = pdsHashed->HashSpecEquivExprs();
-		if (equivColsExprsArray == NULL)
-		{
-			equivColsExprsArray = GPOS_NEW(mp) CExpressionArrays(mp);
-			for (ULONG ul = 0; ul < dist_expr_array->Size(); ul++)
-			{
-				// TODO: Handle Cases where distribution key is not on simple scalar
-				// idents
-				CExpression *pexprTest = (*dist_expr_array)[ul];
-				CExpression *pexpr = CCastUtils::PexprWithoutCasts((*dist_expr_array)[ul]);
-				CScalarIdent *popScIdent = CScalarIdent::PopConvert(pexpr->Pop());
-				const CColRef *pcr = popScIdent->Pcr();
-				CColRefSet *equiv_colrefset = exprhdl.GetRelationalProperties()->Ppc()->PcrsEquivClass(pcr);
-				CExpressionArray *pexprEquivExpressions = GPOS_NEW(mp) CExpressionArray(mp);;
-				pexprTest->AddRef();
-				pexprEquivExpressions->Append(pexprTest);
-				if (equiv_colrefset != NULL)
-				{
-					CExpression *pexprEquality = CExpressionPreprocessor::PexprConjEqualityPredicates(mp, equiv_colrefset);
-					CExpressionArray *conjuncts = CPredicateUtils::PdrgpexprConjuncts(mp, pexprEquality);
-					CColRefSet *pcrsProcessed = GPOS_NEW(mp) CColRefSet(mp);
-					pcrsProcessed->Include(pcr);
-					for (ULONG id = 0; id < conjuncts->Size(); id++)
-					{
-						CExpression *pexpr = (*conjuncts)[id];
-						if (!(CUtils::FScalarCmp(pexpr) || CPredicateUtils::FINDF(pexpr)))
-						{
-							continue;
-						}
-						CExpression *pexprCasted = CCastUtils::PexprAddCast(mp, pexpr);
-						CExpression *pexprCast = NULL;
-						if (pexprCasted)
-							pexprCast = pexprCasted;
-						else
-							pexprCast = pexpr;
-						CExpression *pexprLeft = (*pexprCast)[0];
-						CExpression *pexprRight = (*pexprCast)[1];
-						CColRefSet *pcrsEquiv = CDrvdPropScalar::GetDrvdScalarProps(pexprCast->PdpDerive())->PcrsUsed();
-						BOOL consider = false;
-						if (pcrsEquiv->FMember(pcr))
-						{
-							if (CUtils::Equals(pexprLeft, pexprTest) || CUtils::Equals(pexprRight, pexprTest))
-								consider = true;
-						}
-						for (ULONG idx = 0; idx < pexprCast->Arity() && consider; idx++)
-						{
-							CExpression *pexprEquiv1 = CCastUtils::PexprWithoutBinaryCoercibleCasts((*pexprCast)[idx]);
-							CColRefSet *pcrsEquiv1 = CDrvdPropScalar::GetDrvdScalarProps(pexprEquiv1->PdpDerive())->PcrsUsed();
-							if (!pcrsProcessed->FIntersects(pcrsEquiv1))
-							{
-								pexprEquiv1->AddRef();
-								pexprEquivExpressions->Append(pexprEquiv1);
-								pcrsProcessed->Include(pcrsEquiv1);
-							}
-						}
-						CRefCount::SafeRelease(pexprCasted);
-					}
-					pcrsProcessed->Release();
-					conjuncts->Release();
-					pexprEquality->Release();
-				}
-				equivColsExprsArray->Append(pexprEquivExpressions);
-			}
-			pdsHashed->SetHashSpecEquivExprs(equivColsExprsArray);
-		}
-	}
 }
 // EOF
