@@ -236,9 +236,9 @@ namespace gpopt
 			// convert series of AND or OR comparisons into array IN expressions
 			static
 			CExpression *PexprConvert2In(IMemoryPool *mp, CExpression *pexpr);
-		
-		static
-		CExpression *PexprConjEqualityPredicates(IMemoryPool *mp, CColRefSet *pcrs);
+
+			static
+			CExpression *PexprConjEqualityPredicates(IMemoryPool *mp, CColRefSet *pcrs);
 
 	}; // class CExpressionPreprocessor
 }

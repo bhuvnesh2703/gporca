@@ -1086,7 +1086,7 @@ namespace gpopt
 				CExpression *pexprToMatch,
 				CExpressionArray *pdrgpexpr // array of predicates to inspect
 				);
-		
+
 			static
 			CExpression *GetJoinWithoutInferredPreds(IMemoryPool *mp, CExpression *join_expr);
 
