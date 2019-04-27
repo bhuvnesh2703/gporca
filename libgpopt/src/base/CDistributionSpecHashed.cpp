@@ -516,23 +516,7 @@ CDistributionSpecHashed::Equals
 	CExpressionArrays *spec_equiv_exprs = m_equiv_hash_exprs;
 	CExpressionArrays *other_spec_equiv_exprs = other_spec->HashSpecEquivExprs();
 
-	// if one of the spec has equivalent expression and other doesn't, they are not equal
-	if (NULL == spec_equiv_exprs || NULL == other_spec_equiv_exprs)
-	{
-		return NULL == spec_equiv_exprs && NULL == other_spec_equiv_exprs;
-	}
-
-	if (spec_equiv_exprs->Size() != other_spec_equiv_exprs->Size())
-		return false;
-
-	// compare both the equiv expression arrays
-	BOOL match = true;
-	for (ULONG id = 0; id < spec_equiv_exprs->Size() && match; id++)
-	{
-		match = CUtils::Equals((*spec_equiv_exprs)[id], (*other_spec_equiv_exprs)[id]);
-	}
-
-	return match;
+	return CUtils::Equals(spec_equiv_exprs, other_spec_equiv_exprs);
 }
 
 //---------------------------------------------------------------------------

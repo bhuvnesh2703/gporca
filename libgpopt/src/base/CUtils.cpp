@@ -5248,4 +5248,40 @@ CUtils::Contains
 	}
 	return contains;
 }
+
+BOOL
+CUtils::Equals
+	(
+	const CExpressionArrays *exprs_arr,
+	const CExpressionArrays *other_exprs_arr
+	)
+{
+	GPOS_CHECK_STACK_SIZE;
+
+	// NULL arrays are equal
+	if (NULL == exprs_arr || NULL == other_exprs_arr)
+	{
+		return NULL == exprs_arr && NULL == other_exprs_arr;
+	}
+
+	// do pointer comparision
+	if (exprs_arr == other_exprs_arr)
+	{
+		return true;
+	}
+
+	// if the size is not equal, the two arrays are not equal
+	if (exprs_arr->Size() != other_exprs_arr->Size())
+	{
+		return false;
+	}
+
+	// if all the elements are equal, then both the arrays are equal
+	BOOL equal = true;
+	for (ULONG id = 0; id < exprs_arr->Size() && equal; id++)
+	{
+		equal = CUtils::Equals((*exprs_arr)[id], (*other_exprs_arr)[id]);
+	}
+	return equal;
+}
 // EOF

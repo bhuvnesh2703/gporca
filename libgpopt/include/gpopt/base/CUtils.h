@@ -1095,6 +1095,9 @@ namespace gpopt
 		
 			static
 			BOOL Contains(const CExpressionArray *exprs, CExpression *expr_to_match);
+
+			static
+			BOOL Equals(const CExpressionArrays *exprs_arr, const CExpressionArrays *other_exprs_arr);
 	}; // class CUtils
 
 	// hash set from expressions
