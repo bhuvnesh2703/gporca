@@ -234,6 +234,7 @@ CDrvdPropPlan::Equals
 			m_prs->Matches(pdpplan->Prs()) &&
 			m_ppim->Equals(pdpplan->Ppim()) &&
 			m_pcm->Equals(pdpplan->GetCostModel());
+
 	if (success)
 	{
 		if (m_pds->Edt() == CDistributionSpec::EdtHashed)
@@ -243,9 +244,11 @@ CDrvdPropPlan::Equals
 			return pds->Equals(pdsInput);
 		}
 		else
+		{
 			return m_pds->Matches(pdpplan->Pds());
+		}
 	}
-	
+
 	return success;
 }
 
