@@ -486,10 +486,10 @@ CDistributionSpecHashed::Equals
 	if (input_spec->Edt() != Edt())
 		return false;
 
-	CDistributionSpecHashed *spec_equiv = this->PdshashedEquiv();
 	const CDistributionSpecHashed *other_spec = CDistributionSpecHashed::PdsConvert(input_spec);
+	
+	CDistributionSpecHashed *spec_equiv = this->PdshashedEquiv();
 	CDistributionSpecHashed *other_spec_equiv = other_spec->PdshashedEquiv();
-
 	// if one of the spec has equivalent spec and other doesn't, they are not equal
 	if ((spec_equiv != NULL && other_spec_equiv == NULL) || (spec_equiv == NULL && other_spec_equiv != NULL))
 		return false;
@@ -513,10 +513,10 @@ CDistributionSpecHashed::Equals
 		return false;
 
 	// compare the equivalent expression arrays
-	CExpressionArrays *spec_equiv_exprs = HashSpecEquivExprs();
+	CExpressionArrays *spec_equiv_exprs = m_hash_idents_equiv_exprs;
 	CExpressionArrays *other_spec_equiv_exprs = other_spec->HashSpecEquivExprs();
 
-	// if one of the spec has equivalent expres and other doesn't, they are not equal
+	// if one of the spec has equivalent expression and other doesn't, they are not equal
 	if (NULL == spec_equiv_exprs || NULL == other_spec_equiv_exprs)
 	{
 		return NULL == spec_equiv_exprs && NULL == other_spec_equiv_exprs;
