@@ -45,7 +45,7 @@ CDistributionSpecHashed::CDistributionSpecHashed
 	m_pdrgpexpr(pdrgpexpr),
 	m_fNullsColocated(fNullsColocated),
 	m_pdshashedEquiv(NULL),
-	m_hash_idents_equiv_exprs(NULL)
+	m_equiv_hash_exprs(NULL)
 {
 	GPOS_ASSERT(NULL != pdrgpexpr);
 	GPOS_ASSERT(0 < pdrgpexpr->Size());
@@ -69,7 +69,7 @@ CDistributionSpecHashed::CDistributionSpecHashed
 	m_pdrgpexpr(pdrgpexpr),
 	m_fNullsColocated(fNullsColocated),
 	m_pdshashedEquiv(pdshashedEquiv),
-	m_hash_idents_equiv_exprs(NULL)
+	m_equiv_hash_exprs(NULL)
 {
 	GPOS_ASSERT(NULL != pdrgpexpr);
 	GPOS_ASSERT(0 < pdrgpexpr->Size());
@@ -87,7 +87,7 @@ CDistributionSpecHashed::~CDistributionSpecHashed()
 {
 	m_pdrgpexpr->Release();
 	CRefCount::SafeRelease(m_pdshashedEquiv);
-	CRefCount::SafeRelease(m_hash_idents_equiv_exprs);
+	CRefCount::SafeRelease(m_equiv_hash_exprs);
 }
 
 //---------------------------------------------------------------------------
@@ -199,7 +199,7 @@ CDistributionSpecHashed::FMatchSubset
 	for (ULONG ulOuter = 0; ulOuter < ulOwnExprs; ulOuter++)
 	{
 		CExpression *pexprOwn = CCastUtils::PexprWithoutBinaryCoercibleCasts((*m_pdrgpexpr)[ulOuter]);
-		CExpressionArrays *all_equiv_exprs = m_hash_idents_equiv_exprs;
+		CExpressionArrays *all_equiv_exprs = m_equiv_hash_exprs;
 
 		BOOL fFound = false;
 		for (ULONG ulInner = 0; ulInner < ulOtherExprs; ulInner++)
@@ -356,11 +356,11 @@ CDistributionSpecHashed::HashValue() const
 		ulHash = gpos::CombineHashes(ulHash, CExpression::HashValue(pexpr));
 	}
 
-	if (NULL != m_hash_idents_equiv_exprs && m_hash_idents_equiv_exprs->Size() > 0)
+	if (NULL != m_equiv_hash_exprs && m_equiv_hash_exprs->Size() > 0)
 	{
-		for (ULONG ul = 0; ul < m_hash_idents_equiv_exprs->Size(); ul++)
+		for (ULONG ul = 0; ul < m_equiv_hash_exprs->Size(); ul++)
 		{
-			CExpressionArray *equiv_distribution_exprs = (*m_hash_idents_equiv_exprs)[ul];
+			CExpressionArray *equiv_distribution_exprs = (*m_equiv_hash_exprs)[ul];
 			for (ULONG id = 0; id < equiv_distribution_exprs->Size();  id++)
 			{
 				CExpression *pexpr = (*equiv_distribution_exprs)[id];
@@ -500,7 +500,7 @@ CDistributionSpecHashed::Equals
 	{
 		equals = spec_equiv->Equals(other_spec_equiv);
 	}
-
+	// if the equivalent spec are not equal, the spec objects are not equal
 	if (!equals)
 		return false;
 
@@ -513,7 +513,7 @@ CDistributionSpecHashed::Equals
 		return false;
 
 	// compare the equivalent expression arrays
-	CExpressionArrays *spec_equiv_exprs = m_hash_idents_equiv_exprs;
+	CExpressionArrays *spec_equiv_exprs = m_equiv_hash_exprs;
 	CExpressionArrays *other_spec_equiv_exprs = other_spec->HashSpecEquivExprs();
 
 	// if one of the spec has equivalent expression and other doesn't, they are not equal
@@ -603,7 +603,7 @@ CDistributionSpecHashed::SetEquivHashExprs
 	)
 {
 	CExpressionArray *distribution_exprs = m_pdrgpexpr;
-	CExpressionArrays *equiv_distribution_all_exprs = m_hash_idents_equiv_exprs;
+	CExpressionArrays *equiv_distribution_all_exprs = m_equiv_hash_exprs;
 	if (NULL == equiv_distribution_all_exprs)
 	{
 		equiv_distribution_all_exprs = GPOS_NEW(mp) CExpressionArrays(mp);
@@ -614,9 +614,9 @@ CDistributionSpecHashed::SetEquivHashExprs
 			const CColRef *sc_ident_colref = CScalarIdent::PopConvert(sc_ident_expr->Pop())->Pcr();
 
 			CExpressionArray *equiv_distribution_exprs = GPOS_NEW(mp) CExpressionArray(mp);
-			distribution_expr->AddRef();
 
 			// the input expr is always equivalent to itself, so add it to the equivalent expr array
+			distribution_expr->AddRef();
 			equiv_distribution_exprs->Append(distribution_expr);
 
 			CColRefSet *equiv_cols = expression_handle.GetRelationalProperties()->Ppc()->PcrsEquivClass(sc_ident_colref);
@@ -694,8 +694,8 @@ CDistributionSpecHashed::SetEquivHashExprs
 			}
 			equiv_distribution_all_exprs->Append(equiv_distribution_exprs);
 		}
-		m_hash_idents_equiv_exprs = equiv_distribution_all_exprs;
-		GPOS_ASSERT(m_hash_idents_equiv_exprs->Size() == m_pdrgpexpr->Size());
+		m_equiv_hash_exprs = equiv_distribution_all_exprs;
+		GPOS_ASSERT(m_equiv_hash_exprs->Size() == m_pdrgpexpr->Size());
 	}
 }
 
@@ -778,17 +778,17 @@ CDistributionSpecHashed::OsPrint
 		m_pdshashedEquiv->OsPrint(os);
 	}
 	
-	if (NULL != m_hash_idents_equiv_exprs && m_hash_idents_equiv_exprs->Size() > 0)
+	if (NULL != m_equiv_hash_exprs && m_equiv_hash_exprs->Size() > 0)
 	{
 		os << "," << std::endl;
-		for (ULONG ul = 0; ul < m_hash_idents_equiv_exprs->Size(); ul++)
+		for (ULONG ul = 0; ul < m_equiv_hash_exprs->Size(); ul++)
 		{
-			CExpressionArray *pexprArray = (*m_hash_idents_equiv_exprs)[ul];
+			CExpressionArray *equiv_distribution_exprs = (*m_equiv_hash_exprs)[ul];
 			os << "equiv exprs: " << ul << ":" ;
-			for (ULONG id = 0; pexprArray->Size() >0 && id < pexprArray->Size(); id++)
+			for (ULONG id = 0; equiv_distribution_exprs->Size() > 0 && id < equiv_distribution_exprs->Size(); id++)
 			{
-				CExpression *pexpr = (*pexprArray)[id];
-				os << *pexpr << ",";
+				CExpression *equiv_distribution_expr = (*equiv_distribution_exprs)[id];
+				os << *equiv_distribution_expr << ",";
 			}
 		}
 	}

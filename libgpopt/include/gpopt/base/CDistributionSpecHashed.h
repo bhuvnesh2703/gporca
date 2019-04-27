@@ -42,7 +42,7 @@ namespace gpopt
 			// equivalent hashed distribution introduced by a hash join
 			CDistributionSpecHashed *m_pdshashedEquiv;
 		
-			CExpressionArrays *m_hash_idents_equiv_exprs;
+			CExpressionArrays *m_equiv_hash_exprs;
 
 			// check if specs are compatible wrt to co-location of nulls;
 			// HD1 satisfies HD2 if:
@@ -202,7 +202,7 @@ namespace gpopt
 		
 			CExpressionArrays *HashSpecEquivExprs() const
 			{
-				return m_hash_idents_equiv_exprs;
+				return m_equiv_hash_exprs;
 			}
 
 			void SetEquivHashExprs(IMemoryPool *mp, CExpressionHandle &expression_handle);
