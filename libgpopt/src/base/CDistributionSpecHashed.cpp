@@ -590,21 +590,32 @@ CDistributionSpecHashed::SetEquivHashExprs
 	CExpressionArrays *equiv_distribution_all_exprs = m_equiv_hash_exprs;
 	if (NULL == equiv_distribution_all_exprs)
 	{
+		// array which holds equivalent scalar expression for each of the distribution key
 		equiv_distribution_all_exprs = GPOS_NEW(mp) CExpressionArrays(mp);
 		for (ULONG distribution_key_idx = 0; distribution_key_idx < distribution_exprs->Size(); distribution_key_idx++)
 		{
-			CExpression *distribution_expr = (*distribution_exprs)[distribution_key_idx];
-			CExpression *sc_ident_expr = CCastUtils::PexprWithoutCasts(distribution_expr);
-			const CColRef *sc_ident_colref = CScalarIdent::PopConvert(sc_ident_expr->Pop())->Pcr();
-
+			// array which holds equivalent expression for the current distribution key
 			CExpressionArray *equiv_distribution_exprs = GPOS_NEW(mp) CExpressionArray(mp);
 
+			CExpression *distribution_expr = (*distribution_exprs)[distribution_key_idx];
+			CColRefSet *distribution_expr_cols = CDrvdPropScalar::GetDrvdScalarProps(distribution_expr->PdpDerive())->PcrsUsed();
 			// the input expr is always equivalent to itself, so add it to the equivalent expr array
 			distribution_expr->AddRef();
 			equiv_distribution_exprs->Append(distribution_expr);
 
-			CColRefSet *equiv_cols = expression_handle.GetRelationalProperties()->Ppc()->PcrsEquivClass(sc_ident_colref);
-			// if there are equivalent columns found, then we have a chance to create equivalent distribution exprs
+			if (1 < distribution_expr_cols->Size())
+			{
+				// if there are more than one columns in the distribution expr, there will be no
+				// equivalent columns for the expr
+				continue;
+			}
+			GPOS_ASSERT(1 == distribution_expr_cols->Size());
+
+			// there is only one colref in the set
+			const CColRef *distribution_colref = distribution_expr_cols->PcrAny();
+			GPOS_ASSERT(NULL != distribution_colref);
+			CColRefSet *equiv_cols = expression_handle.GetRelationalProperties()->Ppc()->PcrsEquivClass(distribution_colref);
+			// if there are equivalent columns, then we have a chance to create equivalent distribution exprs
 			if (NULL != equiv_cols)
 			{
 				// create a scalar expr with all the equivalent columns
@@ -614,7 +625,9 @@ CDistributionSpecHashed::SetEquivHashExprs
 
 				// colrefset to track what all exprs has already been considered, it helps avoiding duplicates
 				CColRefSet *processed_colrefs = GPOS_NEW(mp) CColRefSet(mp);
-				processed_colrefs->Include(sc_ident_colref);
+				processed_colrefs->Include(distribution_colref);
+
+				// iterate over all the scalar expression to identify equivalent distribution expr
 				for (ULONG predicate_idx = 0; predicate_idx < predicate_exprs->Size(); predicate_idx++)
 				{
 					CExpression *predicate_expr = (*predicate_exprs)[predicate_idx];
@@ -626,7 +639,7 @@ CDistributionSpecHashed::SetEquivHashExprs
 					}
 
 					CColRefSet *scalar_condition_colrefset = CDrvdPropScalar::GetDrvdScalarProps(predicate_expr->PdpDerive())->PcrsUsed();
-					if (!scalar_condition_colrefset->FMember(sc_ident_colref))
+					if (!scalar_condition_colrefset->FMember(distribution_colref))
 					{
 						// if the current distribution colref is not part of the generated predicate, skip it.
 						// we need to consider only the predicate expr which are made up of current
@@ -646,7 +659,7 @@ CDistributionSpecHashed::SetEquivHashExprs
 					CExpression *right_distribution_expr = (*original_predicate_expr)[1];
 
 					// if the predicate is a = b, and a is the current distribution expr,
-					// then the equivalent expr consists of b
+					// then the equivalent expr is b
 					CExpression *equiv_distribution_expr = NULL;
 					if (CUtils::Equals(left_distribution_expr, distribution_expr))
 					{
@@ -769,7 +782,7 @@ CDistributionSpecHashed::OsPrint
 		{
 			CExpressionArray *equiv_distribution_exprs = (*m_equiv_hash_exprs)[ul];
 			os << "equiv exprs: " << ul << ":" ;
-			for (ULONG id = 0; equiv_distribution_exprs->Size() > 0 && id < equiv_distribution_exprs->Size(); id++)
+			for (ULONG id = 0; id < equiv_distribution_exprs->Size(); id++)
 			{
 				CExpression *equiv_distribution_expr = (*equiv_distribution_exprs)[id];
 				os << *equiv_distribution_expr << ",";
