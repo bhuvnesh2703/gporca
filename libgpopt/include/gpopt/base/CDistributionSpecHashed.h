@@ -204,14 +204,11 @@ namespace gpopt
 			{
 				return m_hash_idents_equiv_exprs;
 			}
-		
-			virtual
+
 			void SetEquivHashExprs(IMemoryPool *mp, CExpressionHandle &expression_handle);
 
-			virtual
 			BOOL CoveredBy(const CExpressionArray *dist_cols_expr_array) const;
 
-			virtual
 			CDistributionSpecHashed *PdsHashedCopy(IMemoryPool *mp);
 	}; // class CDistributionSpecHashed
 
