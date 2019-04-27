@@ -326,28 +326,23 @@ CPhysicalHashJoin::PdshashedMatching
 
 	// construct an array of target key expressions matching source key expressions
 	CExpressionArray *pdrgpexpr = GPOS_NEW(mp) CExpressionArray(mp);
-	CExpressionArrays *req_equivexprs = pdshashed->HashSpecEquivExprs();
+	CExpressionArrays *all_equiv_exprs = pdshashed->HashSpecEquivExprs();
 	for (ULONG ulDlvrdIdx = 0; ulDlvrdIdx < ulDlvrdSize; ulDlvrdIdx++)
 	{
 		CExpression *pexprDlvrd = (*pdrgpexprDist)[ulDlvrdIdx];
-		CExpressionArray *req_expr_equiv_exprs = NULL;
-		if (NULL != req_equivexprs && req_equivexprs->Size() > 0)
-			req_expr_equiv_exprs = (*req_equivexprs)[ulDlvrdIdx];
+		CExpressionArray *equiv_distribution_exprs = NULL;
+		if (NULL != all_equiv_exprs && all_equiv_exprs->Size() > 0)
+			equiv_distribution_exprs = (*all_equiv_exprs)[ulDlvrdIdx];
 		for (ULONG idx = 0; idx < ulSourceSize; idx++)
 		{
 			BOOL fSuccess = false;
-			CExpression *pexprRight = (*pdrgpexprSource)[idx];
-			if (req_expr_equiv_exprs != NULL && req_expr_equiv_exprs->Size() > 0)
+			CExpression *source_expr = (*pdrgpexprSource)[idx];
+			fSuccess = CUtils::Equals(pexprDlvrd, source_expr);
+			if (!fSuccess)
 			{
-				for (ULONG id = 0; id < req_expr_equiv_exprs->Size() && !fSuccess; id++)
-				{
-					CExpression *pexprTest = (*req_expr_equiv_exprs)[id];
-					fSuccess = CUtils::Equals(pexprTest, pexprRight);
-				}
-			}
-			else
-			{
-				fSuccess = CUtils::Equals(pexprDlvrd, pexprRight);
+				// if failed to find a equal match in the source distribution expr
+				// array, check the equivalent exprs to find a match
+				fSuccess = CUtils::Contains(equiv_distribution_exprs, source_expr);
 			}
 			if (fSuccess)
 			{
@@ -375,7 +370,7 @@ CPhysicalHashJoin::PdshashedMatching
 	if (pdrgpexpr->Size() != ulDlvrdSize)
 	{
 		// it should never happen, but instead of creating wrong spec, raise an exception
-		GPOS_RAISE(CException::ExmaUnhandled, CException::ExmiUnhandled);
+		GPOS_RAISE(CException::ExmaSystem, CException::ExmiAssert);
 	}
 
 	return GPOS_NEW(mp) CDistributionSpecHashed(pdrgpexpr, true /* fNullsCollocated */);

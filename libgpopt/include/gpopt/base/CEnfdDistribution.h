@@ -14,6 +14,7 @@
 #include "gpos/base.h"
 
 #include "gpopt/base/CDistributionSpec.h"
+#include "gpopt/base/CDistributionSpecHashed.h"
 #include "gpopt/base/CEnfdProp.h"
 
 
@@ -93,9 +94,10 @@ namespace gpopt
 				BOOL success = m_edm == ped->Edm();
 				if (success)
 				{
-					if (m_pds->Edt() == CDistributionSpec::EdtHashed)
+					if (CDistributionSpec::EdtHashed == m_pds->Edt())
 					{
-						success = m_pds->MatchesForHash(ped->PdsRequired());
+						CDistributionSpecHashed *pds = CDistributionSpecHashed::PdsConvert(m_pds);
+						success = pds->Equals(ped->PdsRequired());
 					}
 					else
 					{

@@ -136,11 +136,6 @@ namespace gpopt
 				return Edt() == pds->Edt();
 			}
 
-		virtual
-		BOOL MatchesForHash(const CDistributionSpec *pds) const
-		{
-			return Edt() == pds->Edt();
-		}
 			// return a copy of the distribution spec with remapped columns
 			virtual
 			CDistributionSpec *PdsCopyWithRemappedColumns

@@ -138,7 +138,7 @@ namespace gpopt
 			BOOL FMatchSubset(const CDistributionSpecHashed *pds) const;
 
 			// equality function
-			BOOL Equals(const CDistributionSpecHashed *pds) const;
+			BOOL Equals(const CDistributionSpec *pds) const;
 
 			// return a copy of the distribution spec with remapped columns
 			virtual
@@ -207,13 +207,6 @@ namespace gpopt
 		
 			virtual
 			void SetEquivHashExprs(IMemoryPool *mp, CExpressionHandle &expression_handle);
-		
-			BOOL
-			MatchesForHash
-			(
-			 const CDistributionSpec *pds
-			 )
-			const;
 
 			virtual
 			BOOL CoveredBy(const CExpressionArray *dist_cols_expr_array) const;

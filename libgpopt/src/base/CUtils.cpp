@@ -5226,4 +5226,26 @@ CUtils::CanRemoveInferredPredicates
 {
 	return op_id == COperator::EopLogicalInnerJoin;
 }
+
+// check if the input expr array contains the expr
+BOOL
+CUtils::Contains
+	(
+	const CExpressionArray *exprs,
+	CExpression *expr_to_match
+	)
+{
+	if (NULL == exprs)
+	{
+		return false;
+	}
+
+	BOOL contains = false;
+	for (ULONG ul = 0; ul < exprs->Size() && !contains; ul++)
+	{
+		CExpression *expr = (*exprs)[ul];
+		contains = CUtils::Equals(expr, expr_to_match);
+	}
+	return contains;
+}
 // EOF

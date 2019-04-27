@@ -237,7 +237,11 @@ CDrvdPropPlan::Equals
 	if (success)
 	{
 		if (m_pds->Edt() == CDistributionSpec::EdtHashed)
-			return m_pds->MatchesForHash(pdpplan->Pds());
+		{
+			CDistributionSpecHashed *pds = CDistributionSpecHashed::PdsConvert(m_pds);
+			const CDistributionSpec *pdsInput = pdpplan->Pds();
+			return pds->Equals(pdsInput);
+		}
 		else
 			return m_pds->Matches(pdpplan->Pds());
 	}
