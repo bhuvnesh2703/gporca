@@ -570,7 +570,6 @@ explain select * from t1 where a = 1 and b in (select b from t2);
                       <dxl:Filter/>
                       <dxl:TableDescriptor Mdid="0.285165.1.1" TableName="t2">
                         <dxl:Columns>
-                          <dxl:Column ColId="5" Attno="1" ColName="c" TypeMdid="0.23.1.0"/>
                           <dxl:Column ColId="6" Attno="-1" ColName="ctid" TypeMdid="0.27.1.0"/>
                           <dxl:Column ColId="7" Attno="-7" ColName="tableoid" TypeMdid="0.26.1.0"/>
                           <dxl:Column ColId="8" Attno="-8" ColName="gp_segment_id" TypeMdid="0.23.1.0"/>

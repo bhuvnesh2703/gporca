@@ -26,6 +26,7 @@
 #include "gpopt/metadata/CTableDescriptor.h"
 #include "gpopt/metadata/CName.h"
 
+#include "gpopt/translate/CTranslatorDXLToExpr.h"
 
 using namespace gpopt;
 
@@ -231,7 +232,13 @@ CLogicalGet::PcrsDeriveOutput
 	)
 {
 	CColRefSet *pcrs = GPOS_NEW(mp) CColRefSet(mp);
-	pcrs->Include(m_pdrgpcrOutput);
+	for (ULONG i = 0; i < m_pdrgpcrOutput->Size(); i++)
+	{
+		if ((*m_pdrgpcrOutput)[i]->IsUsed() || CTranslatorDXLToExpr::translating)
+		{
+			pcrs->Include((*m_pdrgpcrOutput)[i]);
+		}
+	}
 
 	return pcrs;
 }

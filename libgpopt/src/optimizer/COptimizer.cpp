@@ -243,8 +243,10 @@ COptimizer::PdxlnOptimize
 
 			// translate DXL Tree -> Expr Tree
 			CTranslatorDXLToExpr dxltr(mp, md_accessor);
+			CTranslatorDXLToExpr::translating = true;
 			CExpression *pexprTranslated =	dxltr.PexprTranslateQuery(query, query_output_dxlnode_array, cte_producers);
 			GPOS_CHECK_ABORT;
+			CTranslatorDXLToExpr::translating = false;
 			gpdxl::ULongPtrArray *pdrgpul = dxltr.PdrgpulOutputColRefs();
 			gpmd::CMDNameArray *pdrgpmdname = dxltr.Pdrgpmdname();
 

@@ -145,13 +145,14 @@ CMiniDumperDXLTest::EresUnittest_Basic()
 
 		// translate DXL Tree -> Expr Tree
 		CTranslatorDXLToExpr *pdxltr = GPOS_NEW(mp) CTranslatorDXLToExpr(mp, &mda);
+		pdxltr->translating = true;
 		CExpression *pexprTranslated =	pdxltr->PexprTranslateQuery
 													(
 													ptroutput->CreateDXLNode(),
 													ptroutput->GetOutputColumnsDXLArray(),
 													ptroutput->GetCTEProducerDXLArray()
 													);
-		
+		pdxltr->translating = false;
 		gpdxl::ULongPtrArray *pdrgul = pdxltr->PdrgpulOutputColRefs();
 		gpmd::CMDNameArray *pdrgpmdname = pdxltr->Pdrgpmdname();
 

@@ -494,7 +494,6 @@
                       <dxl:Filter/>
                       <dxl:TableDescriptor Mdid="0.81924.1.0" TableName="tab2">
                         <dxl:Columns>
-                          <dxl:Column ColId="8" Attno="1" ColName="key" TypeMdid="0.23.1.0" ColWidth="4"/>
                           <dxl:Column ColId="9" Attno="2" ColName="id" TypeMdid="0.23.1.0" ColWidth="4"/>
                           <dxl:Column ColId="10" Attno="3" ColName="cd" TypeMdid="0.23.1.0" ColWidth="4"/>
                           <dxl:Column ColId="11" Attno="-1" ColName="ctid" TypeMdid="0.27.1.0" ColWidth="6"/>
