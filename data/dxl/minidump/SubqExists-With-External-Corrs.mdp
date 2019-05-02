@@ -431,7 +431,7 @@
         </dxl:LogicalGet>
       </dxl:LogicalSelect>
     </dxl:Query>
-    <dxl:Plan Id="0" SpaceSize="1239381">
+    <dxl:Plan Id="0" SpaceSize="735986">
       <dxl:GatherMotion InputSegments="0,1" OutputSegments="-1">
         <dxl:Properties>
           <dxl:Cost StartupCost="0" TotalCost="9.230469" Rows="1.000000" Width="8"/>
@@ -597,7 +597,6 @@
                     <dxl:Filter/>
                     <dxl:TableDescriptor Mdid="0.1159322.1.1" TableName="c">
                       <dxl:Columns>
-                        <dxl:Column ColId="9" Attno="1" ColName="i" TypeMdid="0.23.1.0"/>
                         <dxl:Column ColId="10" Attno="2" ColName="j" TypeMdid="0.23.1.0"/>
                         <dxl:Column ColId="11" Attno="-1" ColName="ctid" TypeMdid="0.27.1.0"/>
                         <dxl:Column ColId="12" Attno="-3" ColName="xmin" TypeMdid="0.28.1.0"/>
@@ -632,7 +631,6 @@
                       <dxl:Filter/>
                       <dxl:TableDescriptor Mdid="0.1159276.1.1" TableName="a">
                         <dxl:Columns>
-                          <dxl:Column ColId="18" Attno="1" ColName="i" TypeMdid="0.23.1.0"/>
                           <dxl:Column ColId="19" Attno="2" ColName="j" TypeMdid="0.23.1.0"/>
                           <dxl:Column ColId="20" Attno="-1" ColName="ctid" TypeMdid="0.27.1.0"/>
                           <dxl:Column ColId="21" Attno="-3" ColName="xmin" TypeMdid="0.28.1.0"/>

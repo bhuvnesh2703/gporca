@@ -63,6 +63,8 @@ namespace gpopt
 
 			// private copy ctor
 			CColRef(const CColRef &);
+
+			BOOL m_is_used;
 			
 		public:
 		
@@ -176,6 +178,21 @@ namespace gpopt
 			// invalid key
 			static
 			const ULONG m_ulInvalid;
+
+			void MarkAsUnused()
+			{
+				m_is_used = false;
+			}
+
+			void MarkAsUsed()
+			{
+				m_is_used = true;
+			}
+
+			BOOL IsUsed() const
+			{
+				return m_is_used || FSystemCol();
+			}
 
 #ifdef GPOS_DEBUG
 			void DbgPrint() const;

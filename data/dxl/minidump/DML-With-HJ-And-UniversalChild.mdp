@@ -711,7 +711,7 @@
         </dxl:LogicalSelect>
       </dxl:LogicalDelete>
     </dxl:Query>
-    <dxl:Plan Id="0" SpaceSize="156">
+    <dxl:Plan Id="0" SpaceSize="150">
       <dxl:DMLDelete Columns="0" ActionCol="23" OidCol="0" CtidCol="1" SegmentIdCol="7" InputSorted="false">
         <dxl:Properties>
           <dxl:Cost StartupCost="0" TotalCost="1324032.570616" Rows="1.000000" Width="1"/>
@@ -861,7 +861,6 @@
                         </dxl:Filter>
                         <dxl:TableDescriptor Mdid="0.16875.1.0" TableName="foo">
                           <dxl:Columns>
-                            <dxl:Column ColId="8" Attno="1" ColName="a" TypeMdid="0.23.1.0" ColWidth="4"/>
                             <dxl:Column ColId="9" Attno="2" ColName="b" TypeMdid="0.23.1.0" ColWidth="4"/>
                             <dxl:Column ColId="10" Attno="-1" ColName="ctid" TypeMdid="0.27.1.0" ColWidth="6"/>
                             <dxl:Column ColId="11" Attno="-3" ColName="xmin" TypeMdid="0.28.1.0" ColWidth="4"/>

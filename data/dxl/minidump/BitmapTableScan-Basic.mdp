@@ -302,7 +302,6 @@
             </dxl:BitmapIndexProbe>
             <dxl:TableDescriptor Mdid="0.9459819.1.1" TableName="foobar">
               <dxl:Columns>
-                <dxl:Column ColId="0" Attno="1" ColName="x1" TypeMdid="0.23.1.0"/>
                 <dxl:Column ColId="1" Attno="2" ColName="x2" TypeMdid="0.23.1.0"/>
                 <dxl:Column ColId="2" Attno="3" ColName="x3" TypeMdid="0.23.1.0"/>
                 <dxl:Column ColId="3" Attno="-1" ColName="ctid" TypeMdid="0.27.1.0"/>
