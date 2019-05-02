@@ -552,7 +552,6 @@
                                 <dxl:TableDescriptor Mdid="0.24756.1.1" TableName="smallt2_part">
                                   <dxl:Columns>
                                     <dxl:Column ColId="9" Attno="1" ColName="i" TypeMdid="0.23.1.0"/>
-                                    <dxl:Column ColId="10" Attno="2" ColName="d" TypeMdid="0.1082.1.0"/>
                                     <dxl:Column ColId="11" Attno="-1" ColName="ctid" TypeMdid="0.27.1.0"/>
                                     <dxl:Column ColId="12" Attno="-3" ColName="xmin" TypeMdid="0.28.1.0"/>
                                     <dxl:Column ColId="13" Attno="-4" ColName="cmin" TypeMdid="0.29.1.0"/>
@@ -605,8 +604,7 @@
               <dxl:Properties>
                 <dxl:Cost StartupCost="10" TotalCost="100" Rows="100" Width="4"/>
               </dxl:Properties>
-              <dxl:ProjList>
-              </dxl:ProjList>
+              <dxl:ProjList/>
               <dxl:PartEqFilters>
                 <dxl:ConstValue TypeMdid="0.16.1.0" IsNull="false" IsByValue="true" Value="true"/>
               </dxl:PartEqFilters>

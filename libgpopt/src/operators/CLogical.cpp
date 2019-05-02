@@ -106,7 +106,7 @@ CLogical::PdrgpcrCreateMapping
 		CColumnDescriptor *pcoldesc = (*pdrgpcoldesc)[ul];
 		CName name(mp, pcoldesc->Name());
 		
-		CColRef *colref = col_factory->PcrCreate(pcoldesc, name, ulOpSourceId);
+		CColRef *colref = col_factory->PcrCreate(pcoldesc, name, ulOpSourceId, false);
 		colref_array->Append(colref);
 	}
 	
@@ -756,7 +756,7 @@ CLogical::PpcDeriveConstraintFromTable
 
 		pdrgpcrNonSystem->Append(colref);
 
-		if (pcoldesc->IsNullable())
+		if (pcoldesc->IsNullable() || !colref->IsUsed())
 		{
 			continue;
 		}

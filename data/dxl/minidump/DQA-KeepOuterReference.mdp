@@ -299,7 +299,6 @@ select (select distinct tint.c from tint as tt)  x from tint;
                           <dxl:Filter/>
                           <dxl:TableDescriptor Mdid="0.32778.1.1" TableName="tint">
                             <dxl:Columns>
-                              <dxl:Column ColId="8" Attno="1" ColName="c" TypeMdid="0.23.1.0"/>
                               <dxl:Column ColId="9" Attno="-1" ColName="ctid" TypeMdid="0.27.1.0"/>
                               <dxl:Column ColId="10" Attno="-3" ColName="xmin" TypeMdid="0.28.1.0"/>
                               <dxl:Column ColId="11" Attno="-4" ColName="cmin" TypeMdid="0.29.1.0"/>

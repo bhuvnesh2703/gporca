@@ -398,6 +398,9 @@ namespace gpopt
 			CColRef *LookupColRef(UlongToColRefMap *colref_mapping, ULONG colid);
 
 		public:
+
+			static BOOL translating;
+
 			// ctor
 			CTranslatorDXLToExpr(IMemoryPool *mp, CMDAccessor *md_accessor, BOOL fInitColumnFactory = true);
 

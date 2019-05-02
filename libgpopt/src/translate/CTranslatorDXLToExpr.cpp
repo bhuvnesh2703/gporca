@@ -58,6 +58,8 @@ using namespace gpmd;
 using namespace gpdxl;
 using namespace gpopt;
 
+BOOL CTranslatorDXLToExpr::translating = false;
+
 //---------------------------------------------------------------------------
 //	@function:
 //		CTranslatorDXLToExpr::CTranslatorDXLToExpr
@@ -1009,6 +1011,7 @@ CTranslatorDXLToExpr::LookupColRef
     	GPOS_RAISE(gpdxl::ExmaDXL, gpdxl::ExmiDXL2ExprAttributeNotFound, colid);
     }
 
+	colref->MarkAsUsed();
 	return colref;
 }
 
@@ -1035,7 +1038,7 @@ CTranslatorDXLToExpr::PcrCreate
 	// generate a new column reference
 	CName name(colref->Name().Pstr());
 	CColRef *new_colref = m_pcf->PcrCreate(pmdtype, type_modifier, name);
-
+	
 	if (fStoreMapping)
 	{
 #ifdef GPOS_DEBUG
@@ -1272,7 +1275,7 @@ CTranslatorDXLToExpr::PexprLogicalCTEProducer
 	for (ULONG ul = 0; ul < length; ul++)
 	{
 		ULONG *pulColId = (*pdrgpulCols)[ul];
-		const CColRef *colref = m_phmulcr->Find(pulColId);
+		CColRef *colref = LookupColRef(m_phmulcr, *pulColId);
 		GPOS_ASSERT(NULL != colref);
 
 		if (pcrsProducer->FMember(colref))

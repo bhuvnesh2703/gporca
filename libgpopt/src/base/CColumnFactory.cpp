@@ -262,12 +262,18 @@ CColumnFactory::PcrCreate
 	(
 	const CColumnDescriptor *pcoldesc,
 	const CName &name,
-	ULONG ulOpSource
+	ULONG ulOpSource,
+	BOOL mark_as_used
 	)
 {
 	ULONG id = m_aul.Incr();
 	
-	return PcrCreate(pcoldesc, id, name, ulOpSource);
+	CColRef *colref = PcrCreate(pcoldesc, id, name, ulOpSource);
+	if (!mark_as_used)
+	{
+		colref->MarkAsUnused();
+	}
+	return colref;
 }
 
 //---------------------------------------------------------------------------
