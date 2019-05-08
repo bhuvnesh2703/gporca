@@ -5308,6 +5308,7 @@ CUtils::AddExprs
 	)
 {
 	GPOS_ASSERT(NULL != results_exprs);
+	GPOS_ASSERT(NULL != input_exprs);
 	for (ULONG ul = 0; ul < input_exprs->Size(); ul++)
 	{
 		CExpressionArray *exprs = (*input_exprs)[ul];
