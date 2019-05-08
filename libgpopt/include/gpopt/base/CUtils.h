@@ -1098,6 +1098,13 @@ namespace gpopt
 
 			static
 			BOOL CanRemoveInferredPredicates(COperator::EOperatorId op_id);
+
+			static
+			CExpressionArrays *
+			GetCombinedExpressionArrays(IMemoryPool *mp, CExpressionArrays *exprs_array, CExpressionArrays *exprs_array_other);
+
+			static
+			void AddExprs(CExpressionArrays *results_exprs, CExpressionArrays *input_exprs);
 	}; // class CUtils
 
 	// hash set from expressions

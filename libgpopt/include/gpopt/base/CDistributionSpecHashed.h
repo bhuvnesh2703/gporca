@@ -213,6 +213,12 @@ namespace gpopt
 
 			// create a copy of the distribution spec
 			CDistributionSpecHashed *PdsHashedCopy(IMemoryPool *mp);
+
+			// get distribution expr array from the current and its equivalent spec
+			CExpressionArrays *GetAllDistributionExprs(IMemoryPool *mp);
+
+			// return a new spec created after merging the current spec with the input spec as equivalents
+			CDistributionSpecHashed *GetCombinedSpec(IMemoryPool *mp, CDistributionSpecHashed *other_spec);
 	}; // class CDistributionSpecHashed
 
 }
