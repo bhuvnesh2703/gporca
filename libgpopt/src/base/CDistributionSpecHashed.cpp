@@ -637,8 +637,8 @@ CDistributionSpecHashed::SetEquivHashExprs
 						predicate_expr_with_inferred_quals->Release();
 						original_predicate_expr = predicate_expr_with_casts;
 					}
-					CExpression *left_distribution_expr = (*original_predicate_expr)[0];
-					CExpression *right_distribution_expr = (*original_predicate_expr)[1];
+					CExpression *left_distribution_expr = CCastUtils::PexprWithoutBinaryCoercibleCasts((*original_predicate_expr)[0]);
+					CExpression *right_distribution_expr = CCastUtils::PexprWithoutBinaryCoercibleCasts((*original_predicate_expr)[1]);
 					// if the predicate is a = b, and a is the current distribution expr,
 					// then the equivalent expr is b
 					CExpression *equiv_distribution_expr = NULL;
@@ -654,9 +654,8 @@ CDistributionSpecHashed::SetEquivHashExprs
 					// if equivalent distributione expr is found, add it to the array holding equivalent distribution exprs
 					if (equiv_distribution_expr)
 					{
-						CExpression *equiv_distribution_expr_without_bcc = CCastUtils::PexprWithoutBinaryCoercibleCasts(equiv_distribution_expr);
-						equiv_distribution_expr_without_bcc->AddRef();
-						equiv_distribution_exprs->Append(equiv_distribution_expr_without_bcc);
+						equiv_distribution_expr->AddRef();
+						equiv_distribution_exprs->Append(equiv_distribution_expr);
 					}
 					CRefCount::SafeRelease(original_predicate_expr);
 				}
@@ -785,6 +784,8 @@ CDistributionSpecHashed::GetAllDistributionExprs
 	return all_distribution_exprs;
 }
 
+// create a new spec and which marks the other incoming specs
+// as equivalent
 CDistributionSpecHashed *
 CDistributionSpecHashed::GetCombinedSpec
 	(
@@ -798,15 +799,17 @@ CDistributionSpecHashed::GetCombinedSpec
 	
 	CDistributionSpecHashed *combined_hashed_spec = NULL;
 #ifdef GPOS_DEBUG
-	ULONG num_of_distribution_expr_last = this->Pdrgpexpr()->Size();
+	// all the distribution spec are expected to have the same number of keys
+	ULONG num_of_distribution_expr_expected = this->Pdrgpexpr()->Size();
 #endif
 	for (ULONG ul = 0; ul < all_distribution_exprs->Size(); ul++)
 	{
 		CExpressionArray *exprs = (*all_distribution_exprs)[ul];
 #ifdef GPOS_DEBUG
 		ULONG num_of_distribution_expr = exprs->Size();
-		GPOS_ASSERT(num_of_distribution_expr == num_of_distribution_expr_last);
-		num_of_distribution_expr_last = exprs->Size();
+		// compare with the last set of distribution expr or the original to start with
+		GPOS_ASSERT(num_of_distribution_expr == num_of_distribution_expr_expected);
+		num_of_distribution_expr_expected = exprs->Size();
 #endif
 		exprs->AddRef();
 		combined_hashed_spec = GPOS_NEW(mp) CDistributionSpecHashed(exprs,

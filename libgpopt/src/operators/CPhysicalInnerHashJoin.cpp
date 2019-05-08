@@ -115,8 +115,6 @@ CPhysicalInnerHashJoin::PdsDeriveFromHashedChildren
  	{
  	 	// if both sides are hashed on subsets of hash join keys, join's output can be
  		// seen as distributed on outer spec or (equivalently) on inner spec,
- 	 	// in this case, we create a new spec based on outer side and mark inner
- 		// side as an equivalent one,
 		CDistributionSpecHashed *combined_hashed_spec = pdshashedOuter->GetCombinedSpec(mp, pdshashedInner);
 		return combined_hashed_spec;
  	}
