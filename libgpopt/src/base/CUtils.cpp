@@ -5284,4 +5284,36 @@ CUtils::CanRemoveInferredPredicates
 {
 	return op_id == COperator::EopLogicalInnerJoin;
 }
+
+CExpressionArrays *
+CUtils::GetCombinedExpressionArrays
+	(
+	IMemoryPool *mp,
+	CExpressionArrays *exprs_array,
+	CExpressionArrays *exprs_array_other
+	)
+{
+	CExpressionArrays *result_exprs = GPOS_NEW(mp) CExpressionArrays(mp);
+	AddExprs(result_exprs, exprs_array);
+	AddExprs(result_exprs, exprs_array_other);
+
+	return result_exprs;
+}
+
+void
+CUtils::AddExprs
+	(
+	CExpressionArrays *results_exprs,
+	CExpressionArrays *input_exprs
+	)
+{
+	GPOS_ASSERT(NULL != results_exprs);
+	for (ULONG ul = 0; ul < input_exprs->Size(); ul++)
+	{
+		CExpressionArray *exprs = (*input_exprs)[ul];
+		exprs->AddRef();
+		results_exprs->Append(exprs);
+	}
+	GPOS_ASSERT(results_exprs->Size() >= input_exprs->Size());
+}
 // EOF

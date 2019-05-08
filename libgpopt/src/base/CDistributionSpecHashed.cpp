@@ -766,5 +766,51 @@ CDistributionSpecHashed::OsPrint
 	return os;
 }
 
+CExpressionArrays *
+CDistributionSpecHashed::GetAllDistributionExprs
+	(
+	IMemoryPool *mp
+	)
+{
+	CExpressionArrays *all_distribution_exprs = GPOS_NEW(mp) CExpressionArrays(mp);
+	CDistributionSpecHashed *spec = this;
+	while (spec)
+	{
+		CExpressionArray *distribution_exprs = spec->Pdrgpexpr();
+		distribution_exprs->AddRef();
+		all_distribution_exprs->Append(distribution_exprs);
+		spec = spec->PdshashedEquiv();
+	}
+
+	return all_distribution_exprs;
+}
+
+CDistributionSpecHashed *
+CDistributionSpecHashed::GetCombinedSpec
+	(
+	IMemoryPool *mp,
+	CDistributionSpecHashed *other_spec
+	)
+{
+	CExpressionArrays *distribution_exprs = this->GetAllDistributionExprs(mp);
+	CExpressionArrays *other_distribution_exprs = other_spec->GetAllDistributionExprs(mp);
+	CExpressionArrays *all_distribution_exprs = CUtils::GetCombinedExpressionArrays(mp, distribution_exprs, other_distribution_exprs);
+	
+	CDistributionSpecHashed *combined_hashed_spec = NULL;
+	for (ULONG ul = 0; ul < all_distribution_exprs->Size(); ul++)
+	{
+		CExpressionArray *exprs = (*all_distribution_exprs)[ul];
+		exprs->AddRef();
+		combined_hashed_spec = GPOS_NEW(mp) CDistributionSpecHashed(exprs,
+																	this->FNullsColocated(),
+																	combined_hashed_spec);
+	}
+	all_distribution_exprs->Release();
+	distribution_exprs->Release();
+	other_distribution_exprs->Release();
+	GPOS_ASSERT(NULL != combined_hashed_spec);
+	return combined_hashed_spec;
+}
+
 // EOF
 

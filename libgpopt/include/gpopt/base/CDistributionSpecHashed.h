@@ -210,6 +210,10 @@ namespace gpopt
 			BOOL CoveredBy(const CExpressionArray *dist_cols_expr_array) const;
 
 			CDistributionSpecHashed *PdsHashedCopy(IMemoryPool *mp);
+		
+			CExpressionArrays *GetAllDistributionExprs(IMemoryPool *mp);
+
+			CDistributionSpecHashed *GetCombinedSpec(IMemoryPool *mp, CDistributionSpecHashed *other_spec);
 	}; // class CDistributionSpecHashed
 
 }

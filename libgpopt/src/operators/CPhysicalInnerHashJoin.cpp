@@ -117,8 +117,8 @@ CPhysicalInnerHashJoin::PdsDeriveFromHashedChildren
  		// seen as distributed on outer spec or (equivalently) on inner spec,
  	 	// in this case, we create a new spec based on outer side and mark inner
  		// side as an equivalent one,
-
-		return PdshashedCreateMatching(mp, pdshashedOuter, 0 /*ulSourceChild*/);
+		CDistributionSpecHashed *combined_hashed_spec = pdshashedOuter->GetCombinedSpec(mp, pdshashedInner);
+		return combined_hashed_spec;
  	}
 
 	return NULL;
