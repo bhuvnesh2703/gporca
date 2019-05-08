@@ -797,7 +797,9 @@ CDistributionSpecHashed::GetCombinedSpec
 	CExpressionArrays *all_distribution_exprs = CUtils::GetCombinedExpressionArrays(mp, distribution_exprs, other_distribution_exprs);
 	
 	CDistributionSpecHashed *combined_hashed_spec = NULL;
+#ifdef GPOS_DEBUG
 	ULONG num_of_distribution_expr_last = this->Pdrgpexpr()->Size();
+#endif
 	for (ULONG ul = 0; ul < all_distribution_exprs->Size(); ul++)
 	{
 		CExpressionArray *exprs = (*all_distribution_exprs)[ul];
