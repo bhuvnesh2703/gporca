@@ -71,16 +71,19 @@ CPhysicalInnerHashJoin::PdshashedCreateMatching
 {
 	GPOS_ASSERT(NULL != pdshashed);
 
- 	CDistributionSpecHashed *pdshashedMatching = PdshashedMatching(mp, pdshashed, ulSourceChild);
- 	pdshashed->Pdrgpexpr()->AddRef();
+	CDistributionSpecHashed *pdshashedMatching = PdshashedMatching(mp, pdshashed, ulSourceChild);
 
-	// return a hashed distribution equivalent to created matching distribution
- 	return GPOS_NEW(mp) CDistributionSpecHashed
- 			 (
- 			 pdshashed->Pdrgpexpr(),
- 			 pdshashed->FNullsColocated(),
- 			 pdshashedMatching // matching distribution spec is equivalent to passed distribution spec
- 			 );
+	// create a new spec with input and the output spec as equivalents, as you don't want to lose
+	// the already existing equivalent specs of pdshashed
+	pdshashedMatching->Pdrgpexpr()->AddRef();
+	pdshashed->AddRef();
+	CDistributionSpecHashed *pdsHashedMatchingEquivalents = GPOS_NEW(mp) CDistributionSpecHashed(
+												pdshashedMatching->Pdrgpexpr(),
+												pdshashedMatching->FNullsColocated(),
+												pdshashed // matching distribution spec is equivalent to passed distribution spec
+												);
+	pdshashedMatching->Release();
+	return pdsHashedMatchingEquivalents;
 }
 
 
@@ -108,15 +111,12 @@ CPhysicalInnerHashJoin::PdsDeriveFromHashedChildren
 	CDistributionSpecHashed *pdshashedOuter = CDistributionSpecHashed::PdsConvert(pdsOuter);
  	CDistributionSpecHashed *pdshashedInner = CDistributionSpecHashed::PdsConvert(pdsInner);
 
-	if (CUtils::Contains(PdrgpexprOuterKeys(), pdshashedOuter->Pdrgpexpr()) &&
- 		CUtils::Contains(PdrgpexprInnerKeys(), pdshashedInner->Pdrgpexpr()))
+	if (pdshashedOuter->CoveredBy(PdrgpexprOuterKeys()) && pdshashedInner->CoveredBy(PdrgpexprInnerKeys()))
  	{
  	 	// if both sides are hashed on subsets of hash join keys, join's output can be
  		// seen as distributed on outer spec or (equivalently) on inner spec,
- 	 	// in this case, we create a new spec based on outer side and mark inner
- 		// side as an equivalent one,
-
-		return PdshashedCreateMatching(mp, pdshashedOuter, 0 /*ulSourceChild*/);
+		CDistributionSpecHashed *combined_hashed_spec = pdshashedOuter->GetCombinedSpec(mp, pdshashedInner);
+		return combined_hashed_spec;
  	}
 
 	return NULL;
@@ -152,7 +152,7 @@ CPhysicalInnerHashJoin::PdsDeriveFromReplicatedOuter
 	if (CDistributionSpec::EdtHashed == pdsInner->Edt())
 	{
 		CDistributionSpecHashed *pdshashedInner = CDistributionSpecHashed::PdsConvert(pdsInner);
-		if (CUtils::Contains(PdrgpexprInnerKeys(), pdshashedInner->Pdrgpexpr()))
+		if (pdshashedInner->CoveredBy(PdrgpexprInnerKeys()))
 		{
 			// inner child is hashed on a subset of inner hashkeys,
 		 	// return a hashed distribution equivalent to a matching outer distribution
@@ -193,7 +193,7 @@ CPhysicalInnerHashJoin::PdsDeriveFromHashedOuter
 	GPOS_ASSERT(CDistributionSpec::EdtHashed == pdsOuter->Edt());
 
 	 CDistributionSpecHashed *pdshashedOuter = CDistributionSpecHashed::PdsConvert(pdsOuter);
-	 if (CUtils::Contains(PdrgpexprOuterKeys(), pdshashedOuter->Pdrgpexpr()))
+	 if (pdshashedOuter->CoveredBy(PdrgpexprOuterKeys()))
 	 {
 	 	// outer child is hashed on a subset of outer hashkeys,
 	 	// return a hashed distribution equivalent to a matching outer distribution
@@ -241,12 +241,12 @@ CPhysicalInnerHashJoin::PdsDerive
 
  	if (CDistributionSpec::EdtReplicated == pdsOuter->Edt())
  	{
- 		return PdsDeriveFromReplicatedOuter(mp, pdsOuter, pdsInner);
+		return PdsDeriveFromReplicatedOuter(mp, pdsOuter, pdsInner);
  	}
 
  	if (CDistributionSpec::EdtHashed == pdsOuter->Edt())
  	{
- 		CDistributionSpec *pdsDerived = PdsDeriveFromHashedOuter(mp, pdsOuter, pdsInner);
+		CDistributionSpec *pdsDerived = PdsDeriveFromHashedOuter(mp, pdsOuter, pdsInner);
  		 if (NULL != pdsDerived)
  		 {
  		 	return pdsDerived;
