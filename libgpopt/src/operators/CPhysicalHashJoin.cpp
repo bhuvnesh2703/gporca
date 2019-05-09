@@ -370,7 +370,7 @@ CPhysicalHashJoin::PdshashedMatching
 	if (pdrgpexpr->Size() != ulDlvrdSize)
 	{
 		// it should never happen, but instead of creating wrong spec, raise an exception
-		GPOS_RAISE(CException::ExmaSystem, CException::ExmiAssert);
+		GPOS_RAISE(CException::ExmaInvalid, CException::ExmiInvalid);
 	}
 
 	return GPOS_NEW(mp) CDistributionSpecHashed(pdrgpexpr, true /* fNullsCollocated */);
