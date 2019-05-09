@@ -543,7 +543,7 @@ CPhysicalHashJoin::PdshashedPassThru
 	{
 		// incoming request uses columns from outer child only, pass it through
 		// but create a copy
-		CDistributionSpecHashed *pdsHashedRequired = pdshashedInput->PdsHashedCopy(mp);
+		CDistributionSpecHashed *pdsHashedRequired = pdshashedInput->Copy(mp);
 		return pdsHashedRequired;
 	}
 
@@ -616,8 +616,8 @@ CPhysicalHashJoin::PdsRequiredRedistribute
 		// add the equivalent exprs, so the PdsMatch can consider
 		// them while creating matching spec
 		CDistributionSpecHashed *pdsHashedFirstChild = CDistributionSpecHashed::PdsConvert(pdsFirst);
-		CDistributionSpecHashed *pdsHashed = pdsHashedFirstChild->PdsHashedCopy(mp);
-		pdsHashed->SetEquivHashExprs(mp, exprhdl);
+		CDistributionSpecHashed *pdsHashed = pdsHashedFirstChild->Copy(mp);
+		pdsHashed->ComputeEquivHashExprs(mp, exprhdl);
 		pdsInputForMatch = pdsHashed;
 	}
 	else
@@ -704,7 +704,7 @@ CPhysicalHashJoin::PdsRequired
 		if (CDistributionSpec::EdtHashed == pds->Edt())
 		{
 			CDistributionSpecHashed *pdsHashed = CDistributionSpecHashed::PdsConvert(pds);
-			pdsHashed->SetEquivHashExprs(mp, exprhdl);
+			pdsHashed->ComputeEquivHashExprs(mp, exprhdl);
 		}
 		return pds;
 	}
@@ -718,7 +718,7 @@ CPhysicalHashJoin::PdsRequired
 		if (CDistributionSpec::EdtHashed == pds->Edt())
 		{
 			CDistributionSpecHashed *pdsHashed = CDistributionSpecHashed::PdsConvert(pds);
-			pdsHashed->SetEquivHashExprs(mp, exprhdl);
+			pdsHashed->ComputeEquivHashExprs(mp, exprhdl);
 		}
 		return pds;
 	}

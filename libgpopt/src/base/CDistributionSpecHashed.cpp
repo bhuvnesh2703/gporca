@@ -555,7 +555,7 @@ CDistributionSpecHashed::PdshashedMaximal
 // check if the distribution key expression are covered by the input
 // expression array
 BOOL
-CDistributionSpecHashed::CoveredBy
+CDistributionSpecHashed::IsCoveredBy
 	(
 	const CExpressionArray *dist_cols_expr_array
 	)
@@ -579,7 +579,7 @@ CDistributionSpecHashed::CoveredBy
 // t1.a --> equivalent exprs: [t1.a, t2.c]
 // t1.b --> equivalent exprs:[t1.b, t2.d]
 void
-CDistributionSpecHashed::SetEquivHashExprs
+CDistributionSpecHashed::ComputeEquivHashExprs
 	(
 	IMemoryPool *mp,
 	CExpressionHandle &expression_handle
@@ -669,7 +669,7 @@ CDistributionSpecHashed::SetEquivHashExprs
 }
 
 CDistributionSpecHashed *
-CDistributionSpecHashed::PdsHashedCopy
+CDistributionSpecHashed::Copy
 	(
 	IMemoryPool *mp
 	)
@@ -787,7 +787,7 @@ CDistributionSpecHashed::GetAllDistributionExprs
 // create a new spec and which marks the other incoming specs
 // as equivalent
 CDistributionSpecHashed *
-CDistributionSpecHashed::GetCombinedSpec
+CDistributionSpecHashed::Combine
 	(
 	IMemoryPool *mp,
 	CDistributionSpecHashed *other_spec

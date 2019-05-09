@@ -136,7 +136,7 @@ CPhysicalInnerIndexNLJoin::PdsRequired
 			// request hashed distribution from outer
 			pdshashedEquiv->Pdrgpexpr()->AddRef();
 			CDistributionSpecHashed *pdsHashedRequired = GPOS_NEW(mp) CDistributionSpecHashed(pdshashedEquiv->Pdrgpexpr(), pdshashedEquiv->FNullsColocated());
-			pdsHashedRequired->SetEquivHashExprs(mp, exprhdl);
+			pdsHashedRequired->ComputeEquivHashExprs(mp, exprhdl);
 			return pdsHashedRequired;
 		}
 	}

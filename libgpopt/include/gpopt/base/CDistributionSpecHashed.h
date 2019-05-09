@@ -206,19 +206,19 @@ namespace gpopt
 				return m_equiv_hash_exprs;
 			}
 
-			void SetEquivHashExprs(IMemoryPool *mp, CExpressionHandle &expression_handle);
+			void ComputeEquivHashExprs(IMemoryPool *mp, CExpressionHandle &expression_handle);
 
 			// does the current spec or equivalent spec cover the input expression array
-			BOOL CoveredBy(const CExpressionArray *dist_cols_expr_array) const;
+			BOOL IsCoveredBy(const CExpressionArray *dist_cols_expr_array) const;
 
 			// create a copy of the distribution spec
-			CDistributionSpecHashed *PdsHashedCopy(IMemoryPool *mp);
+			CDistributionSpecHashed *Copy(IMemoryPool *mp);
 
 			// get distribution expr array from the current and its equivalent spec
 			CExpressionArrays *GetAllDistributionExprs(IMemoryPool *mp);
 
 			// return a new spec created after merging the current spec with the input spec as equivalents
-			CDistributionSpecHashed *GetCombinedSpec(IMemoryPool *mp, CDistributionSpecHashed *other_spec);
+			CDistributionSpecHashed *Combine(IMemoryPool *mp, CDistributionSpecHashed *other_spec);
 	}; // class CDistributionSpecHashed
 
 }

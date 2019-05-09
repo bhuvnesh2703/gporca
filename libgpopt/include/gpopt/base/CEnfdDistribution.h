@@ -91,7 +91,7 @@ namespace gpopt
 			{
 				GPOS_ASSERT(NULL != ped);
 
-				BOOL success = m_edm == ped->Edm();
+				BOOL success = (m_edm == ped->Edm());
 				if (success)
 				{
 					if (CDistributionSpec::EdtHashed == m_pds->Edt())
