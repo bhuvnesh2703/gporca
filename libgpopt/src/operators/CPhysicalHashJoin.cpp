@@ -366,11 +366,11 @@ CPhysicalHashJoin::PdshashedMatching
 			return PdshashedMatching(mp, pdshashed->PdshashedEquiv(), ulSourceChild);
 		}
 	}
-	GPOS_ASSERT(pdrgpexpr->Size() == ulDlvrdSize);
 	if (pdrgpexpr->Size() != ulDlvrdSize)
 	{
 		// it should never happen, but instead of creating wrong spec, raise an exception
-		GPOS_RAISE(CException::ExmaInvalid, CException::ExmiInvalid);
+		GPOS_RAISE(CException::ExmaInvalid, CException::ExmiInvalid,
+				   GPOS_WSZ_LIT("Unable to create matching hashed distribution."));
 	}
 
 	return GPOS_NEW(mp) CDistributionSpecHashed(pdrgpexpr, true /* fNullsCollocated */);
@@ -611,10 +611,9 @@ CPhysicalHashJoin::PdsRequiredRedistribute
 	CDistributionSpec *pdsInputForMatch = NULL;
 	if (pdsFirst->Edt() == CDistributionSpec::EdtHashed)
 	{
-		// the spec of the first child is hashed spec, so create a copy
-		// (as we shouldn't modify the original object).
-		// add the equivalent exprs, so the PdsMatch can consider
-		// them while creating matching spec
+		// we need to create a matching required spec based on the derived distribution spec from
+		// the first child. Since that does not contain the m_equiv_hash_exprs (as they are not populated
+		// for derived specs), so compute that here.
 		CDistributionSpecHashed *pdsHashedFirstChild = CDistributionSpecHashed::PdsConvert(pdsFirst);
 		CDistributionSpecHashed *pdsHashed = pdsHashedFirstChild->Copy(mp);
 		pdsHashed->ComputeEquivHashExprs(mp, exprhdl);

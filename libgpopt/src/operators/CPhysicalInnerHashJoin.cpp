@@ -75,6 +75,7 @@ CPhysicalInnerHashJoin::PdshashedCreateMatching
 
 	// create a new spec with input and the output spec as equivalents, as you don't want to lose
 	// the already existing equivalent specs of pdshashed
+	// NB: The matching spec is added at the beginning.
 	pdshashedMatching->Pdrgpexpr()->AddRef();
 	pdshashed->AddRef();
 	CDistributionSpecHashed *pdsHashedMatchingEquivalents = GPOS_NEW(mp) CDistributionSpecHashed(

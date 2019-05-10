@@ -619,6 +619,8 @@ CPhysicalJoin::AddHashKeys
 		GPOS_ASSERT(pcrsInner->ContainsAll(pcrsPredOuter));
 		pexprKeyInner = pexprPredOuter;
 	}
+	// remove any BCC as they are no op, else we will have handle them everywhere downstream
+	// while comparing two expressions
 	CExpression *pexprOuterKeyWithoutBCC = CCastUtils::PexprWithoutBinaryCoercibleCasts(pexprKeyOuter);
 	CExpression *pexprInnerKeyWithoutBCC = CCastUtils::PexprWithoutBinaryCoercibleCasts(pexprKeyInner);
 

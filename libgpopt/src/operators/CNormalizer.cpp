@@ -959,9 +959,15 @@ CNormalizer::PushThruJoin
 	// of the join node as the node will have to project more columns even though they are not
 	// used by the above nodes. So, better to remove them from the join after all the inferred predicates
 	// are pushed down.
+	// We don't do this for CTE as removing inferred predicates from CTE with inlining enabled may
+	// cause the relational properties of two group to be same and can result in group merges,
+	// which can lead to circular derivations, we should fix the bug to avoid circular references
+	// before we enable it for Inlined CTEs.
 	if (CUtils::CanRemoveInferredPredicates(pop->Eopid()) && !COptCtxt::PoctxtFromTLS()->Pcteinfo()->FEnableInlining())
 	{
-		// if there are subqueries in the node, don't remove any predicates.
+		// Subqueries should be un-nested first so that we can infer any predicates if possible,
+		// if they are not un-nested, they don't have any inferred predicates to remove.
+		// ORCA only infers predicates for subqueries after they are un-nested.
 		BOOL has_subquery = CUtils::FHasSubqueryOrApply(pexprJoinWithInferredPred);
 		if (!has_subquery)
 		{

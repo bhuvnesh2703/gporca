@@ -687,21 +687,9 @@ const
 	for (ULONG ulChild = 0; fSuccess && ulChild < arity; ulChild++)
 	{
 		CDistributionSpec *pdsChild = exprhdl.Pdpplan(ulChild)->Pds();
-		CDistributionSpecHashed *pdsChildHashed = NULL;
-		if (pdsChild->Edt() == CDistributionSpec::EdtHashed || pdsChild->Edt() == CDistributionSpec::EdtHashedNoOp || pdsChild->Edt() == CDistributionSpec::EdtStrictHashed)
-		{
-			pdsChildHashed = CDistributionSpecHashed::PdsConvert(pdsChild);
-		}
-
-		// iterate over all the equivalent hash specs of the child specs as well to check
-		// if any of them satisfy the required distribution
-		BOOL equi_hash_spec_matches = false;
-		while (pdsChildHashed && !equi_hash_spec_matches)
-		{
-			equi_hash_spec_matches = pdsChildHashed->FSatisfies((*m_pdrgpds)[ulChild]);
-			pdsChildHashed = pdsChildHashed->PdshashedEquiv();
-		}
-		fSuccess = equi_hash_spec_matches;
+		CDistributionSpec::EDistributionType edtChild = pdsChild->Edt();
+		fSuccess = (CDistributionSpec::EdtHashed == edtChild || CDistributionSpec::EdtHashedNoOp == edtChild || CDistributionSpec::EdtStrictHashed == edtChild)
+						&& pdsChild->FSatisfies((*m_pdrgpds)[ulChild]);
 	}
 	if (!fSuccess)
 	{
@@ -711,7 +699,8 @@ const
 
 	// (2) check that child hashed distributions map to the same output columns
 
-	// map outer child hashed distribution to corresponding UnionAll column positions
+	// map outer child hashed distribution to corresponding UnionAll column positions.
+	// make sure to look at the equivalent distribution specs
 	ULongPtrArray *pdrgpulOuter = NULL;
 	CDistributionSpec *pdsChild = exprhdl.Pdpplan(0)->Pds();
 	CDistributionSpecHashed *pdsHashedFirstChild = CDistributionSpecHashed::PdsConvert(pdsChild);
