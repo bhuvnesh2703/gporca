@@ -456,6 +456,8 @@ CDistributionSpecHashed::Matches
 	) 
 	const
 {
+	GPOS_CHECK_STACK_SIZE;
+
 	if (Edt() != pds->Edt())
 	{
 		return false;
@@ -483,6 +485,8 @@ CDistributionSpecHashed::Equals
 	)
 	const
 {
+	GPOS_CHECK_STACK_SIZE;
+
 	if (input_spec->Edt() != Edt())
 		return false;
 
