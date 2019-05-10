@@ -339,7 +339,6 @@ namespace gpopt
 	typedef CHashMapIter<ULONG, CExpression, gpos::HashValue<ULONG>, gpos::Equals<ULONG>,
 					CleanupDelete<ULONG>, CleanupRelease<CExpression> > UlongToExprMapIter;
 
-
 }
 
 
