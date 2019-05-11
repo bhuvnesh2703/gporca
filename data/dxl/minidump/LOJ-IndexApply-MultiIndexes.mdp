@@ -432,11 +432,7 @@ set optimizer_enable_hashjoin = off;
         </dxl:ProjList>
         <dxl:Filter/>
         <dxl:SortingColumnList/>
-<<<<<<< HEAD
-        <dxl:NestedLoopJoin JoinType="Left" IndexNestedLoopJoin="true" OuterRefAsParam="false">
-=======
         <dxl:NestedLoopJoin JoinType="Left" IndexNestedLoopJoin="true" OuterRefAsParam="true">
->>>>>>> parent of b3e424999... Revert "Include binary coercible casts for predicate inference"
           <dxl:Properties>
             <dxl:Cost StartupCost="0" TotalCost="1299.001579" Rows="3.000000" Width="48"/>
           </dxl:Properties>
@@ -464,11 +460,7 @@ set optimizer_enable_hashjoin = off;
           <dxl:JoinFilter>
             <dxl:ConstValue TypeMdid="0.16.1.0" IsNull="false" IsByValue="true" Value="true"/>
           </dxl:JoinFilter>
-<<<<<<< HEAD
-          <dxl:NestedLoopJoin JoinType="Left" IndexNestedLoopJoin="true" OuterRefAsParam="false">
-=======
           <dxl:NestedLoopJoin JoinType="Left" IndexNestedLoopJoin="true" OuterRefAsParam="true">
->>>>>>> parent of b3e424999... Revert "Include binary coercible casts for predicate inference"
             <dxl:Properties>
               <dxl:Cost StartupCost="0" TotalCost="437.000482" Rows="2.000000" Width="32"/>
             </dxl:Properties>
