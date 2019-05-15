@@ -1398,6 +1398,12 @@ CCostModelGPDB::CostBitmapTableScan
 
 		GPOS_ASSERT(0 < dIndexFilterCostUnit);
 		GPOS_ASSERT(0 < dInitScan);
+		
+		COptimizerConfig *optimizer_config = COptCtxt::PoctxtFromTLS()->GetOptimizerConfig();
+		CDouble rebind_cost = optimizer_config->GetHint()->UlInitRebindCost();
+		CDouble scan_cost = optimizer_config->GetHint()->UlInitScanCost();
+		
+		GPOS_ASSERT(scan_cost != 0 || rebind_cost != 0);
 
 		// For now we are trying to cost Bitmap Scan similar to Index Scan. dIndexFilterCostUnit is
 		// the dominant factor in costing Index Scan so we are using it in our model. Also we are giving

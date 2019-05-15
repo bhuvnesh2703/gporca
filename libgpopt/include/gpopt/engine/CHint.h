@@ -42,10 +42,14 @@ namespace gpopt
 			ULONG m_ulArrayExpansionThreshold;
 
 			ULONG m_ulJoinOrderDPLimit;
-
-			ULONG m_ulBroadcastThreshold;
-
-			BOOL m_fEnforceConstraintsOnDML;
+		
+		ULONG m_ulBroadcastThreshold;
+		
+		BOOL m_fEnforceConstraintsOnDML;
+		
+		CDouble m_indexscaninitrebind_cost;
+		
+		CDouble m_indexscaninit_cost;
 
 			// private copy ctor
 			CHint(const CHint &);
@@ -60,7 +64,9 @@ namespace gpopt
 				ULONG array_expansion_threshold,
 				ULONG ulJoinOrderDPLimit,
 				ULONG broadcast_threshold,
-				BOOL enforce_constraint_on_dml
+				BOOL enforce_constraint_on_dml,
+				CDouble indexscaninitrebind_cost,
+				CDouble indexscaninit_cost
 				)
 				:
 				m_ulMinNumOfPartsToRequireSortOnInsert(min_num_of_parts_to_require_sort_on_insert),
@@ -68,9 +74,23 @@ namespace gpopt
 				m_ulArrayExpansionThreshold(array_expansion_threshold),
 				m_ulJoinOrderDPLimit(ulJoinOrderDPLimit),
 				m_ulBroadcastThreshold(broadcast_threshold),
-				m_fEnforceConstraintsOnDML(enforce_constraint_on_dml)
+				m_fEnforceConstraintsOnDML(enforce_constraint_on_dml),
+		m_indexscaninitrebind_cost(indexscaninitrebind_cost),
+		m_indexscaninit_cost(indexscaninit_cost)
+		
 			{
 			}
+		
+		
+		CDouble UlInitRebindCost() const
+		{
+			return m_indexscaninitrebind_cost;
+		}
+		
+		CDouble UlInitScanCost() const
+		{
+			return m_indexscaninit_cost;
+		}
 
 			// Minimum number of partitions required for sorting tuples during
 			// insertion in an append only row-oriented partitioned table
@@ -132,7 +152,9 @@ namespace gpopt
 					gpos::int_max,			 /* array_expansion_threshold */
 					JOIN_ORDER_DP_THRESHOLD, /*ulJoinOrderDPLimit*/
 					BROADCAST_THRESHOLD,	 /*broadcast_threshold*/
-					true					 /* enforce_constraint_on_dml */
+					true,					 /* enforce_constraint_on_dml */
+					.001,
+					431
 				);
 			}
 
