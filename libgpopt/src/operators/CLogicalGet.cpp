@@ -234,7 +234,11 @@ CLogicalGet::PcrsDeriveOutput
 	CColRefSet *pcrs = GPOS_NEW(mp) CColRefSet(mp);
 	for (ULONG i = 0; i < m_pdrgpcrOutput->Size(); i++)
 	{
-		if ((*m_pdrgpcrOutput)[i]->IsUsed() || CTranslatorDXLToExpr::translating)
+		// We want to limit the output columns to only those which are referenced in the query
+		// We will know the entire list of columns which are referenced in the query only after
+		// translating the entire DXL to an expression. Hence we should not limit the output columns
+		// before we have processed the entire DXL.
+		if ((*m_pdrgpcrOutput)[i]->IsUsed() || CTranslatorDXLToExpr::IsTranslating())
 		{
 			pcrs->Include((*m_pdrgpcrOutput)[i]);
 		}
