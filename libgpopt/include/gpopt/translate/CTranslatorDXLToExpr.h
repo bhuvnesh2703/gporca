@@ -85,6 +85,8 @@ namespace gpopt
 		
 		private:
 
+			static BOOL translating;
+
 			// memory pool
 			IMemoryPool *m_mp;
 			
@@ -399,8 +401,6 @@ namespace gpopt
 
 		public:
 
-			static BOOL translating;
-
 			// ctor
 			CTranslatorDXLToExpr(IMemoryPool *mp, CMDAccessor *md_accessor, BOOL fInitColumnFactory = true);
 
@@ -430,6 +430,16 @@ namespace gpopt
 			{
 				GPOS_ASSERT(NULL != m_pdrgpmdname);
 				return m_pdrgpmdname;
+			}
+
+			static void SetTranslating(BOOL value)
+			{
+				translating = value;
+			}
+		
+			static BOOL IsTranslating()
+			{
+				return translating;
 			}
 	};
 }

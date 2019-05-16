@@ -3099,7 +3099,7 @@ CTestUtils::PexprReadQuery
 
 	// translate DXL tree into CExpression
 	CTranslatorDXLToExpr trdxl2expr(mp, md_accessor);
-	trdxl2expr.translating = true;
+	trdxl2expr.SetTranslating(true);
 	CExpression *pexprQuery =
 			trdxl2expr.PexprTranslateQuery
 						(
@@ -3107,7 +3107,7 @@ CTestUtils::PexprReadQuery
 						ptroutput->GetOutputColumnsDXLArray(),
 						ptroutput->GetCTEProducerDXLArray()
 						);
-	trdxl2expr.translating = false;
+	trdxl2expr.SetTranslating(false);
 	GPOS_DELETE(ptroutput);
 	GPOS_DELETE_ARRAY(szQueryDXL);
 
@@ -3151,14 +3151,14 @@ CTestUtils::EresTranslate
 
 	// translate DXL tree into CExpression
 	CTranslatorDXLToExpr ptrdxl2expr(mp, md_accessor);
-	ptrdxl2expr.translating = true;
+	ptrdxl2expr.SetTranslating(true);
 	CExpression *pexprQuery = ptrdxl2expr.PexprTranslateQuery
 											(
 											ptroutput->CreateDXLNode(),
 											ptroutput->GetOutputColumnsDXLArray(),
 											ptroutput->GetCTEProducerDXLArray()
 											);
-	ptrdxl2expr.translating = false;
+	ptrdxl2expr.SetTranslating(false);
 
 	CQueryContext *pqc = CQueryContext::PqcGenerate
 												(
