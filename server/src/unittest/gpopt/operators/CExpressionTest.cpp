@@ -189,8 +189,7 @@ CExpressionTest::EresUnittest_SimpleOps()
 		{
 			colrefs = popGet->PdrgpcrOutput();
 		}
-
-		if (NULL != popDynGet)
+		else if (NULL != popDynGet)
 		{
 			colrefs = popDynGet->PdrgpcrOutput();
 		}

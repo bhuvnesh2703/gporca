@@ -7319,7 +7319,7 @@ CTranslatorExprToDXL::MakeDXLTableDescr
 
 		CMDName *pmdnameCol = GPOS_NEW(m_mp) CMDName(m_mp, pcd->Name().Pstr());
 
-		// use the col ref id for the corresponding output output column as
+		// use the col ref id for the corresponding output column as
 		// colid for the dxl column
 		CMDIdGPDB *pmdidColType = CMDIdGPDB::CastMdid(colref->RetrieveType()->MDId());
 		pmdidColType->AddRef();
