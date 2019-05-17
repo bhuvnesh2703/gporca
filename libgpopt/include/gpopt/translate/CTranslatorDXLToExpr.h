@@ -85,7 +85,7 @@ namespace gpopt
 		
 		private:
 
-			static BOOL translating;
+//			static BOOL translating;
 
 			// memory pool
 			CMemoryPool *m_mp;
@@ -394,6 +394,8 @@ namespace gpopt
 			// construct the mapping between the DXL ColId and CColRef
 			void ConstructDXLColId2ColRefMapping(const CDXLColDescrArray *dxl_col_descr_array, const CColRefArray *colref_array);
 
+			void MarkUnknownAsUnused();
+
 			// look up the column reference in the hash map. We raise an exception if
 			// the column is not found
 			static
@@ -431,16 +433,7 @@ namespace gpopt
 				GPOS_ASSERT(NULL != m_pdrgpmdname);
 				return m_pdrgpmdname;
 			}
-
-			static void SetTranslating(BOOL value)
-			{
-				translating = value;
-			}
 		
-			static BOOL IsTranslating()
-			{
-				return translating;
-			}
 	};
 }
 

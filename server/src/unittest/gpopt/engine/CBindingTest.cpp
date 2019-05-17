@@ -121,14 +121,12 @@ CBindingTest::EresUnittest_Basic()
 
 	// translate DXL Tree -> Expr Tree
 	CTranslatorDXLToExpr *pdxltr = GPOS_NEW(mp) CTranslatorDXLToExpr(mp, &mda);
-	pdxltr->SetTranslating(true);
 	CExpression *pexprTranslated =	pdxltr->PexprTranslateQuery
 	                                     (
 	                                     pdxlmd->GetQueryDXLRoot(),
 	                                     pdxlmd->PdrgpdxlnQueryOutput(),
 	                                     pdxlmd->GetCTEProducerDXLArray()
 	                                     );
-	pdxltr->SetTranslating(false);
 
 	gpdxl::ULongPtrArray *pdrgul = pdxltr->PdrgpulOutputColRefs();
 	gpmd::CMDNameArray *pdrgpmdname = pdxltr->Pdrgpmdname();

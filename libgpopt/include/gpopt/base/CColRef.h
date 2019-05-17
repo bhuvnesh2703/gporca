@@ -51,7 +51,15 @@ namespace gpopt
 	class CColRef
 	{
 		private:
-			
+		
+			enum EUsedStatus
+			{
+				EUsed,
+				EUnused,
+				EUnknown,
+				ESentinel
+			};
+		
 			// type information
 			const IMDType *m_pmdtype;
 
@@ -64,7 +72,7 @@ namespace gpopt
 			// private copy ctor
 			CColRef(const CColRef &);
 
-			BOOL m_is_used;
+			EUsedStatus m_used;
 			
 		public:
 		
@@ -181,17 +189,28 @@ namespace gpopt
 
 			void MarkAsUnused()
 			{
-				m_is_used = false;
+				GPOS_ASSERT(m_used != EUsed);
+				m_used = EUnused;
 			}
 
 			void MarkAsUsed()
 			{
-				m_is_used = true;
+				m_used = EUsed;
+			}
+
+			void MarkAsUnknown()
+			{
+				m_used = EUnknown;
+			}
+
+			BOOL IsUnknown() const
+			{
+				return m_used == EUnknown;
 			}
 
 			BOOL IsUsed() const
 			{
-				return m_is_used || FSystemCol();
+				return m_used == EUsed || IsUnknown() || FSystemCol();
 			}
 
 #ifdef GPOS_DEBUG
