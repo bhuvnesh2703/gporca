@@ -58,7 +58,7 @@ using namespace gpmd;
 using namespace gpdxl;
 using namespace gpopt;
 
-BOOL CTranslatorDXLToExpr::translating = false;
+//BOOL CTranslatorDXLToExpr::translating = false;
 
 //---------------------------------------------------------------------------
 //	@function:
@@ -350,7 +350,11 @@ CTranslatorDXLToExpr::PexprTranslateQuery
 {
 	CAutoTimer at("\n[OPT]: DXL To Expr Translation Time", GPOS_FTRACE(EopttracePrintOptimizationStatistics));
 
-	return Pexpr(dxlnode, query_output_dxlnode_array, cte_producers);
+	CExpression *pexpr = Pexpr(dxlnode, query_output_dxlnode_array, cte_producers);
+	
+	MarkUnknownAsUnused();
+	
+	return pexpr;
 }
 
 //---------------------------------------------------------------------------
@@ -4030,6 +4034,21 @@ CTranslatorDXLToExpr::AddDistributionColumns
 		GPOS_ASSERT(NULL != pulPos);
 		
 		ptabdesc->AddDistributionColumn(*pulPos);
+	}
+}
+
+void
+CTranslatorDXLToExpr::MarkUnknownAsUnused()
+{
+	UlongToColRefMapIter iter(m_phmulcr);
+
+	while (iter.Advance())
+	{
+		CColRef *colref = m_phmulcr->Find(iter.Key());
+		if (colref->IsUnknown())
+		{
+			colref->MarkAsUnused();
+		}
 	}
 }
 
