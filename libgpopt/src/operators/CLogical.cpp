@@ -105,7 +105,6 @@ CLogical::PdrgpcrCreateMapping
 	{
 		CColumnDescriptor *pcoldesc = (*pdrgpcoldesc)[ul];
 		CName name(mp, pcoldesc->Name());
-		
 		CColRef *colref = col_factory->PcrCreate(pcoldesc, name, ulOpSourceId, false);
 		colref_array->Append(colref);
 	}
@@ -1466,6 +1465,7 @@ CLogical::PcrsDist
 	{
 		CColumnDescriptor *pcoldesc = (*pdrgpcoldesc)[ul];
 		CColRef *colref = (*pdrgpcrOutput)[ul];
+		
 		phmicr->Insert(GPOS_NEW(mp) INT(pcoldesc->AttrNum()), colref);
 	}
 
