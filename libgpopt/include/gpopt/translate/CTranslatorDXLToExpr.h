@@ -85,8 +85,6 @@ namespace gpopt
 		
 		private:
 
-//			static BOOL translating;
-
 			// memory pool
 			CMemoryPool *m_mp;
 			

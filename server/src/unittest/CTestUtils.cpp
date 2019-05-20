@@ -3106,6 +3106,7 @@ CTestUtils::PexprReadQuery
 						ptroutput->GetOutputColumnsDXLArray(),
 						ptroutput->GetCTEProducerDXLArray()
 						);
+
 	GPOS_DELETE(ptroutput);
 	GPOS_DELETE_ARRAY(szQueryDXL);
 

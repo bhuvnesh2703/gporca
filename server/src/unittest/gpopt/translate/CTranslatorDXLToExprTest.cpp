@@ -118,6 +118,7 @@ CTranslatorDXLToExprTest::Pexpr
 
 	// translate DXL Tree -> Expr Tree
 	CTranslatorDXLToExpr *pdxltr = GPOS_NEW(mp) CTranslatorDXLToExpr(mp, md_accessor);
+
 	CExpression *pexprTranslated =	pdxltr->PexprTranslateQuery
 												(
 												ptroutput->CreateDXLNode(),
