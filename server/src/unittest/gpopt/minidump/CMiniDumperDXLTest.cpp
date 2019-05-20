@@ -151,6 +151,7 @@ CMiniDumperDXLTest::EresUnittest_Basic()
 													ptroutput->GetOutputColumnsDXLArray(),
 													ptroutput->GetCTEProducerDXLArray()
 													);
+
 		gpdxl::ULongPtrArray *pdrgul = pdxltr->PdrgpulOutputColRefs();
 		gpmd::CMDNameArray *pdrgpmdname = pdxltr->Pdrgpmdname();
 
