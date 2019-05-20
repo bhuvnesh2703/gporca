@@ -143,6 +143,7 @@ CLogical::PdrgpdrgpcrCreatePartCols
 		
 		CColRef *colref = (*colref_array)[ulCol];
 		CColRefArray * pdrgpcrCurr = GPOS_NEW(mp) CColRefArray(mp);
+		colref->MarkAsUsed();
 		pdrgpcrCurr->Append(colref);
 		pdrgpdrgpcrPart->Append(pdrgpcrCurr);
 	}
@@ -1475,6 +1476,7 @@ CLogical::PcrsDist
 		CColumnDescriptor *pcoldesc = (*pdrgpcoldescDist)[ul2];
 		const INT attno = pcoldesc->AttrNum();
 		CColRef *pcrMapped = phmicr->Find(&attno);
+		pcrMapped->MarkAsUsed();
 		GPOS_ASSERT(NULL != pcrMapped);
 		pcrsDist->Include(pcrMapped);
 	}
