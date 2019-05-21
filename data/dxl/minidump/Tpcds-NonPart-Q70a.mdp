@@ -15230,7 +15230,9 @@ with results as
                                   <dxl:TableDescriptor Mdid="0.8402992.1.1" TableName="date_dim">
                                     <dxl:Columns>
                                       <dxl:Column ColId="0" Attno="1" ColName="ss_sold_date_sk" TypeMdid="0.23.1.0"/>
+                                      <dxl:Column ColId="2" Attno="3" ColName="ss_item_sk" TypeMdid="0.23.1.0"/>
                                       <dxl:Column ColId="7" Attno="8" ColName="ss_store_sk" TypeMdid="0.23.1.0"/>
+                                      <dxl:Column ColId="9" Attno="10" ColName="ss_ticket_number" TypeMdid="0.20.1.0"/>
                                       <dxl:Column ColId="22" Attno="23" ColName="ss_net_profit" TypeMdid="0.1700.1.0"/>
                                       <dxl:Column ColId="23" Attno="-1" ColName="ctid" TypeMdid="0.27.1.0"/>
                                       <dxl:Column ColId="24" Attno="-3" ColName="xmin" TypeMdid="0.28.1.0"/>
@@ -15660,7 +15662,9 @@ with results as
                                                           <dxl:TableDescriptor Mdid="0.8403512.1.1" TableName="store_sales">
                                                             <dxl:Columns>
                                                               <dxl:Column ColId="101" Attno="1" ColName="ss_sold_date_sk" TypeMdid="0.23.1.0"/>
+                                                              <dxl:Column ColId="103" Attno="3" ColName="ss_item_sk" TypeMdid="0.23.1.0"/>
                                                               <dxl:Column ColId="108" Attno="8" ColName="ss_store_sk" TypeMdid="0.23.1.0"/>
+                                                              <dxl:Column ColId="110" Attno="10" ColName="ss_ticket_number" TypeMdid="0.20.1.0"/>
                                                               <dxl:Column ColId="123" Attno="23" ColName="ss_net_profit" TypeMdid="0.1700.1.0"/>
                                                               <dxl:Column ColId="124" Attno="-1" ColName="ctid" TypeMdid="0.27.1.0"/>
                                                               <dxl:Column ColId="125" Attno="-3" ColName="xmin" TypeMdid="0.28.1.0"/>

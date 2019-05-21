@@ -316,6 +316,7 @@
             <dxl:Filter/>
             <dxl:TableDescriptor Mdid="0.109045.1.1" TableName="onek">
               <dxl:Columns>
+                <dxl:Column ColId="0" Attno="1" ColName="unique1" TypeMdid="0.23.1.0"/>
                 <dxl:Column ColId="3" Attno="4" ColName="four" TypeMdid="0.23.1.0"/>
                 <dxl:Column ColId="16" Attno="-1" ColName="ctid" TypeMdid="0.27.1.0"/>
                 <dxl:Column ColId="17" Attno="-3" ColName="xmin" TypeMdid="0.28.1.0"/>

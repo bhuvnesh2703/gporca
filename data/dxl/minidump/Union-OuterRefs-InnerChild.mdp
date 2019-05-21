@@ -464,6 +464,7 @@ select * from y where m in (select 1 union select n from x);
                             <dxl:Filter/>
                             <dxl:TableDescriptor Mdid="0.24727209.1.1" TableName="x">
                               <dxl:Columns>
+                                <dxl:Column ColId="11" Attno="1" ColName="a" TypeMdid="0.23.1.0"/>
                                 <dxl:Column ColId="12" Attno="-1" ColName="ctid" TypeMdid="0.27.1.0"/>
                                 <dxl:Column ColId="13" Attno="-3" ColName="xmin" TypeMdid="0.28.1.0"/>
                                 <dxl:Column ColId="14" Attno="-4" ColName="cmin" TypeMdid="0.29.1.0"/>

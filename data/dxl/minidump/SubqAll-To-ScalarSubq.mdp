@@ -606,6 +606,7 @@
                                     </dxl:Filter>
                                     <dxl:TableDescriptor Mdid="0.734133.1.1" TableName="subselect_tbl">
                                       <dxl:Columns>
+                                        <dxl:Column ColId="10" Attno="1" ColName="f1" TypeMdid="0.23.1.0"/>
                                         <dxl:Column ColId="11" Attno="2" ColName="f2" TypeMdid="0.23.1.0"/>
                                         <dxl:Column ColId="12" Attno="3" ColName="f3" TypeMdid="0.701.1.0"/>
                                         <dxl:Column ColId="13" Attno="-1" ColName="ctid" TypeMdid="0.27.1.0"/>

@@ -14615,9 +14615,11 @@
                                             <dxl:Column ColId="17" Attno="18" ColName="wi_pgm_pf_key" TypeMdid="0.23.1.0" ColWidth="4"/>
                                             <dxl:Column ColId="18" Attno="19" ColName="pdr_cc_key" TypeMdid="0.23.1.0" ColWidth="4"/>
                                             <dxl:Column ColId="19" Attno="20" ColName="rak" TypeMdid="0.21.1.0" ColWidth="2"/>
+                                            <dxl:Column ColId="20" Attno="21" ColName="flpe_id" TypeMdid="0.23.1.0" ColWidth="4"/>
                                             <dxl:Column ColId="21" Attno="22" ColName="wi_id" TypeMdid="0.23.1.0" ColWidth="4"/>
                                             <dxl:Column ColId="22" Attno="23" ColName="tw_id" TypeMdid="0.23.1.0" ColWidth="4"/>
                                             <dxl:Column ColId="23" Attno="24" ColName="eti" TypeMdid="0.21.1.0" ColWidth="2"/>
+                                            <dxl:Column ColId="26" Attno="27" ColName="pdr_cc_code" TypeMdid="0.1043.1.0" TypeModifier="54" ColWidth="5"/>
                                             <dxl:Column ColId="29" Attno="30" ColName="fte" TypeMdid="0.1700.1.0" TypeModifier="1179658" ColWidth="5"/>
                                             <dxl:Column ColId="30" Attno="31" ColName="rup" TypeMdid="0.1700.1.0" TypeModifier="1179658" ColWidth="9"/>
                                             <dxl:Column ColId="35" Attno="-1" ColName="ctid" TypeMdid="0.27.1.0" ColWidth="6"/>
@@ -14960,6 +14962,7 @@
                           <dxl:Filter/>
                           <dxl:TableDescriptor Mdid="0.18409.1.0" TableName="dim3">
                             <dxl:Columns>
+                              <dxl:Column ColId="385" Attno="1" ColName="bk" TypeMdid="0.21.1.0" ColWidth="2"/>
                               <dxl:Column ColId="386" Attno="2" ColName="cck" TypeMdid="0.21.1.0" ColWidth="2"/>
                               <dxl:Column ColId="387" Attno="3" ColName="pte" TypeMdid="0.21.1.0" ColWidth="2"/>
                               <dxl:Column ColId="388" Attno="-1" ColName="ctid" TypeMdid="0.27.1.0" ColWidth="6"/>

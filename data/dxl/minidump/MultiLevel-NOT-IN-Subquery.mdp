@@ -563,7 +563,7 @@ select * from A,B where exists (select * from C where C.j = A.j and B.i not in (
     <dxl:Plan Id="0" SpaceSize="24">
       <dxl:GatherMotion InputSegments="0,1,2" OutputSegments="-1">
         <dxl:Properties>
-          <dxl:Cost StartupCost="0" TotalCost="3017.100296" Rows="30.000000" Width="16"/>
+          <dxl:Cost StartupCost="0" TotalCost="3017.115021" Rows="30.000000" Width="16"/>
         </dxl:Properties>
         <dxl:ProjList>
           <dxl:ProjElem ColId="0" Alias="i">
@@ -583,7 +583,7 @@ select * from A,B where exists (select * from C where C.j = A.j and B.i not in (
         <dxl:SortingColumnList/>
         <dxl:Result>
           <dxl:Properties>
-            <dxl:Cost StartupCost="0" TotalCost="3017.098507" Rows="30.000000" Width="16"/>
+            <dxl:Cost StartupCost="0" TotalCost="3017.113232" Rows="30.000000" Width="16"/>
           </dxl:Properties>
           <dxl:ProjList>
             <dxl:ProjElem ColId="0" Alias="i">
@@ -608,11 +608,11 @@ select * from A,B where exists (select * from C where C.j = A.j and B.i not in (
               </dxl:ParamList>
               <dxl:Result>
                 <dxl:Properties>
-                  <dxl:Cost StartupCost="0" TotalCost="1293.095953" Rows="27.000000" Width="4"/>
+                  <dxl:Cost StartupCost="0" TotalCost="1293.110678" Rows="27.000000" Width="4"/>
                 </dxl:Properties>
                 <dxl:ProjList>
-                  <dxl:ProjElem ColId="19" Alias="j">
-                    <dxl:Ident ColId="19" ColName="j" TypeMdid="0.23.1.0"/>
+                  <dxl:ProjElem ColId="18" Alias="i">
+                    <dxl:Ident ColId="18" ColName="i" TypeMdid="0.23.1.0"/>
                   </dxl:ProjElem>
                 </dxl:ProjList>
                 <dxl:Filter>
@@ -624,9 +624,12 @@ select * from A,B where exists (select * from C where C.j = A.j and B.i not in (
                 <dxl:OneTimeFilter/>
                 <dxl:Result>
                   <dxl:Properties>
-                    <dxl:Cost StartupCost="0" TotalCost="1293.030153" Rows="3000.000000" Width="4"/>
+                    <dxl:Cost StartupCost="0" TotalCost="1293.044878" Rows="3000.000000" Width="8"/>
                   </dxl:Properties>
                   <dxl:ProjList>
+                    <dxl:ProjElem ColId="18" Alias="i">
+                      <dxl:Ident ColId="18" ColName="i" TypeMdid="0.23.1.0"/>
+                    </dxl:ProjElem>
                     <dxl:ProjElem ColId="19" Alias="j">
                       <dxl:Ident ColId="19" ColName="j" TypeMdid="0.23.1.0"/>
                     </dxl:ProjElem>
@@ -696,9 +699,12 @@ select * from A,B where exists (select * from C where C.j = A.j and B.i not in (
                   <dxl:OneTimeFilter/>
                   <dxl:Materialize Eager="true">
                     <dxl:Properties>
-                      <dxl:Cost StartupCost="0" TotalCost="431.000765" Rows="27.000000" Width="4"/>
+                      <dxl:Cost StartupCost="0" TotalCost="431.001468" Rows="27.000000" Width="8"/>
                     </dxl:Properties>
                     <dxl:ProjList>
+                      <dxl:ProjElem ColId="18" Alias="i">
+                        <dxl:Ident ColId="18" ColName="i" TypeMdid="0.23.1.0"/>
+                      </dxl:ProjElem>
                       <dxl:ProjElem ColId="19" Alias="j">
                         <dxl:Ident ColId="19" ColName="j" TypeMdid="0.23.1.0"/>
                       </dxl:ProjElem>
@@ -706,9 +712,12 @@ select * from A,B where exists (select * from C where C.j = A.j and B.i not in (
                     <dxl:Filter/>
                     <dxl:BroadcastMotion InputSegments="0,1,2" OutputSegments="0,1,2">
                       <dxl:Properties>
-                        <dxl:Cost StartupCost="0" TotalCost="431.000729" Rows="27.000000" Width="4"/>
+                        <dxl:Cost StartupCost="0" TotalCost="431.001396" Rows="27.000000" Width="8"/>
                       </dxl:Properties>
                       <dxl:ProjList>
+                        <dxl:ProjElem ColId="18" Alias="i">
+                          <dxl:Ident ColId="18" ColName="i" TypeMdid="0.23.1.0"/>
+                        </dxl:ProjElem>
                         <dxl:ProjElem ColId="19" Alias="j">
                           <dxl:Ident ColId="19" ColName="j" TypeMdid="0.23.1.0"/>
                         </dxl:ProjElem>
@@ -717,9 +726,12 @@ select * from A,B where exists (select * from C where C.j = A.j and B.i not in (
                       <dxl:SortingColumnList/>
                       <dxl:TableScan>
                         <dxl:Properties>
-                          <dxl:Cost StartupCost="0" TotalCost="431.000063" Rows="9.000000" Width="4"/>
+                          <dxl:Cost StartupCost="0" TotalCost="431.000063" Rows="9.000000" Width="8"/>
                         </dxl:Properties>
                         <dxl:ProjList>
+                          <dxl:ProjElem ColId="18" Alias="i">
+                            <dxl:Ident ColId="18" ColName="i" TypeMdid="0.23.1.0"/>
+                          </dxl:ProjElem>
                           <dxl:ProjElem ColId="19" Alias="j">
                             <dxl:Ident ColId="19" ColName="j" TypeMdid="0.23.1.0"/>
                           </dxl:ProjElem>
@@ -727,6 +739,7 @@ select * from A,B where exists (select * from C where C.j = A.j and B.i not in (
                         <dxl:Filter/>
                         <dxl:TableDescriptor Mdid="0.16391.1.0" TableName="c">
                           <dxl:Columns>
+                            <dxl:Column ColId="18" Attno="1" ColName="i" TypeMdid="0.23.1.0" ColWidth="4"/>
                             <dxl:Column ColId="19" Attno="2" ColName="j" TypeMdid="0.23.1.0" ColWidth="4"/>
                             <dxl:Column ColId="20" Attno="-1" ColName="ctid" TypeMdid="0.27.1.0" ColWidth="6"/>
                             <dxl:Column ColId="21" Attno="-3" ColName="xmin" TypeMdid="0.28.1.0" ColWidth="4"/>

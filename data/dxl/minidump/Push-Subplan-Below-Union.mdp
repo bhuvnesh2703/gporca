@@ -808,6 +808,7 @@ union
                     <dxl:Filter/>
                     <dxl:TableDescriptor Mdid="0.40094456.1.1" TableName="city">
                       <dxl:Columns>
+                        <dxl:Column ColId="0" Attno="1" ColName="id" TypeMdid="0.23.1.0"/>
                         <dxl:Column ColId="2" Attno="3" ColName="countrycode" TypeMdid="0.1042.1.0" ColWidth="3"/>
                         <dxl:Column ColId="3" Attno="4" ColName="district" TypeMdid="0.25.1.0"/>
                         <dxl:Column ColId="4" Attno="5" ColName="population" TypeMdid="0.23.1.0"/>
@@ -854,6 +855,7 @@ union
                         <dxl:Filter/>
                         <dxl:TableDescriptor Mdid="0.40094484.1.1" TableName="country">
                           <dxl:Columns>
+                            <dxl:Column ColId="12" Attno="1" ColName="code" TypeMdid="0.1042.1.0" ColWidth="3"/>
                             <dxl:Column ColId="13" Attno="2" ColName="name" TypeMdid="0.25.1.0"/>
                             <dxl:Column ColId="27" Attno="-1" ColName="ctid" TypeMdid="0.27.1.0"/>
                             <dxl:Column ColId="28" Attno="-3" ColName="xmin" TypeMdid="0.28.1.0"/>
@@ -1278,6 +1280,7 @@ union
                                   </dxl:Filter>
                                   <dxl:TableDescriptor Mdid="0.40094456.1.1" TableName="city">
                                     <dxl:Columns>
+                                      <dxl:Column ColId="92" Attno="1" ColName="id" TypeMdid="0.23.1.0"/>
                                       <dxl:Column ColId="93" Attno="2" ColName="name" TypeMdid="0.25.1.0"/>
                                       <dxl:Column ColId="96" Attno="5" ColName="population" TypeMdid="0.23.1.0"/>
                                       <dxl:Column ColId="97" Attno="-1" ColName="ctid" TypeMdid="0.27.1.0"/>
@@ -1311,6 +1314,7 @@ union
                                       <dxl:Filter/>
                                       <dxl:TableDescriptor Mdid="0.40094484.1.1" TableName="country">
                                         <dxl:Columns>
+                                          <dxl:Column ColId="70" Attno="1" ColName="code" TypeMdid="0.1042.1.0" ColWidth="3"/>
                                           <dxl:Column ColId="85" Attno="-1" ColName="ctid" TypeMdid="0.27.1.0"/>
                                           <dxl:Column ColId="86" Attno="-3" ColName="xmin" TypeMdid="0.28.1.0"/>
                                           <dxl:Column ColId="87" Attno="-4" ColName="cmin" TypeMdid="0.29.1.0"/>
@@ -1503,6 +1507,7 @@ union
                                   </dxl:Filter>
                                   <dxl:TableDescriptor Mdid="0.40094456.1.1" TableName="city">
                                     <dxl:Columns>
+                                      <dxl:Column ColId="161" Attno="1" ColName="id" TypeMdid="0.23.1.0"/>
                                       <dxl:Column ColId="162" Attno="2" ColName="name" TypeMdid="0.25.1.0"/>
                                       <dxl:Column ColId="165" Attno="5" ColName="population" TypeMdid="0.23.1.0"/>
                                       <dxl:Column ColId="166" Attno="-1" ColName="ctid" TypeMdid="0.27.1.0"/>
@@ -1536,6 +1541,7 @@ union
                                       <dxl:Filter/>
                                       <dxl:TableDescriptor Mdid="0.40094484.1.1" TableName="country">
                                         <dxl:Columns>
+                                          <dxl:Column ColId="139" Attno="1" ColName="code" TypeMdid="0.1042.1.0" ColWidth="3"/>
                                           <dxl:Column ColId="154" Attno="-1" ColName="ctid" TypeMdid="0.27.1.0"/>
                                           <dxl:Column ColId="155" Attno="-3" ColName="xmin" TypeMdid="0.28.1.0"/>
                                           <dxl:Column ColId="156" Attno="-4" ColName="cmin" TypeMdid="0.29.1.0"/>

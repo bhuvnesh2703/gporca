@@ -10054,7 +10054,9 @@
               <dxl:Filter/>
               <dxl:TableDescriptor Mdid="0.25732.1.1" TableName="web_sales">
                 <dxl:Columns>
+                  <dxl:Column ColId="44" Attno="4" ColName="ws_item_sk" TypeMdid="0.23.1.0"/>
                   <dxl:Column ColId="56" Attno="16" ColName="ws_warehouse_sk" TypeMdid="0.23.1.0"/>
+                  <dxl:Column ColId="58" Attno="18" ColName="ws_order_number" TypeMdid="0.20.1.0"/>
                   <dxl:Column ColId="75" Attno="-1" ColName="ctid" TypeMdid="0.27.1.0"/>
                   <dxl:Column ColId="76" Attno="-3" ColName="xmin" TypeMdid="0.28.1.0"/>
                   <dxl:Column ColId="77" Attno="-4" ColName="cmin" TypeMdid="0.29.1.0"/>
@@ -10081,6 +10083,7 @@
             <dxl:Filter/>
             <dxl:TableDescriptor Mdid="0.25732.1.1" TableName="web_sales">
               <dxl:Columns>
+                <dxl:Column ColId="3" Attno="4" ColName="ws_item_sk" TypeMdid="0.23.1.0"/>
                 <dxl:Column ColId="15" Attno="16" ColName="ws_warehouse_sk" TypeMdid="0.23.1.0"/>
                 <dxl:Column ColId="17" Attno="18" ColName="ws_order_number" TypeMdid="0.20.1.0"/>
                 <dxl:Column ColId="34" Attno="-1" ColName="ctid" TypeMdid="0.27.1.0"/>

@@ -1714,7 +1714,9 @@ WHERE
                                 <dxl:TableDescriptor Mdid="0.1109526.1.1" TableName="web_sales">
                                   <dxl:Columns>
                                     <dxl:Column ColId="41" Attno="1" ColName="ws_sold_date_sk" TypeMdid="0.23.1.0"/>
+                                    <dxl:Column ColId="44" Attno="4" ColName="ws_item_sk" TypeMdid="0.23.1.0"/>
                                     <dxl:Column ColId="45" Attno="5" ColName="ws_bill_customer_sk" TypeMdid="0.23.1.0"/>
+                                    <dxl:Column ColId="58" Attno="18" ColName="ws_order_number" TypeMdid="0.23.1.0"/>
                                     <dxl:Column ColId="75" Attno="-1" ColName="ctid" TypeMdid="0.27.1.0"/>
                                     <dxl:Column ColId="76" Attno="-3" ColName="xmin" TypeMdid="0.28.1.0"/>
                                     <dxl:Column ColId="77" Attno="-4" ColName="cmin" TypeMdid="0.29.1.0"/>
@@ -1875,6 +1877,7 @@ WHERE
                               <dxl:Filter/>
                               <dxl:TableDescriptor Mdid="0.1096216.1.1" TableName="date_dim">
                                 <dxl:Columns>
+                                  <dxl:Column ColId="158" Attno="1" ColName="d_date_sk" TypeMdid="0.23.1.0"/>
                                   <dxl:Column ColId="164" Attno="7" ColName="d_year" TypeMdid="0.23.1.0"/>
                                   <dxl:Column ColId="186" Attno="-1" ColName="ctid" TypeMdid="0.27.1.0"/>
                                   <dxl:Column ColId="187" Attno="-3" ColName="xmin" TypeMdid="0.28.1.0"/>
@@ -1930,7 +1933,10 @@ WHERE
                             <dxl:Filter/>
                             <dxl:TableDescriptor Mdid="0.1109906.1.1" TableName="catalog_sales">
                               <dxl:Columns>
+                                <dxl:Column ColId="117" Attno="1" ColName="cs_sold_date_sk" TypeMdid="0.23.1.0"/>
                                 <dxl:Column ColId="124" Attno="8" ColName="cs_ship_customer_sk" TypeMdid="0.23.1.0"/>
+                                <dxl:Column ColId="132" Attno="16" ColName="cs_item_sk" TypeMdid="0.23.1.0"/>
+                                <dxl:Column ColId="134" Attno="18" ColName="cs_order_number" TypeMdid="0.23.1.0"/>
                                 <dxl:Column ColId="151" Attno="-1" ColName="ctid" TypeMdid="0.27.1.0"/>
                                 <dxl:Column ColId="152" Attno="-3" ColName="xmin" TypeMdid="0.28.1.0"/>
                                 <dxl:Column ColId="153" Attno="-4" ColName="cmin" TypeMdid="0.29.1.0"/>
@@ -1961,6 +1967,7 @@ WHERE
             <dxl:Filter/>
             <dxl:TableDescriptor Mdid="0.1096173.1.1" TableName="customer_demographics">
               <dxl:Columns>
+                <dxl:Column ColId="25" Attno="1" ColName="cd_demo_sk" TypeMdid="0.23.1.0"/>
                 <dxl:Column ColId="26" Attno="2" ColName="cd_gender" TypeMdid="0.1042.1.0" ColWidth="1"/>
                 <dxl:Column ColId="34" Attno="-1" ColName="ctid" TypeMdid="0.27.1.0"/>
                 <dxl:Column ColId="35" Attno="-3" ColName="xmin" TypeMdid="0.28.1.0"/>

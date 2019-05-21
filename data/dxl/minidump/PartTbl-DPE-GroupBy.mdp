@@ -710,6 +710,7 @@
                     </dxl:Filter>
                     <dxl:TableDescriptor Mdid="0.290415.1.1" TableName="t">
                       <dxl:Columns>
+                        <dxl:Column ColId="12" Attno="1" ColName="dist" TypeMdid="0.23.1.0"/>
                         <dxl:Column ColId="13" Attno="2" ColName="tid" TypeMdid="0.23.1.0"/>
                         <dxl:Column ColId="14" Attno="3" ColName="t1" TypeMdid="0.25.1.0"/>
                         <dxl:Column ColId="16" Attno="-1" ColName="ctid" TypeMdid="0.27.1.0"/>

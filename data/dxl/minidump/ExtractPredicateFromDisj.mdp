@@ -14912,7 +14912,9 @@ WHERE ((sale_type = 's'::text AND dyear = 2001 AND year_total &gt; 0::numeric) O
                       <dxl:TableDescriptor Mdid="0.1977341.1.1" TableName="store_sales">
                         <dxl:Columns>
                           <dxl:Column ColId="25" Attno="1" ColName="ss_sold_date_sk" TypeMdid="0.23.1.0"/>
+                          <dxl:Column ColId="27" Attno="3" ColName="ss_item_sk" TypeMdid="0.23.1.0"/>
                           <dxl:Column ColId="28" Attno="4" ColName="ss_customer_sk" TypeMdid="0.23.1.0"/>
+                          <dxl:Column ColId="34" Attno="10" ColName="ss_ticket_number" TypeMdid="0.23.1.0"/>
                           <dxl:Column ColId="39" Attno="15" ColName="ss_ext_discount_amt" TypeMdid="0.1700.1.0"/>
                           <dxl:Column ColId="42" Attno="18" ColName="ss_ext_list_price" TypeMdid="0.1700.1.0"/>
                           <dxl:Column ColId="48" Attno="-1" ColName="ctid" TypeMdid="0.27.1.0"/>
