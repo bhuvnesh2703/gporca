@@ -1084,8 +1084,11 @@
                           <dxl:TableDescriptor Mdid="0.17298420.1.1" TableName="mr_star1_cashflows_dh" ExecuteAsUser="10">
                             <dxl:Columns>
                               <dxl:Column ColId="2" Attno="3" ColName="businessdate" TypeMdid="0.1082.1.0"/>
+                              <dxl:Column ColId="9" Attno="10" ColName="contractid" TypeMdid="0.1043.1.0" ColWidth="128"/>
                               <dxl:Column ColId="12" Attno="13" ColName="measurename" TypeMdid="0.1043.1.0" ColWidth="64"/>
                               <dxl:Column ColId="13" Attno="14" ColName="value" TypeMdid="0.701.1.0"/>
+                              <dxl:Column ColId="18" Attno="19" ColName="axis1" TypeMdid="0.1043.1.0" ColWidth="128"/>
+                              <dxl:Column ColId="19" Attno="20" ColName="axis2" TypeMdid="0.1043.1.0" ColWidth="128"/>
                               <dxl:Column ColId="23" Attno="24" ColName="bookid" TypeMdid="0.23.1.0"/>
                               <dxl:Column ColId="28" Attno="29" ColName="bookname" TypeMdid="0.1043.1.0" ColWidth="64"/>
                               <dxl:Column ColId="29" Attno="-1" ColName="ctid" TypeMdid="0.27.1.0"/>
@@ -1324,8 +1327,11 @@
                           <dxl:TableDescriptor Mdid="0.17306732.1.1" TableName="mr_star1_deltas_dh" ExecuteAsUser="10">
                             <dxl:Columns>
                               <dxl:Column ColId="35" Attno="3" ColName="businessdate" TypeMdid="0.1082.1.0"/>
+                              <dxl:Column ColId="42" Attno="10" ColName="contractid" TypeMdid="0.1043.1.0" ColWidth="128"/>
                               <dxl:Column ColId="45" Attno="13" ColName="measurename" TypeMdid="0.1043.1.0" ColWidth="64"/>
                               <dxl:Column ColId="46" Attno="14" ColName="value" TypeMdid="0.701.1.0"/>
+                              <dxl:Column ColId="51" Attno="19" ColName="axis1" TypeMdid="0.1043.1.0" ColWidth="128"/>
+                              <dxl:Column ColId="52" Attno="20" ColName="axis2" TypeMdid="0.1043.1.0" ColWidth="128"/>
                               <dxl:Column ColId="56" Attno="24" ColName="bookid" TypeMdid="0.23.1.0"/>
                               <dxl:Column ColId="61" Attno="29" ColName="bookname" TypeMdid="0.1043.1.0" ColWidth="64"/>
                               <dxl:Column ColId="62" Attno="-1" ColName="ctid" TypeMdid="0.27.1.0"/>
@@ -1564,8 +1570,11 @@
                           <dxl:TableDescriptor Mdid="0.17327104.1.1" TableName="mr_star1_gammas_dh" ExecuteAsUser="10">
                             <dxl:Columns>
                               <dxl:Column ColId="68" Attno="3" ColName="businessdate" TypeMdid="0.1082.1.0"/>
+                              <dxl:Column ColId="75" Attno="10" ColName="contractid" TypeMdid="0.1043.1.0" ColWidth="128"/>
                               <dxl:Column ColId="78" Attno="13" ColName="measurename" TypeMdid="0.1043.1.0" ColWidth="64"/>
                               <dxl:Column ColId="79" Attno="14" ColName="value" TypeMdid="0.701.1.0"/>
+                              <dxl:Column ColId="84" Attno="19" ColName="axis1" TypeMdid="0.1043.1.0" ColWidth="128"/>
+                              <dxl:Column ColId="85" Attno="20" ColName="axis2" TypeMdid="0.1043.1.0" ColWidth="128"/>
                               <dxl:Column ColId="89" Attno="24" ColName="bookid" TypeMdid="0.23.1.0"/>
                               <dxl:Column ColId="94" Attno="29" ColName="bookname" TypeMdid="0.1043.1.0" ColWidth="64"/>
                               <dxl:Column ColId="95" Attno="-1" ColName="ctid" TypeMdid="0.27.1.0"/>

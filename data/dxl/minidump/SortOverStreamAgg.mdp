@@ -2189,6 +2189,7 @@
                     <dxl:Filter/>
                     <dxl:TableDescriptor Mdid="0.40615.1.1" TableName="dm_calendar">
                       <dxl:Columns>
+                        <dxl:Column ColId="0" Attno="1" ColName="calendar_id" TypeMdid="0.20.1.0"/>
                         <dxl:Column ColId="19" Attno="20" ColName="year_id" TypeMdid="0.1700.1.0"/>
                         <dxl:Column ColId="20" Attno="21" ColName="year_name" TypeMdid="0.1043.1.0" ColWidth="200"/>
                         <dxl:Column ColId="32" Attno="-1" ColName="ctid" TypeMdid="0.27.1.0"/>

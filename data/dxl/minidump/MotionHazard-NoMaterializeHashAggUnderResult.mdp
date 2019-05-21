@@ -772,6 +772,7 @@ explain select f.k, f.subq from (select tab3.k, (select tab2.k from tab2 where t
                             <dxl:Filter/>
                             <dxl:TableDescriptor Mdid="0.98453.1.0" TableName="tab1">
                               <dxl:Columns>
+                                <dxl:Column ColId="10" Attno="1" ColName="i" TypeMdid="0.23.1.0" ColWidth="4"/>
                                 <dxl:Column ColId="11" Attno="2" ColName="j" TypeMdid="0.23.1.0" ColWidth="4"/>
                                 <dxl:Column ColId="13" Attno="-1" ColName="ctid" TypeMdid="0.27.1.0" ColWidth="6"/>
                                 <dxl:Column ColId="14" Attno="-3" ColName="xmin" TypeMdid="0.28.1.0" ColWidth="4"/>
@@ -799,6 +800,7 @@ explain select f.k, f.subq from (select tab3.k, (select tab2.k from tab2 where t
             <dxl:Filter/>
             <dxl:TableDescriptor Mdid="0.98465.1.0" TableName="tab3">
               <dxl:Columns>
+                <dxl:Column ColId="31" Attno="1" ColName="i" TypeMdid="0.23.1.0" ColWidth="4"/>
                 <dxl:Column ColId="34" Attno="-1" ColName="ctid" TypeMdid="0.27.1.0" ColWidth="6"/>
                 <dxl:Column ColId="35" Attno="-3" ColName="xmin" TypeMdid="0.28.1.0" ColWidth="4"/>
                 <dxl:Column ColId="36" Attno="-4" ColName="cmin" TypeMdid="0.29.1.0" ColWidth="4"/>

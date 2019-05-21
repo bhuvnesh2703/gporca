@@ -5346,6 +5346,7 @@ where d.msisdn=f.subscriberaddress and f.sessioncreationtimestamp >= d.start_dtm
             <dxl:Filter/>
             <dxl:TableDescriptor Mdid="0.1279380.1.1" TableName="stg_xdr_crce_cdr">
               <dxl:Columns>
+                <dxl:Column ColId="0" Attno="1" ColName="id" TypeMdid="0.20.1.0"/>
                 <dxl:Column ColId="9" Attno="10" ColName="sessioncreationtimestamp" TypeMdid="0.1184.1.0"/>
                 <dxl:Column ColId="14" Attno="15" ColName="subscriberaddress" TypeMdid="0.1043.1.0" ColWidth="128"/>
                 <dxl:Column ColId="57" Attno="-1" ColName="ctid" TypeMdid="0.27.1.0"/>

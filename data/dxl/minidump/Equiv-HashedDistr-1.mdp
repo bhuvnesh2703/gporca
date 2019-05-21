@@ -2022,6 +2022,7 @@
                     <dxl:Filter/>
                     <dxl:TableDescriptor Mdid="0.24726.1.1" TableName="lineitem">
                       <dxl:Columns>
+                        <dxl:Column ColId="0" Attno="1" ColName="l_orderkey" TypeMdid="0.23.1.0"/>
                         <dxl:Column ColId="2" Attno="3" ColName="l_suppkey" TypeMdid="0.23.1.0"/>
                         <dxl:Column ColId="16" Attno="-1" ColName="ctid" TypeMdid="0.27.1.0"/>
                         <dxl:Column ColId="17" Attno="-3" ColName="xmin" TypeMdid="0.28.1.0"/>
@@ -2062,6 +2063,7 @@
                     <dxl:Filter/>
                     <dxl:TableDescriptor Mdid="0.24657.1.1" TableName="partsupp">
                       <dxl:Columns>
+                        <dxl:Column ColId="23" Attno="1" ColName="ps_partkey" TypeMdid="0.23.1.0"/>
                         <dxl:Column ColId="24" Attno="2" ColName="ps_suppkey" TypeMdid="0.23.1.0"/>
                         <dxl:Column ColId="28" Attno="-1" ColName="ctid" TypeMdid="0.27.1.0"/>
                         <dxl:Column ColId="29" Attno="-3" ColName="xmin" TypeMdid="0.28.1.0"/>

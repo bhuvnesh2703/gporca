@@ -6762,6 +6762,7 @@ ORDER BY s_name;
                                 </dxl:Filter>
                                 <dxl:TableDescriptor Mdid="0.11778166.1.1" TableName="lineitem_ao_column_none_level0">
                                   <dxl:Columns>
+                                    <dxl:Column ColId="37" Attno="1" ColName="l_orderkey" TypeMdid="0.20.1.0"/>
                                     <dxl:Column ColId="38" Attno="2" ColName="l_partkey" TypeMdid="0.23.1.0"/>
                                     <dxl:Column ColId="39" Attno="3" ColName="l_suppkey" TypeMdid="0.23.1.0"/>
                                     <dxl:Column ColId="41" Attno="5" ColName="l_quantity" TypeMdid="0.1700.1.0"/>

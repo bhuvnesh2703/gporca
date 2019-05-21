@@ -558,6 +558,7 @@ explain select t1.a from t1, foo_prt t2, t3 where (t1.b = t2.a) and t2.a = t3.b;
                 <dxl:Filter/>
                 <dxl:TableDescriptor Mdid="0.22467.1.0" TableName="t3">
                   <dxl:Columns>
+                    <dxl:Column ColId="13" Attno="1" ColName="a" TypeMdid="0.23.1.0" ColWidth="4"/>
                     <dxl:Column ColId="14" Attno="2" ColName="b" TypeMdid="0.23.1.0" ColWidth="4"/>
                     <dxl:Column ColId="15" Attno="-1" ColName="ctid" TypeMdid="0.27.1.0" ColWidth="6"/>
                     <dxl:Column ColId="16" Attno="-3" ColName="xmin" TypeMdid="0.28.1.0" ColWidth="4"/>

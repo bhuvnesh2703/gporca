@@ -413,6 +413,7 @@
               </dxl:Filter>
               <dxl:TableDescriptor Mdid="0.29434.1.1" TableName="lineitem">
                 <dxl:Columns>
+                  <dxl:Column ColId="0" Attno="1" ColName="l_orderkey" TypeMdid="0.23.1.0"/>
                   <dxl:Column ColId="10" Attno="11" ColName="l_shipdate" TypeMdid="0.1082.1.0"/>
                   <dxl:Column ColId="11" Attno="12" ColName="l_commitdate" TypeMdid="0.1082.1.0"/>
                   <dxl:Column ColId="16" Attno="-1" ColName="ctid" TypeMdid="0.27.1.0"/>

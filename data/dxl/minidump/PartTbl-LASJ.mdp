@@ -708,6 +708,7 @@
                 <dxl:Filter/>
                 <dxl:TableDescriptor Mdid="0.259515.1.1" TableName="foo3_p">
                   <dxl:Columns>
+                    <dxl:Column ColId="0" Attno="1" ColName="i" TypeMdid="0.23.1.0"/>
                     <dxl:Column ColId="2" Attno="3" ColName="k" TypeMdid="0.23.1.0"/>
                     <dxl:Column ColId="3" Attno="-1" ColName="ctid" TypeMdid="0.27.1.0"/>
                     <dxl:Column ColId="4" Attno="-3" ColName="xmin" TypeMdid="0.28.1.0"/>

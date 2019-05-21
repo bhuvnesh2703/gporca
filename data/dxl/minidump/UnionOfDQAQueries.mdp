@@ -576,6 +576,9 @@
                     <dxl:Filter/>
                     <dxl:TableDescriptor Mdid="0.471019.1.1" TableName="sale">
                       <dxl:Columns>
+                        <dxl:Column ColId="14" Attno="1" ColName="cn" TypeMdid="0.23.1.0"/>
+                        <dxl:Column ColId="15" Attno="2" ColName="vn" TypeMdid="0.23.1.0"/>
+                        <dxl:Column ColId="16" Attno="3" ColName="pn" TypeMdid="0.23.1.0"/>
                         <dxl:Column ColId="17" Attno="4" ColName="dt" TypeMdid="0.1082.1.0"/>
                         <dxl:Column ColId="20" Attno="-1" ColName="ctid" TypeMdid="0.27.1.0"/>
                         <dxl:Column ColId="21" Attno="-3" ColName="xmin" TypeMdid="0.28.1.0"/>
