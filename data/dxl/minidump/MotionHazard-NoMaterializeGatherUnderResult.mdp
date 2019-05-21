@@ -570,6 +570,7 @@ explain select tab3.k, (select tab2.k from tab2 where tab2.i = tab1.i limit 1) a
               <dxl:Filter/>
               <dxl:TableDescriptor Mdid="0.40972.1.0" TableName="tab3">
                 <dxl:Columns>
+                  <dxl:Column ColId="0" Attno="1" ColName="i" TypeMdid="0.23.1.0" ColWidth="4"/>
                   <dxl:Column ColId="1" Attno="2" ColName="j" TypeMdid="0.23.1.0" ColWidth="4"/>
                   <dxl:Column ColId="2" Attno="3" ColName="k" TypeMdid="0.1043.1.0" ColWidth="0"/>
                   <dxl:Column ColId="3" Attno="-1" ColName="ctid" TypeMdid="0.27.1.0" ColWidth="6"/>

@@ -607,7 +607,9 @@
               <dxl:Filter/>
               <dxl:TableDescriptor Mdid="0.98421.1.0" TableName="lineitem">
                 <dxl:Columns>
+                  <dxl:Column ColId="0" Attno="1" ColName="l_orderkey" TypeMdid="0.20.1.0" ColWidth="8"/>
                   <dxl:Column ColId="1" Attno="2" ColName="l_partkey" TypeMdid="0.20.1.0" ColWidth="8"/>
+                  <dxl:Column ColId="3" Attno="4" ColName="l_linenumber" TypeMdid="0.23.1.0" ColWidth="4"/>
                   <dxl:Column ColId="16" Attno="-1" ColName="ctid" TypeMdid="0.27.1.0" ColWidth="6"/>
                   <dxl:Column ColId="17" Attno="-3" ColName="xmin" TypeMdid="0.28.1.0" ColWidth="4"/>
                   <dxl:Column ColId="18" Attno="-4" ColName="cmin" TypeMdid="0.29.1.0" ColWidth="4"/>
@@ -651,7 +653,9 @@
                   <dxl:Filter/>
                   <dxl:TableDescriptor Mdid="0.98421.1.0" TableName="lineitem">
                     <dxl:Columns>
+                      <dxl:Column ColId="39" Attno="1" ColName="l_orderkey" TypeMdid="0.20.1.0" ColWidth="8"/>
                       <dxl:Column ColId="40" Attno="2" ColName="l_partkey" TypeMdid="0.20.1.0" ColWidth="8"/>
+                      <dxl:Column ColId="42" Attno="4" ColName="l_linenumber" TypeMdid="0.23.1.0" ColWidth="4"/>
                       <dxl:Column ColId="55" Attno="-1" ColName="ctid" TypeMdid="0.27.1.0" ColWidth="6"/>
                       <dxl:Column ColId="56" Attno="-3" ColName="xmin" TypeMdid="0.28.1.0" ColWidth="4"/>
                       <dxl:Column ColId="57" Attno="-4" ColName="cmin" TypeMdid="0.29.1.0" ColWidth="4"/>

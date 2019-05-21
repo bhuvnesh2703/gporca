@@ -743,6 +743,7 @@
                           <dxl:Filter/>
                           <dxl:TableDescriptor Mdid="0.1637457.1.1" TableName="emp">
                             <dxl:Columns>
+                              <dxl:Column ColId="0" Attno="1" ColName="empid" TypeMdid="0.23.1.0"/>
                               <dxl:Column ColId="1" Attno="2" ColName="deptno" TypeMdid="0.23.1.0"/>
                               <dxl:Column ColId="5" Attno="-1" ColName="ctid" TypeMdid="0.27.1.0"/>
                               <dxl:Column ColId="6" Attno="-3" ColName="xmin" TypeMdid="0.28.1.0"/>
@@ -893,6 +894,7 @@
                           <dxl:Filter/>
                           <dxl:TableDescriptor Mdid="0.1637457.1.1" TableName="emp">
                             <dxl:Columns>
+                              <dxl:Column ColId="22" Attno="1" ColName="empid" TypeMdid="0.23.1.0"/>
                               <dxl:Column ColId="23" Attno="2" ColName="deptno" TypeMdid="0.23.1.0"/>
                               <dxl:Column ColId="27" Attno="-1" ColName="ctid" TypeMdid="0.27.1.0"/>
                               <dxl:Column ColId="28" Attno="-3" ColName="xmin" TypeMdid="0.28.1.0"/>
@@ -1044,6 +1046,7 @@
                         <dxl:Filter/>
                         <dxl:TableDescriptor Mdid="0.1637457.1.1" TableName="emp">
                           <dxl:Columns>
+                            <dxl:Column ColId="44" Attno="1" ColName="empid" TypeMdid="0.23.1.0"/>
                             <dxl:Column ColId="45" Attno="2" ColName="deptno" TypeMdid="0.23.1.0"/>
                             <dxl:Column ColId="49" Attno="-1" ColName="ctid" TypeMdid="0.27.1.0"/>
                             <dxl:Column ColId="50" Attno="-3" ColName="xmin" TypeMdid="0.28.1.0"/>

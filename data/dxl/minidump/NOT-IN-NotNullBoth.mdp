@@ -342,6 +342,7 @@
               <dxl:Filter/>
               <dxl:TableDescriptor Mdid="0.53000.1.1" TableName="t">
                 <dxl:Columns>
+                  <dxl:Column ColId="9" Attno="1" ColName="t1" TypeMdid="0.23.1.0"/>
                   <dxl:Column ColId="10" Attno="2" ColName="t2" TypeMdid="0.23.1.0"/>
                   <dxl:Column ColId="11" Attno="-1" ColName="ctid" TypeMdid="0.27.1.0"/>
                   <dxl:Column ColId="12" Attno="-3" ColName="xmin" TypeMdid="0.28.1.0"/>

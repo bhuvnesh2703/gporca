@@ -2971,6 +2971,7 @@
                   <dxl:Filter/>
                   <dxl:TableDescriptor Mdid="0.67018.1.1" TableName="item">
                     <dxl:Columns>
+                      <dxl:Column ColId="20" Attno="1" ColName="i_item_sk" TypeMdid="0.23.1.0"/>
                       <dxl:Column ColId="21" Attno="2" ColName="i_item_id" TypeMdid="0.1042.1.0" ColWidth="16"/>
                       <dxl:Column ColId="42" Attno="-1" ColName="ctid" TypeMdid="0.27.1.0"/>
                       <dxl:Column ColId="43" Attno="-3" ColName="xmin" TypeMdid="0.28.1.0"/>
@@ -2995,6 +2996,7 @@
                 <dxl:Filter/>
                 <dxl:TableDescriptor Mdid="0.66674.1.1" TableName="customer_address">
                   <dxl:Columns>
+                    <dxl:Column ColId="0" Attno="1" ColName="ca_address_sk" TypeMdid="0.23.1.0"/>
                     <dxl:Column ColId="7" Attno="8" ColName="ca_county" TypeMdid="0.1043.1.0" ColWidth="30"/>
                     <dxl:Column ColId="13" Attno="-1" ColName="ctid" TypeMdid="0.27.1.0"/>
                     <dxl:Column ColId="14" Attno="-3" ColName="xmin" TypeMdid="0.28.1.0"/>

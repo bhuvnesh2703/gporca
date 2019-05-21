@@ -8966,6 +8966,7 @@
                     <dxl:Column ColId="0" Attno="1" ColName="cs_sold_date_sk" TypeMdid="0.23.1.0"/>
                     <dxl:Column ColId="3" Attno="4" ColName="cs_bill_customer_sk" TypeMdid="0.23.1.0"/>
                     <dxl:Column ColId="15" Attno="16" ColName="cs_item_sk" TypeMdid="0.23.1.0"/>
+                    <dxl:Column ColId="17" Attno="18" ColName="cs_order_number" TypeMdid="0.23.1.0"/>
                     <dxl:Column ColId="34" Attno="-1" ColName="ctid" TypeMdid="0.27.1.0"/>
                     <dxl:Column ColId="35" Attno="-3" ColName="xmin" TypeMdid="0.28.1.0"/>
                     <dxl:Column ColId="36" Attno="-4" ColName="cmin" TypeMdid="0.29.1.0"/>
@@ -8991,6 +8992,7 @@
                     <dxl:Column ColId="41" Attno="1" ColName="ws_sold_date_sk" TypeMdid="0.23.1.0"/>
                     <dxl:Column ColId="44" Attno="4" ColName="ws_item_sk" TypeMdid="0.23.1.0"/>
                     <dxl:Column ColId="45" Attno="5" ColName="ws_bill_customer_sk" TypeMdid="0.23.1.0"/>
+                    <dxl:Column ColId="58" Attno="18" ColName="ws_order_number" TypeMdid="0.23.1.0"/>
                     <dxl:Column ColId="75" Attno="-1" ColName="ctid" TypeMdid="0.27.1.0"/>
                     <dxl:Column ColId="76" Attno="-3" ColName="xmin" TypeMdid="0.28.1.0"/>
                     <dxl:Column ColId="77" Attno="-4" ColName="cmin" TypeMdid="0.29.1.0"/>

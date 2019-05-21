@@ -11012,6 +11012,7 @@ group  by item.i_item_id, item.i_item_desc, item.i_current_price;
                   <dxl:TableDescriptor Mdid="0.25472.1.1" TableName="store_sales">
                     <dxl:Columns>
                       <dxl:Column ColId="31" Attno="3" ColName="ss_item_sk" TypeMdid="0.23.1.0"/>
+                      <dxl:Column ColId="38" Attno="10" ColName="ss_ticket_number" TypeMdid="0.20.1.0"/>
                       <dxl:Column ColId="52" Attno="-1" ColName="ctid" TypeMdid="0.27.1.0"/>
                       <dxl:Column ColId="53" Attno="-3" ColName="xmin" TypeMdid="0.28.1.0"/>
                       <dxl:Column ColId="54" Attno="-4" ColName="cmin" TypeMdid="0.29.1.0"/>
