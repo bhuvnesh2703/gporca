@@ -211,7 +211,7 @@ namespace gpopt
 
 			BOOL IsUsed() const
 			{
-				if (GPOS_FTRACE(EopttraceRemoveUnusedColrefs))
+				if (!GPOS_FTRACE(EopttraceTranslateUnusedColrefs))
 				{
 					return m_used == EUsed || FSystemCol();
 				}
