@@ -179,7 +179,7 @@ namespace gpos
 		EopttraceEnableEagerAgg = 103030,
 		
 		// Enable reduction of unused colrefs
-		EopttraceRemoveUnusedColrefs = 103031,
+		EopttraceTranslateUnusedColrefs = 103031,
 
 		///////////////////////////////////////////////////////
 		///////////////////// statistics flags ////////////////
