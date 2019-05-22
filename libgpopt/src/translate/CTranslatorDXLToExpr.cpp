@@ -351,8 +351,11 @@ CTranslatorDXLToExpr::PexprTranslateQuery
 	CAutoTimer at("\n[OPT]: DXL To Expr Translation Time", GPOS_FTRACE(EopttracePrintOptimizationStatistics));
 
 	CExpression *pexpr = Pexpr(dxlnode, query_output_dxlnode_array, cte_producers);
-	
-	MarkUnknownAsUnused();
+
+	// We need to mark all the colrefs which are not being referenced in the query as unused.
+	// This needs to be done here after translating since we won't know which columns are
+	// required until entire DXL tree has been processed
+	MarkUnknownColsAsUnused();
 	
 	return pexpr;
 }
@@ -4038,7 +4041,7 @@ CTranslatorDXLToExpr::AddDistributionColumns
 }
 
 void
-CTranslatorDXLToExpr::MarkUnknownAsUnused()
+CTranslatorDXLToExpr::MarkUnknownColsAsUnused()
 {
 	UlongToColRefMapIter iter(m_phmulcr);
 

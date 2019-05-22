@@ -17,6 +17,7 @@
 #include "gpos/common/CHashMap.h"
 
 #include "gpopt/metadata/CName.h"
+#include "naucrates/traceflags/traceflags.h"
 
 #include "naucrates/md/IMDType.h"
 
@@ -210,7 +211,11 @@ namespace gpopt
 
 			BOOL IsUsed() const
 			{
-				return m_used == EUsed || IsUnknown() || FSystemCol();
+				if (GPOS_FTRACE(EopttraceRemoveUnusedColrefs))
+				{
+					return m_used == EUsed || FSystemCol();
+				}
+				return true;
 			}
 
 #ifdef GPOS_DEBUG

@@ -238,7 +238,7 @@ CLogicalGet::PcrsDeriveOutput
 		// We will know the entire list of columns which are referenced in the query only after
 		// translating the entire DXL to an expression. Hence we should not limit the output columns
 		// before we have processed the entire DXL.
-		if ((*m_pdrgpcrOutput)[i]->IsUsed())
+		if ((*m_pdrgpcrOutput)[i]->IsUsed() || (*m_pdrgpcrOutput)[i]->IsUnknown())
 		{
 			pcrs->Include((*m_pdrgpcrOutput)[i]);
 		}
