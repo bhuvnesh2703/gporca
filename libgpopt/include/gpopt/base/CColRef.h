@@ -51,8 +51,8 @@ namespace gpopt
 	//---------------------------------------------------------------------------
 	class CColRef
 	{
-		private:
-		
+
+		public:
 			enum EUsedStatus
 			{
 				EUsed,
@@ -60,7 +60,9 @@ namespace gpopt
 				EUnknown,
 				ESentinel
 			};
-		
+
+		private:
+
 			// type information
 			const IMDType *m_pmdtype;
 
@@ -73,6 +75,7 @@ namespace gpopt
 			// private copy ctor
 			CColRef(const CColRef &);
 
+			// track the usage of colref (used/unused/unknown)
 			EUsedStatus m_used;
 			
 		public:
@@ -84,7 +87,7 @@ namespace gpopt
 				
 				EcrtSentinel
 			};
-		
+
 			// ctor
 			CColRef(const IMDType *pmdtype, const INT type_modifier, ULONG id, const CName *pname);
 
@@ -204,18 +207,15 @@ namespace gpopt
 				m_used = EUnknown;
 			}
 
-			BOOL IsUnknown() const
+			EUsedStatus GetUsage() const
 			{
-				return m_used == EUnknown;
-			}
 
-			BOOL IsUsed() const
-			{
-				if (!GPOS_FTRACE(EopttraceTranslateUnusedColrefs))
+				if (GPOS_FTRACE(EopttraceTranslateUnusedColrefs) || FSystemCol())
 				{
-					return m_used == EUsed || FSystemCol();
+					return EUsed;
 				}
-				return true;
+
+				return m_used;
 			}
 
 #ifdef GPOS_DEBUG
