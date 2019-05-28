@@ -7307,7 +7307,7 @@ CTranslatorExprToDXL::MakeDXLTableDescr
 		if (NULL != pdrgpcrOutput)
 		{
 			colref = (*pdrgpcrOutput)[ul];
-			if (!colref->IsUsed())
+			if (colref->GetUsage() != CColRef::EUsed)
 			{
 				continue;
 			}
