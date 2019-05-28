@@ -26,7 +26,7 @@
 #include "naucrates/dxl/operators/dxlops.h"
 
 #include "gpopt/base/CAutoOptCtxt.h"
-#include "gpopt/base/CColRefSet.h"
+#include "gpopt/base/CColRef.h"
 #include "gpopt/base/CColRefSet.h"
 #include "gpopt/base/CColumnFactory.h"
 #include "gpopt/base/CEnfdOrder.h"
@@ -4048,7 +4048,7 @@ CTranslatorDXLToExpr::MarkUnknownColsAsUnused()
 	while (iter.Advance())
 	{
 		CColRef *colref = m_phmulcr->Find(iter.Key());
-		if (colref->IsUnknown())
+		if (colref->GetUsage() == CColRef::EUnknown)
 		{
 			colref->MarkAsUnused();
 		}

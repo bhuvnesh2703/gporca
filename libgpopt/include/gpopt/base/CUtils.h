@@ -1194,6 +1194,7 @@ namespace gpopt
 	{
 		GPOS_ASSERT(NULL != pexprLeft);
 		GPOS_ASSERT(NULL != pexprRight);
+		GPOS_ASSERT(NULL != pcrInner);
 
 		CExpression *pexprScalar = pexprPred;
 		if (NULL == pexprPred)
@@ -1202,10 +1203,7 @@ namespace gpopt
 		}
 
 		CColRefArray *colref_array = GPOS_NEW(mp) CColRefArray(mp);
-		if (NULL != pcrInner)
-		{
-			colref_array->Append(const_cast<CColRef *>(pcrInner));
-		}
+		colref_array->Append(const_cast<CColRef *>(pcrInner));
 		return GPOS_NEW(mp) CExpression
 				(
 				mp,

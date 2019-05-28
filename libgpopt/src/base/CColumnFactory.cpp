@@ -172,6 +172,8 @@ CColumnFactory::PcrCreate
 	// ensure uniqueness
 	GPOS_ASSERT(NULL == LookupColRef(id));
 	m_sht.Insert(colref);
+	// Since this colref has been created outside the DXL translation
+	// we know that it is definitely required. So mark it as used.
 	colref->MarkAsUsed();
 	
 	return a_pcr.Reset();
@@ -247,6 +249,8 @@ CColumnFactory::PcrCreate
 	// ensure uniqueness
 	GPOS_ASSERT(NULL == LookupColRef(id));
 	m_sht.Insert(colref);
+	// Since this colref has been created outside the DXL translation
+	// we know that it is definitely required. So mark it as used.
 	colref->MarkAsUsed();
 	
 	return a_pcr.Reset();
