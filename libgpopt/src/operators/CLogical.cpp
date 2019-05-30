@@ -106,7 +106,7 @@ CLogical::PdrgpcrCreateMapping
 	{
 		CColumnDescriptor *pcoldesc = (*pdrgpcoldesc)[ul];
 		CName name(mp, pcoldesc->Name());
-		CColRef *colref = col_factory->PcrCreate(pcoldesc, name, ulOpSourceId, false);
+		CColRef *colref = col_factory->PcrCreate(pcoldesc, name, ulOpSourceId, false /* mark_as_used */ );
 		colref_array->Append(colref);
 	}
 	
