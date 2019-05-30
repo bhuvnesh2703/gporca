@@ -74,7 +74,8 @@ namespace gpopt
 					const CColumnDescriptor *pcoldesc,
 					ULONG id,
 					const CName &name,
-					ULONG ulOpSource
+					ULONG ulOpSource,
+					BOOL mark_as_used=true
 					);
 
 		public:
