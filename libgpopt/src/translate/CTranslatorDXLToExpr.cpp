@@ -58,8 +58,6 @@ using namespace gpmd;
 using namespace gpdxl;
 using namespace gpopt;
 
-//BOOL CTranslatorDXLToExpr::translating = false;
-
 //---------------------------------------------------------------------------
 //	@function:
 //		CTranslatorDXLToExpr::CTranslatorDXLToExpr
@@ -1045,7 +1043,7 @@ CTranslatorDXLToExpr::PcrCreate
 	// generate a new column reference
 	CName name(colref->Name().Pstr());
 	CColRef *new_colref = m_pcf->PcrCreate(pmdtype, type_modifier, name);
-	
+
 	if (fStoreMapping)
 	{
 #ifdef GPOS_DEBUG
