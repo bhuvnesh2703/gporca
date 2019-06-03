@@ -31,6 +31,7 @@ namespace gpopt
 
 		private:
 
+		CExpression *m_pexprScalar;
 			// private copy ctor
 			CPhysicalNLJoin(const CPhysicalNLJoin &);
 
@@ -87,7 +88,15 @@ namespace gpopt
 				ULONG ulOptReq
 				)
 				const;
-
+		CExpression *ScalarExpr()
+		{
+			return m_pexprScalar;
+		}
+		
+		void SetScalarExpr(CExpression *pexprScalar)
+		{
+			m_pexprScalar = pexprScalar;
+		}
 			// compute required output columns of the n-th child
 			virtual
 			CColRefSet *PcrsRequired

@@ -60,7 +60,8 @@ namespace gpopt
 				const IMDRelation *pmdrel,
 				const IMDIndex *pmdindex,
 				CPartConstraint *ppartcnstrIndex,
-				CXformResult *pxfres
+				CXformResult *pxfres,
+				CExpression *pexprScalar
 				) const;
 
 			// helper to add IndexApply expression to given xform results container

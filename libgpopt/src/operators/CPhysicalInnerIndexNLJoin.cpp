@@ -43,6 +43,7 @@ CPhysicalInnerIndexNLJoin::CPhysicalInnerIndexNLJoin
 	CPhysicalInnerNLJoin(mp),
 	m_pdrgpcrOuterRefs(colref_array)
 {
+//	m_pexprScalar = NULL;
 	GPOS_ASSERT(NULL != colref_array);
 }
 
@@ -130,7 +131,44 @@ CPhysicalInnerIndexNLJoin::PdsRequired
 	{
 		// check if we could create an equivalent hashed distribution request to the inner child
 		CDistributionSpecHashed *pdshashed = CDistributionSpecHashed::PdsConvert(pdsInner);
+		CColRefSet *pcrsInner = pdshashed->PcrsUsed(mp);
 		CDistributionSpecHashed *pdshashedEquiv = pdshashed->PdshashedEquiv();
+		CExpression *pexprScalar = CPhysicalNLJoin::PopConvert(exprhdl.Pop())->ScalarExpr();
+		CExpressionArray *pdrgpexprPreds = CPredicateUtils::PdrgpexprConjuncts(mp, pexprScalar);
+		CExpressionArray *pdsHashExprs = GPOS_NEW(mp) CExpressionArray(mp);
+		for (ULONG ul = 0; ul < pdrgpexprPreds->Size(); ul++)
+		{
+			CExpression *pexprPred = (*pdrgpexprPreds)[ul];
+			if (pexprPred->Pop()->Eopid() == COperator::EopScalarConst)
+				continue;
+			CExpression *pexprLeft = (*pexprPred)[0];
+			CColRefSet *pcrsLeft = CDrvdPropScalar::GetDrvdScalarProps(pexprLeft->PdpDerive())->PcrsUsed();
+			CExpression *pexprRight = (*pexprPred)[1];
+			CColRefSet *pcrsRight = CDrvdPropScalar::GetDrvdScalarProps(pexprRight->PdpDerive())->PcrsUsed();
+			if (pcrsLeft->ContainsAll(pcrsInner))
+			{
+				pexprRight->AddRef();
+				pdsHashExprs->Append(pexprRight);
+			}
+			else if (pcrsRight->ContainsAll(pcrsInner))
+			{
+				pexprLeft->AddRef();
+				pdsHashExprs->Append(pexprLeft);
+			}
+			GPOS_ASSERT(pdsHashExprs);
+			
+			
+		}
+		pcrsInner->Release();
+		CRefCount::SafeRelease(pdrgpexprPreds);
+		if (pdsHashExprs->Size() > 0)
+		{
+			CDistributionSpecHashed *pdsHashedRequired = GPOS_NEW(mp) CDistributionSpecHashed(pdsHashExprs, pdshashed->FNullsColocated());
+			pdsHashedRequired->ComputeEquivHashExprs(mp, exprhdl);
+			return pdsHashedRequired;
+		}
+		pdsHashExprs->Release();
+		GPOS_ASSERT(pexprScalar);
 		if (NULL != pdshashedEquiv)
 		{
 			// request hashed distribution from outer

@@ -34,7 +34,9 @@ CLogicalApply::CLogicalApply
 	CLogical(mp),
 	m_pdrgpcrInner(NULL),
 	m_eopidOriginSubq(COperator::EopSentinel)
-{}
+{
+	m_pexprScalar = NULL;
+}
 
 
 //---------------------------------------------------------------------------
@@ -56,6 +58,7 @@ CLogicalApply::CLogicalApply
 	m_pdrgpcrInner(pdrgpcrInner),
 	m_eopidOriginSubq(eopidOriginSubq)
 {
+	m_pexprScalar = NULL;
 	GPOS_ASSERT(NULL != pdrgpcrInner);
 }
 
@@ -70,6 +73,7 @@ CLogicalApply::CLogicalApply
 CLogicalApply::~CLogicalApply()
 {
 	CRefCount::SafeRelease(m_pdrgpcrInner);
+	CRefCount::SafeRelease(m_pexprScalar);
 }
 
 

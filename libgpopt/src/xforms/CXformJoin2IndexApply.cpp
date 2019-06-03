@@ -259,7 +259,8 @@ CXformJoin2IndexApply::CreateHomogeneousBtreeIndexApplyAlternatives
 			pmdrel,
 			pmdindex,
 			ppartcnstrIndex,
-			pxfres
+			pxfres,
+			pexprScalar
 			);
 	}
 
@@ -291,7 +292,8 @@ CXformJoin2IndexApply::CreateAlternativesForBtreeIndex
 	const IMDRelation *pmdrel,
 	const IMDIndex *pmdindex,
 	CPartConstraint *ppartcnstrIndex,
-	CXformResult *pxfres
+	CXformResult *pxfres,
+	CExpression *pexprScalar
 	) const
 {
 	CExpression *pexprLogicalIndexGet = CXformUtils::PexprLogicalIndexGet
@@ -315,15 +317,18 @@ CXformJoin2IndexApply::CreateAlternativesForBtreeIndex
 		// and add it to xform results
 		CColRefArray *colref_array = outer_refs->Pdrgpcr(mp);
 		pexprOuter->AddRef();
+		CLogicalApply *popLogicalApply = PopLogicalApply(mp, colref_array);
 		CExpression *pexprIndexApply =
 			GPOS_NEW(mp) CExpression
 				(
 				mp,
-				PopLogicalApply(mp, colref_array),
+				popLogicalApply,
 				pexprOuter,
 				pexprLogicalIndexGet,
 				CPredicateUtils::PexprConjunction(mp, NULL /*pdrgpexpr*/)
 				);
+		pexprScalar->AddRef();
+		popLogicalApply->SetScalarExpr(pexprScalar);
 		pxfres->Add(pexprIndexApply);
 	}
 }

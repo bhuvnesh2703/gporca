@@ -32,6 +32,7 @@ namespace gpopt
 
 		private:
 
+		CExpression *m_pexprScalar;
 			// private copy ctor
 			CLogicalApply(const CLogicalApply &);
 
@@ -66,6 +67,17 @@ namespace gpopt
 			{
 				return true;
 			}
+		
+		CExpression *ScalarExpr()
+		{
+			return m_pexprScalar;
+		}
+		
+		void
+		SetScalarExpr(CExpression *pexprScalar)
+		{
+			m_pexprScalar = pexprScalar;
+		}
 
 			// inner column references accessor
 			CColRefArray *PdrgPcrInner() const

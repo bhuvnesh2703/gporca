@@ -30,6 +30,7 @@ namespace gpopt
 
 		private:
 
+//		CExpression *m_pexprScalar;
 			// columns from outer child used for index lookup in inner child
 			CColRefArray *m_pdrgpcrOuterRefs;
 
@@ -51,6 +52,8 @@ namespace gpopt
 			{
 				return EopPhysicalInnerIndexNLJoin;
 			}
+		
+
 
 			 // return a string for operator name
 			virtual
