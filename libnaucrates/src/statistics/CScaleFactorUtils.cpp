@@ -46,11 +46,11 @@ const CDouble CScaleFactorUtils::InvalidScaleFactor(0.0);
 CDouble
 CScaleFactorUtils::CumulativeJoinScaleFactor
 	(
-	const CStatisticsConfig *stats_config,
+	const CStatisticsConfig *,//stats_config,
 	CDoubleArray *join_conds_scale_factors
 	)
 {
-	GPOS_ASSERT(NULL != stats_config);
+//	GPOS_ASSERT(NULL != stats_config);
 	GPOS_ASSERT(NULL != join_conds_scale_factors);
 
 	const ULONG num_join_conds = join_conds_scale_factors->Size();
@@ -60,20 +60,22 @@ CScaleFactorUtils::CumulativeJoinScaleFactor
 		join_conds_scale_factors->Sort(CScaleFactorUtils::DescendingOrderCmpFunc);
 	}
 
-	CDouble scale_factor(1.0);
-	// iterate over joins
+	CDouble selectivity(1.0);
 	for (ULONG ul = 0; ul < num_join_conds; ul++)
 	{
-		CDouble local_scale_factor = *(*join_conds_scale_factors)[ul];
-
-		scale_factor = scale_factor * std::max
-										(
-										CStatistics::MinRows.Get(),
-										(local_scale_factor * DampedJoinScaleFactor(stats_config, ul + 1)).Get()
-										);
+		// apply damping factor
+		CDouble local_selectivity = 1 / *(*join_conds_scale_factors)[ul];
+		// selectivity * local^(1/num_cols^(ul*2))
+		// this is basically selectivity * nroot(local_selectivity), where n is 2^ul
+		CDouble nth_root = 1;
+		if (ul > 0)
+		{
+				nth_root = 2<<(ul-1);
+		}
+		selectivity = selectivity * local_selectivity.Pow(CDouble(1)/nth_root);
 	}
 
-	return scale_factor;
+	return CDouble(1)/selectivity;
 }
 
 
