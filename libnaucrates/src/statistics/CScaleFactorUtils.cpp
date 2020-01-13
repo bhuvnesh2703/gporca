@@ -44,10 +44,12 @@ const CDouble CScaleFactorUtils::InvalidScaleFactor(0.0);
 //
 //---------------------------------------------------------------------------
 CDouble
-CScaleFactorUtils::CumulativeJoinScaleFactor
+CScaleFactorUtils::
+CumulativeJoinScaleFactor
 	(
+	CMemoryPool *mp,
 	const CStatisticsConfig *stats_config,
-	CDoubleArray *join_conds_scale_factors
+	SJoinConditionArray *join_conds_scale_factors
 	)
 {
 	GPOS_ASSERT(NULL != stats_config);
@@ -57,23 +59,96 @@ CScaleFactorUtils::CumulativeJoinScaleFactor
 	if (1 < num_join_conds)
 	{
 		// sort (in desc order) the scaling factor of the join conditions
-		join_conds_scale_factors->Sort(CScaleFactorUtils::DescendingOrderCmpFunc);
+		join_conds_scale_factors->Sort(CScaleFactorUtils::DescendingOrderCmpJoinFunc);
 	}
 
-	CDouble scale_factor(1.0);
-	// iterate over joins
-	for (ULONG ul = 0; ul < num_join_conds; ul++)
+	// We have two methods to calculate the cumulative scale factor:
+	// 1. When optimizer_damping_factor_join is greater than 0, use the legacy damping method
+	//    Note: The default value (.01) severly overestimates cardinalities for non-correlated columns
+	//
+	// 2. Otherwise, use a damping method to moderately decrease the impact of subsequent predicates to account for correlated columns
+	//    For example, given ANDed predicates with selectivities [.5, .3, .1], the cumulative selectivity would be
+	//      S = S1 * sqrt(S2) * 4root(S3)
+	//    .15 = .5 * sqrt(.3) * 4root(.1)
+	//    For scale factors, this is equivalent to SF1 * sqrt(SF2) * 4root(SF3)
+	//    Note: This will underestimate the cardinality of highly correlated columns and overestimate the
+	//    cardinality of highly independent columns, but seems to be a good middle ground in the absence
+	//    of correlated column statistics
+	CDouble cumulative_scale_factor(1.0);
+	if (false)//stats_config->DDampingFactorJoin() > 0)
 	{
-		CDouble local_scale_factor = *(*join_conds_scale_factors)[ul];
+		for (ULONG ul = 0; ul < num_join_conds; ul++)
+		{
+			CDouble local_scale_factor = (*(*join_conds_scale_factors)[ul]).m_scale_factor;
+			cumulative_scale_factor = cumulative_scale_factor * std::max(CStatistics::MinRows.Get(),
+										(local_scale_factor * DampedJoinScaleFactor(stats_config, ul + 1)).Get());
+		}
+	}
+	else
+	{
+		CScaleFactorUtils::OIDPairToScaleFactorArrayMap *scale_factor_hashmap = GPOS_NEW(mp) OIDPairToScaleFactorArrayMap(mp, 7);
+		// save the join preds that are not simple equalities in a different array
+		CDoubleArray *unsupported_join_preds = GPOS_NEW(mp) CDoubleArray(mp);
 
-		scale_factor = scale_factor * std::max
-										(
-										CStatistics::MinRows.Get(),
-										(local_scale_factor * DampedJoinScaleFactor(stats_config, ul + 1)).Get()
-										);
+		// iterate over joins to find predicates on same tables
+		for (ULONG ul = 0; ul < num_join_conds; ul++)
+		{
+			CDouble local_scale_factor = (*(*join_conds_scale_factors)[ul]).m_scale_factor;
+			IMdIdArray *oid_pair = (*(*join_conds_scale_factors)[ul]).m_oid_pair;
+
+			if (oid_pair != NULL && oid_pair->Size() == 2)
+			{
+				CDoubleArray *oid_pair_array = scale_factor_hashmap->Find(oid_pair);
+				if (oid_pair_array)
+				{
+					// append to the existing array
+					oid_pair_array->Append(GPOS_NEW(mp) CDouble(local_scale_factor));
+				}
+				else
+				{
+					//instantiate the array
+					oid_pair_array = GPOS_NEW(mp) CDoubleArray(mp);
+					oid_pair_array->Append(GPOS_NEW(mp) CDouble(local_scale_factor));
+					scale_factor_hashmap->Insert(oid_pair, oid_pair_array);
+				}
+			}
+			else
+			{
+				unsupported_join_preds->Append(GPOS_NEW(mp) CDouble(local_scale_factor));
+			}
+		}
+
+		// calculate damping using new sqrt algorithm
+		CScaleFactorUtils::OIDPairToScaleFactorArrayMapIter iter(scale_factor_hashmap);
+		while (iter.Advance())
+		{
+			const CDoubleArray *oid_pair_array = iter.Value();
+
+			// damp the join preds if they are on the same table
+			for (ULONG ul = 0; ul < oid_pair_array->Size(); ul++)
+			{
+				CDouble local_scale_factor =  *(*oid_pair_array)[ul];
+				CDouble nth_root = 1;
+				if (ul > 0)
+				{
+					nth_root = 2<<(ul-1);
+				}
+				cumulative_scale_factor = cumulative_scale_factor * local_scale_factor.Pow(CDouble(1)/nth_root);
+			}
+		}
+
+		// assume independence if the preds are unsupported
+		for (ULONG ul = 0; ul < unsupported_join_preds->Size(); ul++)
+		{
+			CDouble local_scale_factor =  *(*unsupported_join_preds)[ul];
+			cumulative_scale_factor = cumulative_scale_factor * local_scale_factor;
+		}
+
+		unsupported_join_preds->Release();
+		scale_factor_hashmap->Release();
 	}
 
-	return scale_factor;
+	return cumulative_scale_factor;
 }
 
 
@@ -206,6 +281,28 @@ CScaleFactorUtils::DescendingOrderCmpFunc
 	const CDouble *double_val2 = *(const CDouble **) val2;
 
 	return DoubleCmpFunc(double_val1, double_val2, true /*is_descending*/);
+}
+
+//---------------------------------------------------------------------------
+//	@function:
+//		CScaleFactorUtils::DescendingOrderCmpJoinFunc
+//
+//	@doc:
+//		Comparison function for sorting SJoinCondition
+//
+//---------------------------------------------------------------------------
+INT
+CScaleFactorUtils::DescendingOrderCmpJoinFunc
+(
+ const void *val1,
+ const void *val2
+ )
+{
+	GPOS_ASSERT(NULL != val1 && NULL != val2);
+	const CDouble double_val1 = (*(const SJoinCondition **) val1)->m_scale_factor;
+	const CDouble double_val2 = (*(const SJoinCondition **) val2)->m_scale_factor;
+
+	return DoubleCmpFunc(&double_val1, &double_val2, true /*is_descending*/);
 }
 
 

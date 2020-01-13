@@ -72,6 +72,9 @@ namespace gpopt
 			// name: SQL alias or artificial name
 			const CName *m_pname;
 
+			// table info
+			IMDId *m_mdid_table;
+
 			// private copy ctor
 			CColRef(const CColRef &);
 
@@ -216,6 +219,16 @@ namespace gpopt
 				}
 
 				return m_used;
+			}
+
+			IMDId* GetMdidTable()
+			{
+				return m_mdid_table;
+			};
+
+			void SetMdidTable(IMDId * mdid_table)
+			{
+				m_mdid_table = mdid_table;
 			}
 
 #ifdef GPOS_DEBUG
