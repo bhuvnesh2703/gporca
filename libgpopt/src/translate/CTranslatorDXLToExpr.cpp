@@ -620,6 +620,7 @@ CTranslatorDXLToExpr::PexprLogicalGet
 	for(ULONG ul = 0; ul < ulColumns ; ul++)
 	{
 		CColRef *colref = (*colref_array)[ul];
+		colref->SetMdidTable(ptabdesc->MDId());
 		const CDXLColDescr *pdxlcd = table_descr->GetColumnDescrAt(ul);
 		GPOS_ASSERT(NULL != colref);
 		GPOS_ASSERT(NULL != pdxlcd && !pdxlcd-> IsDropped());
