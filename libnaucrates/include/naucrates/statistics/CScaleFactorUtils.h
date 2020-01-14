@@ -15,6 +15,7 @@
 #include "gpopt/engine/CStatisticsConfig.h"
 
 #include "naucrates/statistics/CHistogram.h"
+#include "naucrates/statistics/CStatisticsUtils.h"
 
 namespace gpnaucrates
 {
@@ -32,9 +33,65 @@ namespace gpnaucrates
 	{
 		public:
 
+			struct SOIDPair
+			{
+				// mdid of the outer table
+				IMDId *m_mdid_outer;
+
+				// mdid of the inner table
+				IMDId *m_mdid_inner;
+
+				//ctor
+				SOIDPair
+				(
+				 IMDId *mdid_outer,
+				 IMDId *mdid_inner
+				)
+				:
+				m_mdid_outer(mdid_outer),
+				m_mdid_inner(mdid_inner)
+				{}
+
+				// hash map requirements
+				static
+				ULONG HashValue(const SOIDPair *oid_pair)
+				{
+					return CombineHashes(oid_pair->m_mdid_outer->HashValue(),oid_pair->m_mdid_inner->HashValue());
+				}
+				static
+				BOOL Equals(const SOIDPair *first,
+							const SOIDPair *second)
+				{ return (first->m_mdid_outer == second->m_mdid_outer) && (first->m_mdid_inner == second->m_mdid_inner); }
+			};
+
+			struct SJoinCondition
+			{
+				// scale factor
+				CDouble m_scale_factor;
+
+				// mdid pair for the predicate
+				SOIDPair m_oid_pair;
+
+				//ctor
+				SJoinCondition
+				(
+				 CDouble scale_factor,
+				 IMDId *mdid_outer,
+				 IMDId *mdid_inner
+				 )
+				:
+				m_scale_factor(scale_factor),
+				m_oid_pair(SOIDPair(mdid_outer, mdid_inner))
+				{}
+			};
+
+			typedef CDynamicPtrArray<SJoinCondition, CleanupDelete> SJoinConditionArray;
+
+			typedef CHashMap<SOIDPair, CDoubleArray, SOIDPair::HashValue, SOIDPair::Equals, CleanupDelete<SOIDPair>, CleanupRelease<CDoubleArray> > OIDPairToScaleFactorArrayMap;
+		
 			// calculate the cumulative join scaling factor
 			static
-			CDouble CumulativeJoinScaleFactor(const CStatisticsConfig *stats_config, CDoubleArray *join_conds_scale_factors);
+			CDouble CumulativeJoinScaleFactor(CMemoryPool *mp, const CStatisticsConfig *stats_config, SJoinConditionArray *join_conds_scale_factors);
 
 			// return scaling factor of the join predicate after apply damping
 			static
@@ -63,6 +120,9 @@ namespace gpnaucrates
 			// comparison function in descending order
 			static
 			INT DescendingOrderCmpFunc(const void *val1, const void *val2);
+
+			static
+			INT DescendingOrderCmpJoinFunc(const void *val1, const void *val2);
 
 			// comparison function in ascending order
 			static

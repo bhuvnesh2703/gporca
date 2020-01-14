@@ -44,10 +44,12 @@ const CDouble CScaleFactorUtils::InvalidScaleFactor(0.0);
 //
 //---------------------------------------------------------------------------
 CDouble
-CScaleFactorUtils::CumulativeJoinScaleFactor
+CScaleFactorUtils::
+CumulativeJoinScaleFactor
 	(
+	CMemoryPool *mp,
 	const CStatisticsConfig *stats_config,
-	CDoubleArray *join_conds_scale_factors
+	SJoinConditionArray *join_conds_scale_factors
 	)
 {
 	GPOS_ASSERT(NULL != stats_config);
@@ -60,19 +62,38 @@ CScaleFactorUtils::CumulativeJoinScaleFactor
 		join_conds_scale_factors->Sort(CScaleFactorUtils::DescendingOrderCmpFunc);
 	}
 
-	CDouble scale_factor(1.0);
-	// iterate over joins
+	CScaleFactorUtils::OIDPairToScaleFactorArrayMap *scale_factor_hashmap = GPOS_NEW(mp) OIDPairToScaleFactorArrayMap(mp);
+
+	// iterate over joins to find predicates on same tables
 	for (ULONG ul = 0; ul < num_join_conds; ul++)
 	{
-		CDouble local_scale_factor = *(*join_conds_scale_factors)[ul];
+		CDouble local_scale_factor = (*(*join_conds_scale_factors)[ul]).m_scale_factor;
+		SOIDPair oid_pair = (*(*join_conds_scale_factors)[ul]).m_oid_pair;
 
-		scale_factor = scale_factor * std::max
-										(
-										CStatistics::MinRows.Get(),
-										(local_scale_factor * DampedJoinScaleFactor(stats_config, ul + 1)).Get()
-										);
+		CDoubleArray *oid_pair_array = scale_factor_hashmap->Find(&oid_pair);
+		if (oid_pair_array)
+		{
+			// append to the existing array
+			oid_pair_array->Append(&local_scale_factor);
+		}
+		else
+		{
+			//instantiate the array
+			oid_pair_array = GPOS_NEW(mp) CDoubleArray(mp);
+			oid_pair_array->Append(&local_scale_factor);
+			scale_factor_hashmap->Insert(&oid_pair, oid_pair_array);
+		}
+
 	}
 
+	CDouble scale_factor(1.0);
+
+	// calculate damping
+//	scale_factor = scale_factor * std::max
+//	(
+//	 CStatistics::MinRows.Get(),
+//	 (local_scale_factor * DampedJoinScaleFactor(stats_config, ul + 1)).Get()
+//	 );
 	return scale_factor;
 }
 
@@ -206,6 +227,28 @@ CScaleFactorUtils::DescendingOrderCmpFunc
 	const CDouble *double_val2 = *(const CDouble **) val2;
 
 	return DoubleCmpFunc(double_val1, double_val2, true /*is_descending*/);
+}
+
+//---------------------------------------------------------------------------
+//	@function:
+//		CScaleFactorUtils::DescendingOrderCmpJoinFunc
+//
+//	@doc:
+//		Comparison function for sorting SJoinCondition
+//
+//---------------------------------------------------------------------------
+INT
+CScaleFactorUtils::DescendingOrderCmpJoinFunc
+(
+ const void *val1,
+ const void *val2
+ )
+{
+	GPOS_ASSERT(NULL != val1 && NULL != val2);
+	const CDouble double_val1 = (*(const SJoinCondition **) val1)->m_scale_factor;
+	const CDouble double_val2 = (*(const SJoinCondition **) val2)->m_scale_factor;
+
+	return DoubleCmpFunc(&double_val1, &double_val2, true /*is_descending*/);
 }
 
 
