@@ -99,13 +99,13 @@ CumulativeJoinScaleFactor
 			if (oid_pair_array)
 			{
 				// append to the existing array
-				oid_pair_array->Append(&local_scale_factor);
+				oid_pair_array->Append(GPOS_NEW(mp) CDouble(local_scale_factor));
 			}
 			else
 			{
 				//instantiate the array
 				oid_pair_array = GPOS_NEW(mp) CDoubleArray(mp);
-				oid_pair_array->Append(&local_scale_factor);
+				oid_pair_array->Append(GPOS_NEW(mp) CDouble(local_scale_factor));
 				scale_factor_hashmap->Insert(&oid_pair, oid_pair_array);
 			}
 
