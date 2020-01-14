@@ -88,6 +88,8 @@ namespace gpnaucrates
 			typedef CDynamicPtrArray<SJoinCondition, CleanupDelete> SJoinConditionArray;
 
 			typedef CHashMap<SOIDPair, CDoubleArray, SOIDPair::HashValue, SOIDPair::Equals, CleanupDelete<SOIDPair>, CleanupRelease<CDoubleArray> > OIDPairToScaleFactorArrayMap;
+
+			typedef CHashMapIter<SOIDPair, CDoubleArray, SOIDPair::HashValue, SOIDPair::Equals, CleanupDelete<SOIDPair>, CleanupRelease<CDoubleArray> > OIDPairToScaleFactorArrayMapIter;
 		
 			// calculate the cumulative join scaling factor
 			static
