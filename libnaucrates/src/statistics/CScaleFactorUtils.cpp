@@ -94,14 +94,11 @@ CumulativeJoinScaleFactor
 		for (ULONG ul = 0; ul < num_join_conds; ul++)
 		{
 			CDouble local_scale_factor = (*(*join_conds_scale_factors)[ul]).m_scale_factor;
-			SOIDPair oid_pair = (*(*join_conds_scale_factors)[ul]).m_oid_pair;
+			IMdIdArray *oid_pair = (*(*join_conds_scale_factors)[ul]).m_oid_pair;
 
-			if (IMDId::IsValid(oid_pair.m_mdid_outer) && IMDId::IsValid(oid_pair.m_mdid_inner))
+			if (oid_pair->Size() == 2)
 			{
-				oid_pair.m_mdid_outer->AddRef();
-				oid_pair.m_mdid_inner->AddRef();
-				
-				CDoubleArray *oid_pair_array = scale_factor_hashmap->Find(&oid_pair);
+				CDoubleArray *oid_pair_array = scale_factor_hashmap->Find(oid_pair);
 				if (oid_pair_array)
 				{
 					// append to the existing array
@@ -112,7 +109,7 @@ CumulativeJoinScaleFactor
 					//instantiate the array
 					oid_pair_array = GPOS_NEW(mp) CDoubleArray(mp);
 					oid_pair_array->Append(GPOS_NEW(mp) CDouble(local_scale_factor));
-					//scale_factor_hashmap->Insert(&oid_pair, oid_pair_array);
+					scale_factor_hashmap->Insert(oid_pair, oid_pair_array);
 				}
 			}
 			else

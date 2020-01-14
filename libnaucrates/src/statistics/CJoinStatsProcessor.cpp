@@ -227,7 +227,7 @@ CJoinStatsProcessor::SetResultingJoinStats
 		CStatisticsConfig *stats_config,
 		const IStatistics *outer_stats_input,
 		const IStatistics *inner_stats_input,
-										   CStatsPredJoinArray *join_pred_stats_info,
+		CStatsPredJoinArray *join_pred_stats_info,
 		IStatistics::EStatsJoinType join_type,
 		BOOL DoIgnoreLASJHistComputation
 		)
@@ -344,8 +344,20 @@ CJoinStatsProcessor::SetResultingJoinStats
 
 		IMDId *mdid_outer = colref_outer->GetMdidTable();
 		IMDId *mdid_inner = colref_inner->GetMdidTable();
+		IMdIdArray *mdid_pair = GPOS_NEW(mp) IMdIdArray(mp);
 
-		join_conds_scale_factors->Append(GPOS_NEW(mp) CScaleFactorUtils::SJoinCondition(local_scale_factor, mdid_outer, mdid_inner));
+		if (IMDId::IsValid(mdid_outer) && IMDId::IsValid(mdid_inner))
+		{
+			mdid_outer->AddRef();
+			mdid_inner->AddRef();
+			mdid_pair->Append(mdid_outer);
+			mdid_pair->Append(mdid_inner);
+			mdid_pair->Sort();
+		}
+
+		join_conds_scale_factors->Append(GPOS_NEW(mp) CScaleFactorUtils::SJoinCondition(local_scale_factor, mdid_pair));
+
+		mdid_pair->Release();
 	}
 
 

@@ -33,63 +33,42 @@ namespace gpnaucrates
 	{
 		public:
 
-		struct SOIDPair
-			{
-				// mdid of the outer table
-				IMDId *m_mdid_outer;
-
-				// mdid of the inner table
-				IMDId *m_mdid_inner;
-
-				//ctor
-				SOIDPair
-				(
-				 IMDId *mdid_outer,
-				 IMDId *mdid_inner
-				)
-				:
-				m_mdid_outer(mdid_outer),
-				m_mdid_inner(mdid_inner)
-				{}
-
-				// hash map requirements
-				static
-				ULONG HashValue(const SOIDPair *oid_pair)
-				{
-					return CombineHashes(oid_pair->m_mdid_outer->HashValue(),oid_pair->m_mdid_inner->HashValue());
-				}
-				static
-				BOOL Equals(const SOIDPair *first,
-							const SOIDPair *second)
-				{ return (first->m_mdid_outer == second->m_mdid_outer) && (first->m_mdid_inner == second->m_mdid_inner); }
-			};
-
 			struct SJoinCondition
 			{
 				// scale factor
 				CDouble m_scale_factor;
 
 				// mdid pair for the predicate
-				SOIDPair m_oid_pair;
+				IMdIdArray *m_oid_pair;
 
 				//ctor
 				SJoinCondition
 				(
 				 CDouble scale_factor,
-				 IMDId *mdid_outer,
-				 IMDId *mdid_inner
+				 IMdIdArray *mdid_pair
 				 )
 				:
 				m_scale_factor(scale_factor),
-				m_oid_pair(SOIDPair(mdid_outer, mdid_inner))
+				m_oid_pair(mdid_pair)
 				{}
+
+				// hash map requirements
+				static
+				ULONG HashValue(const IMdIdArray *oid_pair)
+				{
+					return CombineHashes((*oid_pair)[0]->HashValue(),(*oid_pair)[1]->HashValue());
+				}
+				static
+				BOOL Equals(const IMdIdArray *first,
+							const IMdIdArray *second)
+				{ return ((*first)[0] == (*second)[0]) && ((*first)[1] == (*second)[1]); }
 			};
 
 			typedef CDynamicPtrArray<SJoinCondition, CleanupDelete> SJoinConditionArray;
 
-			typedef CHashMap<SOIDPair, CDoubleArray, SOIDPair::HashValue, SOIDPair::Equals, CleanupDelete<SOIDPair>, CleanupRelease<CDoubleArray> > OIDPairToScaleFactorArrayMap;
+			typedef CHashMap<IMdIdArray, CDoubleArray, SJoinCondition::HashValue, SJoinCondition::Equals, CleanupRelease<IMdIdArray>, CleanupRelease<CDoubleArray> > OIDPairToScaleFactorArrayMap;
 
-			typedef CHashMapIter<SOIDPair, CDoubleArray, SOIDPair::HashValue, SOIDPair::Equals, CleanupDelete<SOIDPair>, CleanupRelease<CDoubleArray> > OIDPairToScaleFactorArrayMapIter;
+			typedef CHashMapIter<IMdIdArray, CDoubleArray, SJoinCondition::HashValue, SJoinCondition::Equals, CleanupRelease<IMdIdArray>, CleanupRelease<CDoubleArray> > OIDPairToScaleFactorArrayMapIter;
 		
 			// calculate the cumulative join scaling factor
 			static
