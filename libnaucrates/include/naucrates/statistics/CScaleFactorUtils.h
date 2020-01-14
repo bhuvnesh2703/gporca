@@ -33,7 +33,7 @@ namespace gpnaucrates
 	{
 		public:
 
-			struct SOIDPair
+		struct SOIDPair
 			{
 				// mdid of the outer table
 				IMDId *m_mdid_outer;

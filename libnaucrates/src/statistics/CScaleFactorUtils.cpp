@@ -75,8 +75,7 @@ CumulativeJoinScaleFactor
 	//    cardinality of highly independent columns, but seems to be a good middle ground in the absence
 	//    of correlated column statistics
 	CDouble cumulative_scale_factor(1.0);
-
-	if (stats_config->DDampingFactorJoin() > 0)
+	if (false)//stats_config->DDampingFactorJoin() > 0)
 	{
 		for (ULONG ul = 0; ul < num_join_conds; ul++)
 		{
@@ -88,6 +87,8 @@ CumulativeJoinScaleFactor
 	else
 	{
 		CScaleFactorUtils::OIDPairToScaleFactorArrayMap *scale_factor_hashmap = GPOS_NEW(mp) OIDPairToScaleFactorArrayMap(mp);
+		// save the join preds that are not simple equalities in a different array
+		CDoubleArray *unsupported_join_preds = GPOS_NEW(mp) CDoubleArray(mp);
 
 		// iterate over joins to find predicates on same tables
 		for (ULONG ul = 0; ul < num_join_conds; ul++)
@@ -95,20 +96,29 @@ CumulativeJoinScaleFactor
 			CDouble local_scale_factor = (*(*join_conds_scale_factors)[ul]).m_scale_factor;
 			SOIDPair oid_pair = (*(*join_conds_scale_factors)[ul]).m_oid_pair;
 
-			CDoubleArray *oid_pair_array = scale_factor_hashmap->Find(&oid_pair);
-			if (oid_pair_array)
+			if (IMDId::IsValid(oid_pair.m_mdid_outer) && IMDId::IsValid(oid_pair.m_mdid_inner))
 			{
-				// append to the existing array
-				oid_pair_array->Append(GPOS_NEW(mp) CDouble(local_scale_factor));
+				oid_pair.m_mdid_outer->AddRef();
+				oid_pair.m_mdid_inner->AddRef();
+				
+				CDoubleArray *oid_pair_array = scale_factor_hashmap->Find(&oid_pair);
+				if (oid_pair_array)
+				{
+					// append to the existing array
+					oid_pair_array->Append(GPOS_NEW(mp) CDouble(local_scale_factor));
+				}
+				else
+				{
+					//instantiate the array
+					oid_pair_array = GPOS_NEW(mp) CDoubleArray(mp);
+					oid_pair_array->Append(GPOS_NEW(mp) CDouble(local_scale_factor));
+					//scale_factor_hashmap->Insert(&oid_pair, oid_pair_array);
+				}
 			}
 			else
 			{
-				//instantiate the array
-				oid_pair_array = GPOS_NEW(mp) CDoubleArray(mp);
-				oid_pair_array->Append(GPOS_NEW(mp) CDouble(local_scale_factor));
-				scale_factor_hashmap->Insert(&oid_pair, oid_pair_array);
+				unsupported_join_preds->Append(GPOS_NEW(mp) CDouble(local_scale_factor));
 			}
-
 		}
 
 		// calculate damping using new sqrt algorithm
@@ -117,6 +127,7 @@ CumulativeJoinScaleFactor
 		{
 			const CDoubleArray *oid_pair_array = iter.Value();
 
+			// damp the join preds if they are on the same table
 			for (ULONG ul = 0; ul < oid_pair_array->Size(); ul++)
 			{
 				CDouble local_scale_factor =  *(*oid_pair_array)[ul];
@@ -128,6 +139,16 @@ CumulativeJoinScaleFactor
 				cumulative_scale_factor = cumulative_scale_factor * local_scale_factor.Pow(CDouble(1)/nth_root);
 			}
 		}
+
+		// assume independence if the preds are unsupported
+		for (ULONG ul = 0; ul < unsupported_join_preds->Size(); ul++)
+		{
+			CDouble local_scale_factor =  *(*unsupported_join_preds)[ul];
+			cumulative_scale_factor = cumulative_scale_factor * local_scale_factor;
+		}
+
+		unsupported_join_preds->Release();
+		scale_factor_hashmap->Release();
 	}
 
 	return cumulative_scale_factor;
