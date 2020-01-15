@@ -86,7 +86,7 @@ CumulativeJoinScaleFactor
 	}
 	else
 	{
-		CScaleFactorUtils::OIDPairToScaleFactorArrayMap *scale_factor_hashmap = GPOS_NEW(mp) OIDPairToScaleFactorArrayMap(mp);
+		CScaleFactorUtils::OIDPairToScaleFactorArrayMap *scale_factor_hashmap = GPOS_NEW(mp) OIDPairToScaleFactorArrayMap(mp, 7);
 		// save the join preds that are not simple equalities in a different array
 		CDoubleArray *unsupported_join_preds = GPOS_NEW(mp) CDoubleArray(mp);
 
