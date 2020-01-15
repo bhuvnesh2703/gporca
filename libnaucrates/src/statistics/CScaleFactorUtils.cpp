@@ -96,7 +96,7 @@ CumulativeJoinScaleFactor
 			CDouble local_scale_factor = (*(*join_conds_scale_factors)[ul]).m_scale_factor;
 			IMdIdArray *oid_pair = (*(*join_conds_scale_factors)[ul]).m_oid_pair;
 
-			if (oid_pair->Size() == 2)
+			if (oid_pair != NULL && oid_pair->Size() == 2)
 			{
 				CDoubleArray *oid_pair_array = scale_factor_hashmap->Find(oid_pair);
 				if (oid_pair_array)

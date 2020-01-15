@@ -344,20 +344,19 @@ CJoinStatsProcessor::SetResultingJoinStats
 
 		IMDId *mdid_outer = colref_outer->GetMdidTable();
 		IMDId *mdid_inner = colref_inner->GetMdidTable();
-		IMdIdArray *mdid_pair = GPOS_NEW(mp) IMdIdArray(mp);
-
+		IMdIdArray *mdid_pair = NULL;
 		if (IMDId::IsValid(mdid_outer) && IMDId::IsValid(mdid_inner))
 		{
+			mdid_pair = GPOS_NEW(mp) IMdIdArray(mp);
 			mdid_outer->AddRef();
 			mdid_inner->AddRef();
 			mdid_pair->Append(mdid_outer);
 			mdid_pair->Append(mdid_inner);
 			mdid_pair->Sort();
+			mdid_pair->AddRef();
 		}
 
 		join_conds_scale_factors->Append(GPOS_NEW(mp) CScaleFactorUtils::SJoinCondition(local_scale_factor, mdid_pair));
-
-		mdid_pair->Release();
 	}
 
 
