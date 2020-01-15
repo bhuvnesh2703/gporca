@@ -336,7 +336,6 @@ CJoinStatsProcessor::SetResultingJoinStats
 		GPOS_DELETE(outer_histogram_after);
 		GPOS_DELETE(inner_histogram_after);
 
-
 		CColumnFactory *col_factory = COptCtxt::PoctxtFromTLS()->Pcf();
 
 		CColRef *colref_outer = col_factory->LookupColRef(colid1);
@@ -353,7 +352,6 @@ CJoinStatsProcessor::SetResultingJoinStats
 			mdid_pair->Append(mdid_outer);
 			mdid_pair->Append(mdid_inner);
 			mdid_pair->Sort();
-			mdid_pair->AddRef();
 		}
 
 		join_conds_scale_factors->Append(GPOS_NEW(mp) CScaleFactorUtils::SJoinCondition(local_scale_factor, mdid_pair));

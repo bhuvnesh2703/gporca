@@ -52,6 +52,11 @@ namespace gpnaucrates
 				m_oid_pair(mdid_pair)
 				{}
 
+				~SJoinCondition()
+				{
+					CRefCount::SafeRelease(m_oid_pair);
+				}
+
 				// hash map requirements
 				static
 				ULONG HashValue(const IMdIdArray *oid_pair)
@@ -66,9 +71,9 @@ namespace gpnaucrates
 
 			typedef CDynamicPtrArray<SJoinCondition, CleanupDelete> SJoinConditionArray;
 
-			typedef CHashMap<IMdIdArray, CDoubleArray, SJoinCondition::HashValue, SJoinCondition::Equals, CleanupRelease<IMdIdArray>, CleanupRelease<CDoubleArray> > OIDPairToScaleFactorArrayMap;
+			typedef CHashMap<IMdIdArray, CDoubleArray, SJoinCondition::HashValue, SJoinCondition::Equals, CleanupNULL<IMdIdArray>, CleanupRelease<CDoubleArray> > OIDPairToScaleFactorArrayMap;
 
-			typedef CHashMapIter<IMdIdArray, CDoubleArray, SJoinCondition::HashValue, SJoinCondition::Equals, CleanupRelease<IMdIdArray>, CleanupRelease<CDoubleArray> > OIDPairToScaleFactorArrayMapIter;
+			typedef CHashMapIter<IMdIdArray, CDoubleArray, SJoinCondition::HashValue, SJoinCondition::Equals, CleanupNULL<IMdIdArray>, CleanupRelease<CDoubleArray> > OIDPairToScaleFactorArrayMapIter;
 		
 			// calculate the cumulative join scaling factor
 			static
