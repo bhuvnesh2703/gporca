@@ -74,7 +74,15 @@ namespace gpnaucrates
 			typedef CHashMap<IMdIdArray, CDoubleArray, SJoinCondition::HashValue, SJoinCondition::Equals, CleanupNULL<IMdIdArray>, CleanupRelease<CDoubleArray> > OIDPairToScaleFactorArrayMap;
 
 			typedef CHashMapIter<IMdIdArray, CDoubleArray, SJoinCondition::HashValue, SJoinCondition::Equals, CleanupNULL<IMdIdArray>, CleanupRelease<CDoubleArray> > OIDPairToScaleFactorArrayMapIter;
-		
+
+			// generate the hashmap of scale factors grouped by pred tables, also produces array of complex join preds
+			static
+			OIDPairToScaleFactorArrayMap* GenerateScaleFactorMap(CMemoryPool *mp, SJoinConditionArray *join_conds_scale_factors, CDoubleArray* complex_join_preds);
+
+			// generate a cumulative scale factor using a modified sqrt algorithm
+			static
+			CDouble CalcCumulativeScaleFactorSqrtAlg(OIDPairToScaleFactorArrayMap *scale_factor_hashmap, CDoubleArray* complex_join_preds);
+
 			// calculate the cumulative join scaling factor
 			static
 			CDouble CumulativeJoinScaleFactor(CMemoryPool *mp, const CStatisticsConfig *stats_config, SJoinConditionArray *join_conds_scale_factors);
@@ -107,6 +115,7 @@ namespace gpnaucrates
 			static
 			INT DescendingOrderCmpFunc(const void *val1, const void *val2);
 
+			// comparison function for joins in descending order
 			static
 			INT DescendingOrderCmpJoinFunc(const void *val1, const void *val2);
 
