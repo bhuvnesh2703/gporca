@@ -341,6 +341,9 @@ CJoinStatsProcessor::SetResultingJoinStats
 		CColRef *colref_outer = col_factory->LookupColRef(colid1);
 		CColRef *colref_inner = col_factory->LookupColRef(colid2);
 
+		GPOS_ASSERT(colref_outer != NULL);
+		GPOS_ASSERT(colref_inner != NULL);
+
 		IMDId *mdid_outer = colref_outer->GetMdidTable();
 		IMDId *mdid_inner = colref_inner->GetMdidTable();
 		IMdIdArray *mdid_pair = NULL;
