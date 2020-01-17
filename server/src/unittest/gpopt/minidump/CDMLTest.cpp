@@ -83,7 +83,6 @@ const CHAR *rgszDMLFileNames[] =
 	"../data/dxl/minidump/UpdateZeroRows.mdp",
 	"../data/dxl/minidump/InsertNoEnforceConstraints.mdp",
 	"../data/dxl/minidump/UpdateNoEnforceConstraints.mdp",
-	"../data/dxl/minidump/Insert-With-HJ-CTE-Agg.mdp",
 	"../data/dxl/minidump/CTAS-with-Limit.mdp",
 	"../data/dxl/minidump/CTAS-With-Global-Local-Agg.mdp",
 	"../data/dxl/minidump/Delete-With-Limit-In-Subquery.mdp",

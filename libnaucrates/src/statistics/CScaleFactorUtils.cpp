@@ -195,7 +195,7 @@ CumulativeJoinScaleFactor
 	//    cardinality of highly independent columns, but seems to be a good middle ground in the absence
 	//    of correlated column statistics
 	CDouble cumulative_scale_factor(1.0);
-	if (stats_config->DDampingFactorJoin() > 0)
+	if (false)//->DDampingFactorJoin() > 0)
 	{
 		for (ULONG ul = 0; ul < num_join_conds; ul++)
 		{
